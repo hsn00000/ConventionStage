@@ -110,7 +110,7 @@ class Contract
         return $this;
     }
 
-    public function isTransportFreeTaken(): ?bool
+    public function getTransportFreeTaken(): ?bool
     {
         return $this->transportFreeTaken;
     }
@@ -122,7 +122,7 @@ class Contract
         return $this;
     }
 
-    public function isLunchTaken(): ?bool
+    public function getLunchTaken(): ?bool
     {
         return $this->lunchTaken;
     }
@@ -134,7 +134,7 @@ class Contract
         return $this;
     }
 
-    public function isHostTaken(): ?bool
+    public function getHostTaken(): ?bool
     {
         return $this->hostTaken;
     }
@@ -146,7 +146,7 @@ class Contract
         return $this;
     }
 
-    public function isBonus(): ?bool
+    public function getBonus(): ?bool
     {
         return $this->bonus;
     }
