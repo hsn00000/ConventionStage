@@ -6,6 +6,7 @@ use App\Repository\StudentRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: StudentRepository::class)]
 class Student extends User
@@ -14,11 +15,13 @@ class Student extends User
     private ?string $personalEmail = null;
 
     #[ORM\ManyToOne(inversedBy: 'students')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)] // <--- 2. Autorise le vide en DB (pour que les profs existent)
+    #[Assert\NotNull(message: "Un étudiant doit obligatoirement avoir un niveau.")] // <--- 3. INTERDIT le vide dans l'appli
     private ?Level $level = null;
 
     #[ORM\ManyToOne(inversedBy: 'studentsReferred')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)] // 1. Indispensable pour que la base accepte les autres types d'utilisateurs
+    #[Assert\NotNull(message: "L'étudiant doit avoir un professeur référent.")] // 2. Sécurité pour l'application
     private ?Professor $prof_referent = null;
 
     /**
