@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contract{% endblock %}
+
+{% block body %}
+    <h1>Contract</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ contract.id }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>{{ contract.status }}</td>
+            </tr>
+            <tr>
+                <th>Deplacement</th>
+                <td>{{ contract.deplacement ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>TransportFreeTaken</th>
+                <td>{{ contract.transportFreeTaken ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>LunchTaken</th>
+                <td>{{ contract.lunchTaken ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>HostTaken</th>
+                <td>{{ contract.hostTaken ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Bonus</th>
+                <td>{{ contract.bonus ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>WorkHours</th>
+                <td>{{ contract.workHours }}</td>
+            </tr>
+            <tr>
+                <th>PlannedActivities</th>
+                <td>{{ contract.plannedActivities }}</td>
+            </tr>
+            <tr>
+                <th>SharingToken</th>
+                <td>{{ contract.sharingToken }}</td>
+            </tr>
+            <tr>
+                <th>TokenExpDate</th>
+                <td>{{ contract.tokenExpDate ? contract.tokenExpDate|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>PdfUnsigned</th>
+                <td>{{ contract.pdfUnsigned }}</td>
+            </tr>
+            <tr>
+                <th>PdfSigned</th>
+                <td>{{ contract.pdfSigned }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_contract_index') }}">back to list</a>
+
+    <a href="{{ path('app_contract_edit', {'id': contract.id}) }}">edit</a>
+
+    {{ include('contract/_delete_form.html.twig') }}
+{% endblock %}

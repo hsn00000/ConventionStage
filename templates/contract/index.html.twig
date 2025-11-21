@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contract index{% endblock %}
+
+{% block body %}
+    <h1>Contract index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Status</th>
+                <th>Deplacement</th>
+                <th>TransportFreeTaken</th>
+                <th>LunchTaken</th>
+                <th>HostTaken</th>
+                <th>Bonus</th>
+                <th>WorkHours</th>
+                <th>PlannedActivities</th>
+                <th>SharingToken</th>
+                <th>TokenExpDate</th>
+                <th>PdfUnsigned</th>
+                <th>PdfSigned</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for contract in contracts %}
+            <tr>
+                <td>{{ contract.id }}</td>
+                <td>{{ contract.status }}</td>
+                <td>{{ contract.deplacement ? 'Yes' : 'No' }}</td>
+                <td>{{ contract.transportFreeTaken ? 'Yes' : 'No' }}</td>
+                <td>{{ contract.lunchTaken ? 'Yes' : 'No' }}</td>
+                <td>{{ contract.hostTaken ? 'Yes' : 'No' }}</td>
+                <td>{{ contract.bonus ? 'Yes' : 'No' }}</td>
+                <td>{{ contract.workHours }}</td>
+                <td>{{ contract.plannedActivities }}</td>
+                <td>{{ contract.sharingToken }}</td>
+                <td>{{ contract.tokenExpDate ? contract.tokenExpDate|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ contract.pdfUnsigned }}</td>
+                <td>{{ contract.pdfSigned }}</td>
+                <td>
+                    <a href="{{ path('app_contract_show', {'id': contract.id}) }}">show</a>
+                    <a href="{{ path('app_contract_edit', {'id': contract.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="14">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_contract_new') }}">Create new</a>
+{% endblock %}
