@@ -32,7 +32,9 @@ class Student extends User
 
     public function __construct()
     {
+        parent::__construct();
         $this->contracts = new ArrayCollection();
+        $this->setRoles(['ROLE_STUDENT']);
     }
 
     public function getPersonalEmail(): ?string
