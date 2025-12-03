@@ -1,17 +1,48 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Conventio - Conventions de Stage{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
+    {% block javascripts %}
+        {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% endblock %}
+</head>
+<body>
+{% block body %}
+    <nav class="navbar">
+        <a href="#" class="navbar-brand">
+            <img src="{{ asset('img/Conventio.png') }}" alt="Logo de l'application" class="navbar-logo">
+        </a>
+        <ul class="navbar-nav">
+            {# BOUTON S'ENREGISTRER ÉTUDIANT #}
+            <li class="nav-item">
+                <a href="/register/student" class="nav-link register-btn">S'enregistrer (Étudiant)</a>
+            </li>
+
+            {# BOUTON S'ENREGISTRER PROFESSEUR #}
+            <li class="nav-item">
+                <a href="/register/professor" class="nav-link register-btn professor-btn">S'enregistrer (Professeur)</a>
+            </li>
+
+            {# BOUTON SE CONNECTER #}
+            <li class="nav-item">
+                <a href="/login" class="nav-link login-btn">Se connecter</a>
+            </li>
+        </ul>
+    </nav>
+
+    {# NOTE: Le contenu de l'ancienne page d'accueil est remplacé ici par le bloc content #}
+    {% block content %}
+        <div class="main-content">
+            <h1>Bienvenue sur la Page</h1>
+            <p>Ceci est le contenu principal.</p>
+            <div class="spacer" style="height: 120vh; background-color: #e9ecef;">
+                <p>Faites défiler pour voir la navbar fixe rester en place.</p>
+            </div>
+        </div>
+    {% endblock %}
+{% endblock %}
+</body>
 </html>
