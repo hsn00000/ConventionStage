@@ -9,10 +9,11 @@
 
             {# ----------------------------------------------------- #}
             {# COLONNE 1 : Le Formulaire d'Inscription (Gauche) #}
-            {# Ajout d'une bordure fine à droite pour séparer les blocs sur les grands écrans (border-end) #}
-            <div class="col-12 col-lg-6 d-flex flex-column justify-content-center p-4 p-md-5 border-end">
+            {# Modification : Suppression de 'justify-content-center' pour remonter le contenu, utilisation de 'p-5' pour le padding. #}
+            <div class="col-12 col-lg-6 d-flex flex-column p-5 border-end">
 
-                <h1 class="mb-4 text-center text-lg-start h3">Créer mon compte Étudiant</h1>
+                {# Modification : Centrage du titre et augmentation de la marge basse. #}
+                <h1 class="mb-5 text-center h3">Créer mon compte Étudiant</h1>
 
                 {# Affichage des erreurs globales #}
                 {{ form_errors(registrationForm) }}
@@ -94,7 +95,7 @@
             {# COLONNE 2 : L'Image/Illustration (Droite) #}
             {# Ajout d'une marge à gauche sur mobile (mt-3) pour séparer le formulaire et l'image #}
             <div class="col-12 col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-center p-5 text-white mt-3 mt-lg-0"
-                 style="background-color: #007bff; background-image: url('{{ asset('img/themeBlue.png') }}'); background-size: cover; background-position: center;">
+                 style="background-color: #007bff; background-image: url('{{ asset('img/themebleu.jpg') }}'); background-size: cover; background-position: center;">
 
             </div>
 
