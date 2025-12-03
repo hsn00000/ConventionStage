@@ -18,17 +18,20 @@
         <ul class="navbar-nav">
             {# BOUTON S'ENREGISTRER ÉTUDIANT #}
             <li class="nav-item">
-                <a href="/register/student" class="nav-link register-btn">S'enregistrer (Étudiant)</a>
+                <a href="{{ path('app_register_student') }}" class="nav-link register-btn">S'enregistrer (Étudiant)</a>
             </li>
 
             {# BOUTON S'ENREGISTRER PROFESSEUR #}
             <li class="nav-item">
-                <a href="/register/professor" class="nav-link register-btn professor-btn">S'enregistrer (Professeur)</a>
+                <a href="{{ path('app_register_professor') }}" class="nav-link register-btn professor-btn">S'enregistrer (Professeur)</a>
             </li>
 
             {# BOUTON SE CONNECTER #}
             <li class="nav-item">
-                <a href="/login" class="nav-link login-btn">Se connecter</a>
+                <a href="{{ path('app_login') }}" class="nav-link login-btn">Se connecter</a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ path('app_logout') }}" class="nav-link login-btn">Se déconnecter</a>
             </li>
         </ul>
     </nav>
