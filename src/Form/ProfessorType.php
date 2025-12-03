@@ -17,7 +17,8 @@ class ProfessorType extends AbstractType
             ->add('email')
             ->add('roles')
             ->add('password')
-            ->add('name')
+            ->add('lastname', null, ['label' => 'Nom'])
+            ->add('firstname', null, ['label' => 'Prénom'])
             ->add('sessions', EntityType::class, [
                 'class' => Session::class,
                 'choice_label' => 'id',

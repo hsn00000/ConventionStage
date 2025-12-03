@@ -29,9 +29,8 @@ class StudentType extends AbstractType
                 'label' => 'Mot de passe (identifiant de connexion)',
                 'attr' => ['autocomplete' => 'new-password'],
             ])
-            ->add('name', TextType::class, [
-                'label' => 'Nom et prénom (ex : Dupont Jean)',
-            ])
+            ->add('lastname', null, ['label' => 'Nom'])
+            ->add('firstname', null, ['label' => 'Prénom'])
             ->add('personalEmail')
 
             ->add('level', EntityType::class, [

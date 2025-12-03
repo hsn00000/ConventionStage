@@ -27,9 +27,16 @@ class Level
     #[ORM\OneToMany(targetEntity: Student::class, mappedBy: 'level')]
     private Collection $students;
 
+    /**
+     * @var Collection<int, Professor>
+     */
+    #[ORM\ManyToMany(targetEntity: Professor::class, mappedBy: 'sections')]
+    private Collection $professors;
+
     public function __construct()
     {
         $this->students = new ArrayCollection();
+        $this->professors = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -94,6 +101,33 @@ class Level
     public function __toString(): string
     {
         return $this->levelName; // Affiche le nom du niveau (ex: "BTS SIO")
+    }
+
+    /**
+     * @return Collection<int, Professor>
+     */
+    public function getProfessors(): Collection
+    {
+        return $this->professors;
+    }
+
+    public function addProfessor(Professor $professor): static
+    {
+        if (!$this->professors->contains($professor)) {
+            $this->professors->add($professor);
+            $professor->addSection($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProfessor(Professor $professor): static
+    {
+        if ($this->professors->removeElement($professor)) {
+            $professor->removeSection($this);
+        }
+
+        return $this;
     }
 
 }

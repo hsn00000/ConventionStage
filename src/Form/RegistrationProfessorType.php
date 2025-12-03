@@ -2,7 +2,9 @@
 
 namespace App\Form;
 
+use App\Entity\Level;
 use App\Entity\Professor;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -25,9 +27,20 @@ class RegistrationProfessorType extends AbstractType
                 'attr' => ['placeholder' => 'prenom.nom@ac-grenoble.fr']
             ])
 
-            // 2. Nom complet
-            ->add('name', TextType::class, [
-                'label' => 'Prénom et Nom'
+            ->add('lastname', TextType::class, [
+                'label' => 'Nom de famille'
+            ])
+            ->add('firstname', TextType::class, [
+                'label' => 'Prénom'
+            ])
+
+            // --- AJOUT 1 : SÉLECTION DES SECTIONS ---
+            ->add('sections', EntityType::class, [
+                'class' => Level::class,
+                'choice_label' => 'levelName', // Ou votre méthode __toString()
+                'multiple' => true,  // Choix multiple
+                'expanded' => true,  // true = cases à cocher (plus joli), false = liste déroulante
+                'label' => 'Sections concernées',
             ])
 
             // 3. Mot de passe (Non mappé, hashé dans le contrôleur)

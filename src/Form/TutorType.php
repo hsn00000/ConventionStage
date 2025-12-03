@@ -17,7 +17,8 @@ class TutorType extends AbstractType
             ->add('email')
             ->add('roles')
             ->add('password')
-            ->add('name')
+            ->add('lastname', null, ['label' => 'Nom'])
+            ->add('firstname', null, ['label' => 'Prénom'])
             ->add('telMobile')
             ->add('telOther')
             ->add('sessions', EntityType::class, [

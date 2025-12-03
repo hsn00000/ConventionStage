@@ -27,8 +27,11 @@ class RegistrationStudentType extends AbstractType
                 'label' => 'Email du Lycée (@lycee-faure.fr)',
                 'attr' => ['placeholder' => 'prenom.nom@lycee-faure.fr']
             ])
-            ->add('name', TextType::class, [
-                'label' => 'Prénom et Nom'
+            ->add('lastname', TextType::class, [
+                'label' => 'Nom de famille'
+            ])
+            ->add('firstname', TextType::class, [
+                'label' => 'Prénom'
             ])
 
             // 2. Mot de passe (Non mappé pour être hashé dans le contrôleur)

@@ -20,7 +20,7 @@ class Student extends User
     private ?Level $level = null;
 
     #[ORM\ManyToOne(inversedBy: 'studentsReferred')]
-    #[ORM\JoinColumn(nullable: true)] // 1. Indispensable pour que la base accepte les autres types d'utilisateurs
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     #[Assert\NotNull(message: "L'étudiant doit avoir un professeur référent.")] // 2. Sécurité pour l'application
     private ?Professor $prof_referent = null;
 

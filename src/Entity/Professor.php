@@ -23,12 +23,19 @@ class Professor extends User
     #[ORM\OneToMany(targetEntity: Contract::class, mappedBy: 'coordinator')]
     private Collection $contracts;
 
+    /**
+     * @var Collection<int, Level>
+     */
+    #[ORM\ManyToMany(targetEntity: Level::class, inversedBy: 'professors')]
+    private Collection $sections;
+
     public function __construct()
     {
         parent::__construct();
         $this->studentsReferred = new ArrayCollection();
         $this->contracts = new ArrayCollection();
         $this->setRoles(['ROLE_PROFESSOR']);
+        $this->sections = new ArrayCollection();
     }
 
     /**
@@ -87,6 +94,30 @@ class Professor extends User
                 $contract->setCoordinator(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Level>
+     */
+    public function getSections(): Collection
+    {
+        return $this->sections;
+    }
+
+    public function addSection(Level $section): static
+    {
+        if (!$this->sections->contains($section)) {
+            $this->sections->add($section);
+        }
+
+        return $this;
+    }
+
+    public function removeSection(Level $section): static
+    {
+        $this->sections->removeElement($section);
 
         return $this;
     }

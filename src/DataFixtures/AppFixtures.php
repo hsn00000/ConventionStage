@@ -32,7 +32,8 @@ class AppFixtures extends Fixture
         // 2. Création d'un Professeur
         $prof = new Professor();
         $prof->setEmail('prof@lycee.fr');
-        $prof->setName('M. Dupont');
+        $prof->setLastname('Dupont');
+        $prof->setFirstname('Jean-Pierre');
         $prof->setRoles(['ROLE_PROFESSOR']);
         $prof->setPassword($this->hasher->hashPassword($prof, 'password'));
         $manager->persist($prof);
@@ -40,7 +41,8 @@ class AppFixtures extends Fixture
         // 3. Création d'un Tuteur
         $tutor = new Tutor();
         $tutor->setEmail('tuteur@entreprise.com');
-        $tutor->setName('Mme Martin');
+        $tutor->setLastname('Martin');
+        $tutor->setFirstname('Sophie');
         $tutor->setTelMobile('0601020304');
         $tutor->setRoles(['ROLE_TUTOR']);
         $tutor->setPassword($this->hasher->hashPassword($tutor, 'password'));
@@ -69,7 +71,8 @@ class AppFixtures extends Fixture
         // 5. Création d'un Étudiant
         $student = new Student();
         $student->setEmail('eleve@lycee.fr');
-        $student->setName('Jean Élève');
+        $student->setLastname('Dupont');
+        $student->setFirstname('Jean');
         $student->setRoles(['ROLE_STUDENT']);
         $student->setPassword($this->hasher->hashPassword($student, 'password'));
         $student->setPersonalEmail('jean.perso@gmail.com');

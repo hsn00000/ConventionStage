@@ -41,8 +41,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\Column(length: 150)]
-    private ?string $name = null;
+    #[ORM\Column(length: 100)]
+    private ?string $lastname = null;
+
+    #[ORM\Column(length: 100)]
+    private ?string $firstname = null;
 
     /**
      * @var Collection<int, Session>
@@ -139,15 +142,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // @deprecated, to be removed when upgrading to Symfony 8
     }
 
-    public function getName(): ?string
+    public function getLastname(): ?string
     {
-        return $this->name;
+        return $this->lastname;
     }
 
-    public function setName(string $name): static
+    public function setLastname(string $lastname): static
     {
-        $this->name = $name;
+        $this->lastname = strtoupper($lastname); // Optionnel : Met le nom en MAJUSCULES automatiquement
+        return $this;
+    }
 
+    public function getFirstname(): ?string
+    {
+        return $this->firstname;
+    }
+
+    public function setFirstname(string $firstname): static
+    {
+        $this->firstname = $firstname;
         return $this;
     }
 
@@ -180,7 +193,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __toString(): string
     {
-        return $this->name . ' (' . $this->email . ')'; // Affiche "M. Dupont (dupont@lycee.fr)"
+        return $this->lastname . ' ' . $this->firstname . ' (' . $this->email . ')';
     }
 
     #[Assert\Callback]
