@@ -109,7 +109,7 @@ class RegistrationController extends AbstractController
         } catch (VerifyEmailExceptionInterface $exception) {
             $this->addFlash('verify_email_error', $translator->trans($exception->getReason(), [], 'VerifyEmailBundle'));
 
-            return $this->redirectToRoute('app_register_student'); // Redirection en cas d'erreur
+            return $this->redirectToRoute('app_login'); // Redirection en cas d'erreur
         }
 
         $this->addFlash('success', 'Votre adresse email a bien été vérifiée !');
