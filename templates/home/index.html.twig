@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil Conventio - Bienvenue{% endblock %}
+
+{#
+1. RETRAIT DU BLOC 'body' !
+2. Utilisation du bloc 'content' pour insérer le contenu APRÈS la navbar.
+#}
+{% block content %}
+    <style>
+        /* Styles pour le conteneur principal */
+        .page-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            min-height: calc(100vh - 56px); /* 100% de la hauteur de la vue moins la hauteur typique d'une navbar (ajustez si nécessaire) */
+            background-color: #f8f9fa; /* Arrière-plan léger */
+        }
+
+        /* Styles pour la carte stylisée */
+        .styled-card {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); /* Dégradé bleu attrayant */
+            color: white; /* Texte blanc pour un bon contraste */
+            border-radius: 15px; /* Coins arrondis */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Ombre portée douce */
+            padding: 40px;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .styled-card:hover {
+            transform: translateY(-5px); /* Petit effet de soulèvement au survol */
+        }
+
+        .card-title {
+            font-size: 2.5em; /* Grande taille de police */
+            margin-bottom: 10px;
+            font-weight: 700; /* Gras */
+            letter-spacing: 1px;
+        }
+
+        .card-subtitle {
+            font-size: 1.2em;
+            font-weight: 300;
+        }
+    </style>
+
+    <div class="page-container">
+        <div class="styled-card">
+            <div class="card-title">Conventio</div>
+            <div class="card-subtitle">établissez vos conventions de stage en 3 clics</div>
+        </div>
+    </div>
+{% endblock %}
