@@ -1,39 +1,61 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Réinitialiser le mot de passe{% endblock %}
+{% block title %}Demande de Réinitialisation de Mot de Passe{% endblock %}
 
 {% block body %}
-    <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-        <div class="card shadow-lg" style="width: 400px;">
-            <div class="card-body">
+    <main class="container-fluid d-flex align-items-center justify-content-center min-vh-100 py-5">
+        {# Conteneur principal de la double colonne, agrandi et arrondi #}
+        <div class="row w-100 shadow-lg bg-white rounded-4 overflow-hidden" style="max-width: 1400px; min-height: 85vh;">
+
+            {# ----------------------------------------------------- #}
+            {# COLONNE 1 : Le Formulaire de Demande (Gauche) #}
+            {# Modification : Suppression de 'justify-content-center' pour remonter le contenu, utilisation de 'p-5' pour le padding. #}
+            <div class="col-12 col-lg-6 d-flex flex-column p-5 border-end">
+
+                {# Modification : Centrage du titre avec 'text-center' et augmentation de la marge basse. #}
+                <h1 class="h3 mb-5 text-center">Mot de passe oublié ?</h1>
 
                 {% for flash_error in app.flashes('reset_password_error') %}
                     <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
                 {% endfor %}
 
-                <h1 class="h4 text-center mb-4">Réinitialiser le mot de passe</h1>
+                {# Formulaire de Demande de Réinitialisation #}
+                <div class="mx-auto w-100" style="max-width: 380px;">
 
-                {{ form_start(requestForm) }}
+                    {{ form_start(requestForm) }}
 
-                <div class="mb-3">
-                    {{ form_label(requestForm.email, 'Adresse email') }}
-                    {{ form_widget(requestForm.email, {'attr': {'class': 'form-control', 'placeholder': 'Entrez votre email'}}) }}
-                    {{ form_errors(requestForm.email) }}
+                    <div class="mb-3">
+                        {{ form_label(requestForm.email, 'Adresse email') }}
+                        {{ form_widget(requestForm.email, {'attr': {'class': 'form-control', 'placeholder': 'Entrez votre email'}}) }}
+                        {{ form_errors(requestForm.email) }}
+                    </div>
+
+                    <div class="mb-4">
+                        <small class="text-muted">
+                            Entrez l'adresse email de votre compte. Nous vous enverrons les instructions pour réinitialiser votre mot de passe.
+                        </small>
+                    </div>
+
+                    <button class="btn btn-lg btn-primary w-100" type="submit">
+                        Envoyer le lien de réinitialisation
+                    </button>
+
+                    {{ form_end(requestForm) }}
                 </div>
 
-                <div class="mb-3">
-                    <small class="text-muted">
-                        Entrez votre adresse email, nous vous enverrons un lien pour réinitialiser votre mot de passe.
-                    </small>
+                <div class="mt-4 text-center">
+                    <a href="{{ path('app_login') }}" class="text-muted text-decoration-none">Annuler et revenir à la connexion</a>
                 </div>
+            </div>
 
-                <button class="btn btn-primary w-100" type="submit">
-                    Envoyer le lien de réinitialisation
-                </button>
-
-                {{ form_end(requestForm) }}
+            {# ----------------------------------------------------- #}
+            {# COLONNE 2 : L'Image/Illustration (Droite) #}
+            {# Thème bleu pour l'illustration #}
+            <div class="col-12 col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-center p-5 text-white rounded-end-4"
+                 style="background-color: #007bff; background-image: url('{{ asset('img/themebleu.jpg') }}'); background-size: cover; background-position: center;">
 
             </div>
+
         </div>
-    </div>
+    </main>
 {% endblock %}

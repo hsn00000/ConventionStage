@@ -9,10 +9,11 @@
 
             {# ----------------------------------------------------- #}
             {# COLONNE 1 : Le Formulaire de Connexion (Gauche) #}
-            {# Bordure à droite pour séparer visuellement le formulaire de l'image #}
-            <div class="col-12 col-lg-6 d-flex flex-column justify-content-center p-4 p-md-5 border-end">
+            {# Modification : Suppression de 'justify-content-center' pour remonter le contenu, utilisation de 'p-5' pour le padding général. #}
+            <div class="col-12 col-lg-6 d-flex flex-column p-5 border-end">
 
-                <h1 class="h3 mb-4 text-center text-lg-start">Connectez-vous à Conventio</h1>
+                {# Modification : Centrage du titre avec 'text-center' et ajustement de la marge basse. #}
+                <h1 class="h3 mb-5 text-center">Connectez-vous à Conventio</h1>
 
                 {# Affichage des messages de sécurité (Erreur ou Utilisateur connecté) #}
                 {% if error %}
@@ -66,7 +67,7 @@
             {# COLONNE 2 : L'Image/Illustration (Droite) #}
             {# Utilisation du bleu comme couleur principale #}
             <div class="col-12 col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-center p-5 text-white rounded-end-4"
-                 style="background-color: #007bff; background-image: url('{{ asset('img/themeBlue.png') }}'); background-size: cover; background-position: center;">
+                 style="background-color: #007bff; background-image: url('{{ asset('img/themebleu.jpg') }}'); background-size: cover; background-position: center;">
 
             </div>
 
