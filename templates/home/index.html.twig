@@ -2,56 +2,44 @@
 
 {% block title %}Accueil Conventio - Bienvenue{% endblock %}
 
-{#
-1. RETRAIT DU BLOC 'body' !
-2. Utilisation du bloc 'content' pour insérer le contenu APRÈS la navbar.
-#}
+{# Assurez-vous que le CSS de Bootstrap est inclus dans base.html.twig #}
+
 {% block content %}
-    <style>
-        /* Styles pour le conteneur principal */
-        .page-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px 20px;
-            min-height: calc(100vh - 56px); /* 100% de la hauteur de la vue moins la hauteur typique d'une navbar (ajustez si nécessaire) */
-            background-color: #f8f9fa; /* Arrière-plan léger */
-        }
+    <main class="container-fluid my-5">
 
-        /* Styles pour la carte stylisée */
-        .styled-card {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); /* Dégradé bleu attrayant */
-            color: white; /* Texte blanc pour un bon contraste */
-            border-radius: 15px; /* Coins arrondis */
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Ombre portée douce */
-            padding: 40px;
-            text-align: center;
-            max-width: 600px;
-            width: 100%;
-            transition: transform 0.3s ease-in-out;
-        }
+        {# Utilisation de la classe 'row' de Bootstrap.
+           'align-items-center' centre le contenu verticalement.
+           'h-100' est une classe personnalisée pour garantir la pleine hauteur.
+        #}
+        <div class="row two-column-layout align-items-center justify-content-center h-100">
 
-        .styled-card:hover {
-            transform: translateY(-5px); /* Petit effet de soulèvement au survol */
-        }
+            {# Colonne de Contenu (50% sur grand écran) #}
+            {# 'order-2 order-lg-1' : Place cette colonne en seconde sur mobile, mais en première sur grand écran #}
+            <div class="col-12 col-lg-6 content-side order-2 order-lg-1">
+                <div class="styled-card shadow-lg p-4 p-md-5 mx-auto">
+                    <h1 class="card-title">Bienvenue sur Conventio 👋</h1>
+                    <p class="card-subtitle">Simplifiez la gestion de vos Conventions de Stage en quelques clics.</p>
 
-        .card-title {
-            font-size: 2.5em; /* Grande taille de police */
-            margin-bottom: 10px;
-            font-weight: 700; /* Gras */
-            letter-spacing: 1px;
-        }
+                    <p class="description">
+                        Que vous soyez étudiant, professeur ou responsable d'entreprise,
+                        notre plateforme centralise tous les documents et le suivi nécessaire
+                        pour des stages réussis.
+                    </p>
 
-        .card-subtitle {
-            font-size: 1.2em;
-            font-weight: 300;
-        }
-    </style>
+                    {# Bouton d'appel à l'action principal (classe Bootstrap : btn) #}
+                    <a href="/register/student" class="btn btn-primary cta-button">Commencer maintenant</a>
+                </div>
+            </div>
 
-    <div class="page-container">
-        <div class="styled-card">
-            <div class="card-title">Conventio</div>
-            <div class="card-subtitle">établissez vos conventions de stage en 3 clics</div>
+            {# Colonne du Logo/Image (50% sur grand écran) #}
+            {# 'order-1 order-lg-2' : Place cette colonne en première sur mobile, mais en seconde sur grand écran #}
+            <div class="col-12 col-lg-6 logo-side order-1 order-lg-2 text-center">
+                {# 'logo-wrapper' garde le même rôle, mais le centrage est géré par la classe Bootstrap 'text-center' #}
+                <div class="logo-wrapper d-flex justify-content-center align-items-center">
+                    <img src="{{ asset('img/Conventio.png') }}" alt="Logo de Conventio" class="main-illustration img-fluid">
+                </div>
+            </div>
+
         </div>
-    </div>
+    </main>
 {% endblock %}

@@ -1,3 +1,221 @@
+/* =================================================================== */
+/* 1. STYLES GÉNÉRAUX ET DE LA NAVIGATION */
+/* =================================================================== */
+
+/* Style de base pour un look épuré */
 body {
-    background-color: skyblue;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f9;
+    /* Espace nécessaire pour la navbar fixe (60px + marge de 15px + sécurité) */
+    padding-top: 100px;
+}
+
+/* Style de la Navbar (Flottante et Centrée) */
+.navbar {
+    position: fixed;
+    top: 15px;
+
+    /* Centrage de la navbar */
+    width: 80%;
+    left: 50%;
+    transform: translateX(-50%);
+
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 8px 20px;
+    height: 60px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Styles .navbar-brand et Logo */
+.navbar-brand {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.navbar-logo {
+    max-height: 100%;
+    height: 60px;
+    width: auto;
+    display: block;
+}
+
+/* Styles des Liens et Boutons de Navigation */
+.navbar-nav {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.nav-item {
+    margin-left: 10px;
+}
+
+.nav-link {
+    text-decoration: none;
+    padding: 8px 12px;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+/* Styles spécifiques des Boutons */
+.nav-link.register-btn {
+    background-color: #007bff; /* Bleu primaire */
+    color: white;
+    padding: 10px 15px;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+.nav-link.register-btn:hover {
+    background-color: #0056b3;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.4);
+}
+
+.nav-link.professor-btn {
+    background-color: #28a745; /* Vert pour distinction */
+}
+
+.nav-link.professor-btn:hover {
+    background-color: #1e7e34;
+}
+
+.nav-link.login-btn {
+    color: #555;
+}
+
+.nav-link.login-btn:hover {
+    color: #007bff;
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+
+/* =================================================================== */
+/* 2. DISPOSITION PRINCIPALE 50% / 50% ET CARTE DE CONTENU */
+/* =================================================================== */
+
+/* Conteneur Flexbox pour la répartition 50/50 */
+.two-column-layout {
+    display: flex;
+    padding: 0 5%;
+    /* Prend la hauteur restante de l'écran */
+    min-height: calc(100vh - 100px);
+    margin: 0 auto;
+    max-width: 1300px;
+    align-items: center; /* Centre le contenu verticalement */
+}
+
+/* Colonne de Contenu (Gauche - 50%) */
+.content-side {
+    flex: 0 0 50%; /* 50% de la largeur */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Colonne du Logo/Illustration (Droite - 50%) */
+.logo-side {
+    flex: 0 0 50%; /* 50% de la largeur */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.main-illustration {
+    /* Image du côté droit */
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 15px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles de la Carte de Bienvenue */
+.styled-card {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    padding: 40px;
+    text-align: left;
+    max-width: 100%;
+    width: 100%;
+    transition: transform 0.3s ease-in-out;
+}
+
+.styled-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-title {
+    font-size: 2.2em;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.card-subtitle {
+    font-size: 1.1em;
+    font-weight: 300;
+    margin-bottom: 25px;
+}
+
+.description {
+    font-size: 1em;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.cta-button {
+    font-size: 1.1em;
+    padding: 12px 25px;
+}
+
+/* =================================================================== */
+/* 3. RESPONSIVITÉ (Pour les petits écrans) */
+/* =================================================================== */
+
+@media (max-width: 992px) {
+    /* Les colonnes s'empilent */
+    .two-column-layout {
+        flex-direction: column;
+        padding: 20px;
+        min-height: auto; /* Supprime la contrainte de hauteur sur mobile */
+    }
+
+    /* Les deux prennent toute la largeur disponible */
+    .content-side, .logo-side {
+        flex: 0 0 100%;
+        padding: 10px 0;
+    }
+
+    /* Inversion de l'ordre : l'illustration vient en premier */
+    .logo-side {
+        order: 1;
+    }
+
+    .content-side {
+        order: 2;
+    }
+
+    /* Centrage du contenu de la carte sur mobile */
+    .styled-card {
+        text-align: center;
+    }
+
+
 }
