@@ -1,9 +1,14 @@
-<h1>Hi!</h1>
+<h1>Bonjour !</h1>
 
-<p>To reset your password, please visit the following link</p>
+<p>Une demande de réinitialisation de mot de passe a été effectuée pour votre compte sur la plateforme <strong>Convention Stage - Lycée Faure</strong>.</p>
 
-<a href="{{ url('app_reset_password', {token: resetToken.token}) }}">{{ url('app_reset_password', {token: resetToken.token}) }}</a>
+<p>Pour définir un nouveau mot de passe, veuillez cliquer sur le lien ci-dessous :</p>
 
-<p>This link will expire in {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.</p>
+<a href="{{ url('app_reset_password', {token: resetToken.token}) }}">Réinitialiser mon mot de passe</a>
 
-<p>Cheers!</p>
+<p>Ce lien est valide pendant {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.</p>
+
+<p>Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email.</p>
+
+<p>Cordialement,<br>
+    L'équipe administrative du Lycée Faure</p>
