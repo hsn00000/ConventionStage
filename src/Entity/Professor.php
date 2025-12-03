@@ -28,6 +28,7 @@ class Professor extends User
         parent::__construct();
         $this->studentsReferred = new ArrayCollection();
         $this->contracts = new ArrayCollection();
+        $this->setRoles(['ROLE_PROFESSOR']);
     }
 
     /**
