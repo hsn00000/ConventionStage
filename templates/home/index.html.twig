@@ -2,44 +2,47 @@
 
 {% block title %}Accueil Conventio - Bienvenue{% endblock %}
 
-{# Assurez-vous que le CSS de Bootstrap est inclus dans base.html.twig #}
-
 {% block content %}
-    <main class="container-fluid my-5">
 
-        {# Utilisation de la classe 'row' de Bootstrap.
-           'align-items-center' centre le contenu verticalement.
-           'h-100' est une classe personnalisée pour garantir la pleine hauteur.
-        #}
-        <div class="row two-column-layout align-items-center justify-content-center h-100">
+    <main class="container-fluid d-flex align-items-center justify-content-center vh-100 py-5">
 
-            {# Colonne de Contenu (50% sur grand écran) #}
-            {# 'order-2 order-lg-1' : Place cette colonne en seconde sur mobile, mais en première sur grand écran #}
-            <div class="col-12 col-lg-6 content-side order-2 order-lg-1">
-                <div class="styled-card shadow-lg p-4 p-md-5 mx-auto">
-                    <h1 class="card-title">Bienvenue sur Conventio 👋</h1>
-                    <p class="card-subtitle">Simplifiez la gestion de vos Conventions de Stage en quelques clics.</p>
+        <div class="row w-100 two-column-layout align-items-center justify-content-center">
 
-                    <p class="description">
-                        Que vous soyez étudiant, professeur ou responsable d'entreprise,
-                        notre plateforme centralise tous les documents et le suivi nécessaire
-                        pour des stages réussis.
-                    </p>
+            <div class="col-12 col-xl-10">
+                {# La carte principale qui contiendra l'image et le texte côte à côte #}
+                <div class="card mb-3 mx-auto shadow-lg border-0" style="max-width: 1000px;">
+                    <div class="row g-0 align-items-center">
 
-                    {# Bouton d'appel à l'action principal (classe Bootstrap : btn) #}
-                    <a href="/register/student" class="btn btn-primary cta-button">Commencer maintenant</a>
+                        {# Colonne du Logo/Image : bg-light est remplacé par bg-transparent #}
+                        <div class="col-12 col-md-5 logo-side order-1 order-md-1 text-center bg-transparent p-4 rounded-start">
+                            <div class="logo-wrapper">
+                                <img src="{{ asset('img/Conventio.png') }}" alt="Logo de Conventio" class="main-illustration img-fluid" style="max-height: 250px;">
+                            </div>
+                        </div>
+
+                        {# Colonne de Contenu #}
+                        <div class="col-12 col-md-7 content-side order-2 order-md-2">
+                            <div class="card-body p-4 p-md-5">
+
+                                {# Titre et Sous-titre #}
+                                <h1 class="card-title h3 text-dark">Bienvenue sur Conventio 👋</h1>
+                                <h5 class="card-subtitle text-secondary">Simplifiez la gestion de vos Conventions de Stage en quelques clics.</h5>
+
+                                {# Description #}
+                                <p class="card-text description mt-4 text-muted">
+                                    Que vous soyez étudiant, professeur ou responsable d'entreprise,
+                                    notre plateforme centralise tous les documents et le suivi nécessaire
+                                    pour des stages réussis.
+                                </p>
+
+                                {# Bouton d'appel à l'action principal #}
+                                <a href="/register/student" class="btn btn-primary btn-lg cta-button mt-4">Commencer maintenant</a>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
-
-            {# Colonne du Logo/Image (50% sur grand écran) #}
-            {# 'order-1 order-lg-2' : Place cette colonne en première sur mobile, mais en seconde sur grand écran #}
-            <div class="col-12 col-lg-6 logo-side order-1 order-lg-2 text-center">
-                {# 'logo-wrapper' garde le même rôle, mais le centrage est géré par la classe Bootstrap 'text-center' #}
-                <div class="logo-wrapper d-flex justify-content-center align-items-center">
-                    <img src="{{ asset('img/Conventio.png') }}" alt="Logo de Conventio" class="main-illustration img-fluid">
-                </div>
-            </div>
-
         </div>
     </main>
 {% endblock %}

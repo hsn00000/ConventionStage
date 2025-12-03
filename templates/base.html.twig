@@ -1,51 +1,112 @@
+{% set is_logged_in = is_granted('IS_AUTHENTICATED_FULLY') %}
+
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Conventio - Conventions de Stage{% endblock %}</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
 
+    {# Assurez-vous que le CSS et le JS de Bootstrap sont chargés via votre importmap #}
     {% block javascripts %}
         {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% endblock %}
+
+    {% block stylesheets %}
+        {# Vous pouvez ajouter ici votre CSS personnalisé si besoin #}
     {% endblock %}
 </head>
 <body>
 {% block body %}
-    <nav class="navbar">
-        <a href="#" class="navbar-brand">
-            <img src="{{ asset('img/Conventio.png') }}" alt="Logo de l'application" class="navbar-logo">
-        </a>
-        <ul class="navbar-nav">
-            {# BOUTON S'ENREGISTRER ÉTUDIANT #}
-            <li class="nav-item">
-                <a href="{{ path('app_register_student') }}" class="nav-link register-btn">S'enregistrer (Étudiant)</a>
-            </li>
 
-            {# BOUTON S'ENREGISTRER PROFESSEUR #}
-            <li class="nav-item">
-                <a href="{{ path('app_register_professor') }}" class="nav-link register-btn professor-btn">S'enregistrer (Professeur)</a>
-            </li>
+    {# --------------------------------------------------------------------- #}
+    {# NAVIGATION BAR BOOTSTRAP 5 #}
+    {# --------------------------------------------------------------------- #}
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top border-bottom shadow-sm">
+        <div class="container-fluid">
+            {# LOGO / MARQUE #}
+            <a href="{{ path('app_home') }}" class="navbar-brand">
+                <img src="{{ asset('img/Conventio.png') }}" alt="Logo de l'application" style="height: 38px;" class="d-inline-block align-text-top me-2">
+                <span class="fw-bold text-dark">Conventio</span>
+            </a>
 
-            {# BOUTON SE CONNECTER #}
-            <li class="nav-item">
-                <a href="{{ path('app_login') }}" class="nav-link login-btn">Se connecter</a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ path('app_logout') }}" class="nav-link login-btn">Se déconnecter</a>
-            </li>
-        </ul>
-    </nav>
+            {# BOUTON POUR MOBILE (Hamburger) #}
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavActions" aria-controls="navbarNavActions" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-    {# NOTE: Le contenu de l'ancienne page d'accueil est remplacé ici par le bloc content #}
-    {% block content %}
-        <div class="main-content">
-            <h1>Bienvenue sur la Page</h1>
-            <p>Ceci est le contenu principal.</p>
-            <div class="spacer" style="height: 120vh; background-color: #e9ecef;">
-                <p>Faites défiler pour voir la navbar fixe rester en place.</p>
+            {# ÉLÉMENTS DE NAVIGATION ET BOUTONS À DROITE #}
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNavActions">
+                <ul class="navbar-nav align-items-center">
+
+                    {% if not is_logged_in %}
+                        {# Liens d'Inscription #}
+                        <li class="nav-item me-3 mb-2 mb-lg-0">
+                            <a href="{{ path('app_register_student') }}" class="nav-link text-muted">Étudiant</a>
+                        </li>
+                        <li class="nav-item me-3 mb-2 mb-lg-0">
+                            <a href="{{ path('app_register_professor') }}" class="nav-link text-muted">Professeur</a>
+                        </li>
+                        {# Bouton Se connecter #}
+                        <li class="nav-item">
+                            <a href="{{ path('app_login') }}" class="btn btn-primary shadow-sm">Se connecter</a>
+                        </li>
+                    {% else %}
+                        {# Bouton Se déconnecter #}
+                        <li class="nav-item">
+                            <a href="{{ path('app_logout') }}" class="btn btn-outline-danger">Se déconnecter</a>
+                        </li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
+    </nav>
+    {# --------------------------------------------------------------------- #}
+
+    {# ESPACEMENT OBLIGATOIRE : Ajout d'un div pour compenser la navbar fixed-top #}
+    <div style="height: 10px;"></div>
+
+
+    {# --------------------------------------------------------------------- #}
+    {# BLOC CONTENT : Ce contenu sera affiché par défaut ou remplacé par les pages enfants #}
+    {# --------------------------------------------------------------------- #}
+    {% block content %}
+        <main class="container-fluid d-flex align-items-center justify-content-center vh-100 py-5">
+            <div class="row w-100 two-column-layout align-items-center justify-content-center">
+
+                {# Colonne de Contenu (La Carte) #}
+                <div class="col-12 col-lg-6 content-side order-2 order-lg-1">
+                    <div class="card border-secondary mb-3 mx-auto shadow-lg" style="max-width: 30rem;">
+
+                        <div class="card-header bg-secondary text-white">
+                            <h1 class="h4 mb-0">Bienvenue sur Conventio 👋</h1>
+                        </div>
+
+                        <div class="card-body text-secondary p-4 p-md-5">
+                            <h5 class="card-title text-dark">Simplifiez la gestion de vos Conventions de Stage en quelques clics.</h5>
+                            <p class="card-text description mt-3">
+                                Que vous soyez étudiant, professeur ou responsable d'entreprise,
+                                notre plateforme centralise tous les documents et le suivi nécessaire
+                                pour des stages réussis.
+                            </p>
+                            <a href="{{ path('app_register_student') }}" class="btn btn-primary btn-lg cta-button mt-4">Commencer maintenant</a>
+                        </div>
+                    </div>
+                </div>
+
+                {# Colonne du Logo/Image #}
+                <div class="col-12 col-lg-6 logo-side order-1 order-lg-2 text-center mb-4 mb-lg-0">
+                    <div class="logo-wrapper p-3">
+                        <img src="{{ asset('img/Conventio.png') }}" alt="Logo de Conventio" class="main-illustration img-fluid" style="max-height: 40vh;">
+                    </div>
+                </div>
+
+            </div>
+        </main>
     {% endblock %}
+    {# --------------------------------------------------------------------- #}
+
 {% endblock %}
 </body>
 </html>
