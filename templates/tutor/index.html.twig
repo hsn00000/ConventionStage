@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tutor index{% endblock %}
+
+{% block body %}
+    <h1>Tutor index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Email</th>
+                <th>Roles</th>
+                <th>Password</th>
+                <th>Name</th>
+                <th>TelMobile</th>
+                <th>TelOther</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for tutor in tutors %}
+            <tr>
+                <td>{{ tutor.id }}</td>
+                <td>{{ tutor.email }}</td>
+                <td>{{ tutor.roles ? tutor.roles|json_encode : '' }}</td>
+                <td>{{ tutor.password }}</td>
+                <td>{{ tutor.name }}</td>
+                <td>{{ tutor.telMobile }}</td>
+                <td>{{ tutor.telOther }}</td>
+                <td>
+                    <a href="{{ path('app_tutor_show', {'id': tutor.id}) }}">show</a>
+                    <a href="{{ path('app_tutor_edit', {'id': tutor.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_tutor_new') }}">Create new</a>
+{% endblock %}

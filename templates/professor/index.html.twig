@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Professor index{% endblock %}
+
+{% block body %}
+    <h1>Professor index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Email</th>
+                <th>Roles</th>
+                <th>Password</th>
+                <th>Name</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for professor in professors %}
+            <tr>
+                <td>{{ professor.id }}</td>
+                <td>{{ professor.email }}</td>
+                <td>{{ professor.roles ? professor.roles|json_encode : '' }}</td>
+                <td>{{ professor.password }}</td>
+                <td>{{ professor.name }}</td>
+                <td>
+                    <a href="{{ path('app_professor_show', {'id': professor.id}) }}">show</a>
+                    <a href="{{ path('app_professor_edit', {'id': professor.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_professor_new') }}">Create new</a>
+{% endblock %}
