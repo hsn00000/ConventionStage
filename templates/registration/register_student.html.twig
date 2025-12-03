@@ -1,67 +1,103 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Inscription Étudiant{% endblock %}
+{% block title %}Inscription Étudiant - Conventio{% endblock %}
 
 {% block body %}
-    <div class="container" style="margin-top: 50px; max-width: 600px;">
-        <h1 class="h3 mb-3 font-weight-normal">Créer mon compte Étudiant</h1>
+    <main class="container-fluid d-flex align-items-center justify-content-center min-vh-100 py-5">
+        {# Conteneur principal agrandi, coins très arrondis (rounded-4), et séparé #}
+        <div class="row w-100 shadow-lg bg-white rounded-4 overflow-hidden" style="max-width: 1400px; min-height: 90vh;">
 
-        {# Affiche les erreurs globales du formulaire s'il y en a #}
-        {{ form_errors(registrationForm) }}
+            {# ----------------------------------------------------- #}
+            {# COLONNE 1 : Le Formulaire d'Inscription (Gauche) #}
+            {# Ajout d'une bordure fine à droite pour séparer les blocs sur les grands écrans (border-end) #}
+            <div class="col-12 col-lg-6 d-flex flex-column justify-content-center p-4 p-md-5 border-end">
 
-        {{ form_start(registrationForm) }}
+                <h1 class="mb-4 text-center text-lg-start h3">Créer mon compte Étudiant</h1>
 
-        <div class="mb-3">
-            {{ form_row(registrationForm.email, {
-                'attr': {'class': 'form-control'}
-            }) }}
-            <small class="form-text text-muted">Vous devez utiliser votre adresse @lycee-faure.fr</small>
-        </div>
+                {# Affichage des erreurs globales #}
+                {{ form_errors(registrationForm) }}
 
-        <div class="mb-3">
-            {{ form_row(registrationForm.plainPassword, {
-                'label': 'Mot de passe',
-                'attr': {'class': 'form-control'}
-            }) }}
-        </div>
+                {# Formulaire Centré dans la colonne pour une meilleure lecture #}
+                <div class="mx-auto w-100" style="max-width: 450px;">
+                    {{ form_start(registrationForm) }}
 
-        <div class="mb-3">
-            {{ form_row(registrationForm.name, {
-                'attr': {'class': 'form-control'}
-            }) }}
-        </div>
+                    <div class="mb-3">
+                        {# Email Lycée #}
+                        {{ form_row(registrationForm.email, {
+                            'attr': {'class': 'form-control', 'placeholder': 'prenom.nom@lycee-faure.fr'},
+                            'label': 'Email du Lycée'
+                        }) }}
+                        <small class="form-text text-muted">Vous devez utiliser votre adresse @lycee-faure.fr</small>
+                    </div>
 
-        <div class="mb-3">
-            {{ form_row(registrationForm.personalEmail, {
-                'attr': {'class': 'form-control'}
-            }) }}
-        </div>
+                    <div class="mb-3">
+                        {# Mot de passe #}
+                        {{ form_row(registrationForm.plainPassword, {
+                            'label': 'Mot de passe',
+                            'attr': {'class': 'form-control'}
+                        }) }}
+                    </div>
 
-        <hr>
-        <h5 class="mb-3">Ma Scolarité</h5>
+                    <div class="mb-3">
+                        {# Nom et Prénom #}
+                        {{ form_row(registrationForm.name, {
+                            'label': 'Nom et Prénom',
+                            'attr': {'class': 'form-control'}
+                        }) }}
+                    </div>
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                {{ form_row(registrationForm.level, {
-                    'attr': {'class': 'form-control'}
-                }) }}
+                    <div class="mb-3">
+                        {# Email Personnel #}
+                        {{ form_row(registrationForm.personalEmail, {
+                            'label': 'Email personnel (secours)',
+                            'attr': {'class': 'form-control'}
+                        }) }}
+                    </div>
+
+                    <hr class="my-4">
+                    <h5 class="mb-3 text-dark">Ma Scolarité</h5>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {# Classe/Niveau #}
+                            {{ form_row(registrationForm.level, {
+                                'label': 'Votre Classe',
+                                'attr': {'class': 'form-control'}
+                            }) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {# Professeur Référent #}
+                            {{ form_row(registrationForm.prof_referent, {
+                                'label': 'Professeur Référent',
+                                'attr': {'class': 'form-control'}
+                            }) }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3 mt-4">
+                        {# Termes et conditions #}
+                        {{ form_row(registrationForm.agreeTerms, {
+                            'label': 'J\'accepte les conditions d\'utilisation'
+                        }) }}
+                    </div>
+
+                    <button type="submit" class="btn btn-lg btn-primary w-100 mt-4">S'inscrire</button>
+                    {{ form_end(registrationForm) }}
+                </div>
+
+                <div class="mt-3 text-center">
+                    <p class="text-muted">Déjà un compte ? <a href="{{ path('app_login') }}" class="text-decoration-none">Se connecter</a></p>
+                </div>
             </div>
-            <div class="col-md-6 mb-3">
-                {{ form_row(registrationForm.prof_referent, {
-                    'attr': {'class': 'form-control'}
-                }) }}
+
+            {# ----------------------------------------------------- #}
+            {# COLONNE 2 : L'Image/Illustration (Droite) #}
+            {# Ajout d'une marge à gauche sur mobile (mt-3) pour séparer le formulaire et l'image #}
+            <div class="col-12 col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-center p-5 text-white mt-3 mt-lg-0"
+                 style="background-color: #007bff; background-image: url('{{ asset('img/themeBlue.png') }}'); background-size: cover; background-position: center;">
+
             </div>
-        </div>
 
-        <div class="mb-3">
-            {{ form_row(registrationForm.agreeTerms) }}
         </div>
-
-        <button type="submit" class="btn btn-lg btn-primary w-100 mt-3">S'inscrire</button>
-        {{ form_end(registrationForm) }}
-
-        <div class="mt-3 text-center">
-            <p>Déjà un compte ? <a href="{{ path('app_login') }}">Se connecter</a></p>
-        </div>
-    </div>
+    </main>
 {% endblock %}
