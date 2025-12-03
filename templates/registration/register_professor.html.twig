@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription Professeur{% endblock %}
+
+{% block body %}
+    <div class="container" style="margin-top: 50px; max-width: 600px;">
+        <h1 class="h3 mb-3 font-weight-normal">Espace Professeur</h1>
+        <p class="text-muted">Créez votre compte avec votre adresse académique.</p>
+
+        {{ form_errors(registrationForm) }}
+
+        {{ form_start(registrationForm) }}
+
+        <div class="mb-3">
+            {{ form_row(registrationForm.email, {
+                'attr': {'class': 'form-control'}
+            }) }}
+            <small class="form-text text-muted">L'adresse doit terminer par @ac-grenoble.fr</small>
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(registrationForm.plainPassword, {
+                'label': 'Mot de passe',
+                'attr': {'class': 'form-control'}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(registrationForm.name, {
+                'attr': {'class': 'form-control'}
+            }) }}
+        </div>
+
+        <div class="mb-3 mt-4">
+            {{ form_row(registrationForm.agreeTerms) }}
+        </div>
+
+        <button type="submit" class="btn btn-lg btn-primary w-100 mt-3">S'inscrire</button>
+        {{ form_end(registrationForm) }}
+
+        <div class="mt-3 text-center">
+            <p>Déjà inscrit ? <a href="{{ path('app_login') }}">Connexion</a></p>
+        </div>
+    </div>
+{% endblock %}

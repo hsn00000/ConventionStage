@@ -6,8 +6,11 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\InheritanceType("SINGLE_TABLE")]
 #[ORM\DiscriminatorColumn(name: "discr", type: "string")]
@@ -15,6 +18,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -45,6 +49,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\ManyToMany(targetEntity: Session::class, mappedBy: 'users')]
     private Collection $sessions;
+
+    #[ORM\Column]
+    private bool $isVerified = false;
 
     public function __construct()
     {
@@ -174,5 +181,45 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __toString(): string
     {
         return $this->name . ' (' . $this->email . ')'; // Affiche "M. Dupont (dupont@lycee.fr)"
+    }
+
+    #[Assert\Callback]
+    public function validateEmailDomain(ExecutionContextInterface $context): void
+    {
+        $email = $this->getEmail();
+
+        // Si l'email est vide, on laisse les autres validateurs (NotNull) s'en charger
+        if (!$email) {
+            return;
+        }
+
+        // Si c'est un Étudiant doit finir par @lycee-faure.fr
+        if ($this instanceof Student) {
+            if (!str_ends_with($email, '@lycee-faure.fr')) {
+                $context->buildViolation('Vous ne pouvez pas vous enregistrer avec cette adresse email')
+                    ->atPath('email')
+                    ->addViolation();
+            }
+        } // Si c'est un Professeur doit finir par @ac-grenoble.fr
+        elseif ($this instanceof Professor) {
+            if (!str_ends_with($email, '@ac-grenoble.fr')) {
+                $context->buildViolation('Vous ne pouvez pas vous enregistrer avec cette adresse email')
+                    ->atPath('email')
+                    ->addViolation();
+            }
+        }
+
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
+
+        return $this;
     }
 }

@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription Étudiant{% endblock %}
+
+{% block body %}
+    <div class="container" style="margin-top: 50px; max-width: 600px;">
+        <h1 class="h3 mb-3 font-weight-normal">Créer mon compte Étudiant</h1>
+
+        {# Affiche les erreurs globales du formulaire s'il y en a #}
+        {{ form_errors(registrationForm) }}
+
+        {{ form_start(registrationForm) }}
+
+        <div class="mb-3">
+            {{ form_row(registrationForm.email, {
+                'attr': {'class': 'form-control'}
+            }) }}
+            <small class="form-text text-muted">Vous devez utiliser votre adresse @lycee-faure.fr</small>
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(registrationForm.plainPassword, {
+                'label': 'Mot de passe',
+                'attr': {'class': 'form-control'}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(registrationForm.name, {
+                'attr': {'class': 'form-control'}
+            }) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(registrationForm.personalEmail, {
+                'attr': {'class': 'form-control'}
+            }) }}
+        </div>
+
+        <hr>
+        <h5 class="mb-3">Ma Scolarité</h5>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                {{ form_row(registrationForm.level, {
+                    'attr': {'class': 'form-control'}
+                }) }}
+            </div>
+            <div class="col-md-6 mb-3">
+                {{ form_row(registrationForm.prof_referent, {
+                    'attr': {'class': 'form-control'}
+                }) }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            {{ form_row(registrationForm.agreeTerms) }}
+        </div>
+
+        <button type="submit" class="btn btn-lg btn-primary w-100 mt-3">S'inscrire</button>
+        {{ form_end(registrationForm) }}
+
+        <div class="mt-3 text-center">
+            <p>Déjà un compte ? <a href="{{ path('app_login') }}">Se connecter</a></p>
+        </div>
+    </div>
+{% endblock %}
