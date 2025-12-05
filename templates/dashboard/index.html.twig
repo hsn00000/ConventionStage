@@ -1,0 +1,169 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de Bord - Conventio{% endblock %}
+
+{# ATTENTION : On utilise 'content' au lieu de 'body' pour garantir que la navbar du base.html.twig s'affiche #}
+{% block content %}
+
+    <div class="container-fluid py-4 px-lg-5" style="min-height: 90vh;">
+
+        <h1 class="h3 mb-5 text-primary border-bottom pb-2">
+            Tableau de Bord
+            {% if is_granted('ROLE_STUDENT') %} - Espace Étudiant
+            {% elseif is_granted('ROLE_PROFESSOR') %} - Espace Professeur
+            {% elseif is_granted('ROLE_TUTOR') %} - Espace Tuteur
+            {% else %} - Mon Espace
+            {% endif %}
+        </h1>
+
+        <div class="row g-4">
+
+            {# ================================================== #}
+            {# Ligne 1: KPI CARD 1 (TAILLE: 1/3) #}
+            {# Objectif: Suivi des conventions en cours #}
+            {# ================================================== #}
+            <div class="col-lg-4 col-md-6">
+                <div class="card shadow-sm h-100 border-0 rounded-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3 bg-primary-subtle p-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <span class="fs-4 text-primary">🤝</span>
+                            </div>
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1 small">Conventions en cours</h6>
+                                <h4 class="mb-0 text-primary fw-bold">
+                                    {# Valeur Dynamique (Exemple) #}
+                                    1
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 pt-0 pb-3">
+                        <small class="text-muted"><a href="#" class="text-decoration-none">Voir les étapes de validation</a></small>
+                    </div>
+                </div>
+            </div>
+
+            {# ================================================== #}
+            {# KPI CARD 2 (TAILLE: 1/3) #}
+            {# Objectif: Suivi du temps (Jours restants) #}
+            {# ================================================== #}
+            <div class="col-lg-4 col-md-6">
+                <div class="card shadow-sm h-100 border-0 rounded-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3 bg-success-subtle p-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <span class="fs-4 text-success">📅</span>
+                            </div>
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1 small">Jours de stage restants</h6>
+                                <h4 class="mb-0 text-success fw-bold">
+                                    {# Valeur Dynamique (Exemple) #}
+                                    90
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 pt-0 pb-3">
+                        <small class="text-muted">Prochaine période : 01/10/2025 - 31/12/2025</small>
+                    </div>
+                </div>
+            </div>
+
+            {# ================================================== #}
+            {# KPI CARD 3 (TAILLE: 1/3) #}
+            {# Objectif: Actions à faire #}
+            {# ================================================== #}
+            <div class="col-lg-4 col-md-12">
+                <div class="card shadow-sm h-100 border-0 rounded-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3 bg-danger-subtle p-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <span class="fs-4 text-danger">🚨</span>
+                            </div>
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1 small">Actions en attente</h6>
+                                <h4 class="mb-0 text-danger fw-bold">
+                                    {# Valeur Dynamique (Exemple) #}
+                                    2
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 pt-0 pb-3">
+                        <small class="text-muted"><a href="#" class="text-danger text-decoration-none">Voir les actions urgentes</a></small>
+                    </div>
+                </div>
+            </div>
+
+            {# ================================================== #}
+            {# Ligne 2: GRANDE CARTE D'INFO (TAILLE: 2/3) #}
+            {# Objectif: Liste ou Graphique d'aperçu #}
+            {# ================================================== #}
+            <div class="col-12 col-lg-8">
+                <div class="card shadow-lg h-100 border-0 rounded-4">
+                    <div class="card-header bg-white border-bottom pt-4 pb-2">
+                        <h5 class="card-title mb-0">Liste de mes Conventions (Récents)</h5>
+                    </div>
+                    <div class="card-body p-0">
+
+                        <ul class="list-group list-group-flush">
+                            {# Exemple de Boucle 1 #}
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <div>
+                                    <h6 class="mb-0">Convention Tech Solutions (2025)</h6>
+                                    <small class="text-muted">Stage de BTS SIO - Déploiement logiciel</small>
+                                </div>
+                                <span class="badge bg-warning text-dark px-3 py-2">En attente signature</span>
+                            </li>
+                            {# Exemple de Boucle 2 #}
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <div>
+                                    <h6 class="mb-0">Convention Alpha Corp (2024)</h6>
+                                    <small class="text-muted">Stage de 1ère année - Maintenance réseau</small>
+                                </div>
+                                <span class="badge bg-success px-3 py-2">Validée et signée</span>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {# ================================================== #}
+            {# CARTE PROFIL RAPIDE (TAILLE: 1/3) #}
+            {# Objectif: Résumé des infos de l'utilisateur #}
+            {# ================================================== #}
+            <div class="col-12 col-lg-4">
+                <div class="card shadow-lg h-100 border-0 border-primary rounded-4" style="border-left: 5px solid #007bff !important;">
+                    <div class="card-body p-4">
+                        <h5 class="card-title border-bottom pb-2 mb-3">👤 Mon Profil Rapide</h5>
+                        <ul class="list-group list-group-flush small">
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                Nom complet:
+                                <strong>{{ app.user.firstname }} {{ app.user.lastname }}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                Rôle:
+                                <span class="badge bg-secondary">{{ app.user.roles | first | replace({'ROLE_': ''}) }}</span>
+                            </li>
+                            {% if is_granted('ROLE_STUDENT') and app.user.level %}
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    Classe:
+                                    <strong>{{ app.user.level.levelName }}</strong>
+                                </li>
+                            {% endif %}
+                        </ul>
+                        <div class="d-grid mt-4">
+                            <a href="{{ path('app_user_profile') }}" class="btn btn-sm btn-outline-primary">
+                                Voir tout mon espace
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

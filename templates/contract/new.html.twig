@@ -2,7 +2,8 @@
 
 {% block title %}Nouvelle Convention{% endblock %}
 
-{% block body %}
+{# ATTENTION : On utilise le block 'content' pour conserver la navbar et le footer de base #}
+{% block content %}
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-md-10 col-lg-9">
@@ -144,6 +145,7 @@
                 const [startH, startM] = start.split(':').map(Number);
                 const [endH, endM] = end.split(':').map(Number);
 
+                // Calcul en minutes
                 let diffInMinutes = (endH * 60 + endM) - (startH * 60 + startM);
                 return diffInMinutes > 0 ? diffInMinutes : 0;
             }
@@ -152,43 +154,52 @@
                 if (minutes === 0) return '0h';
                 const h = Math.floor(minutes / 60);
                 const m = minutes % 60;
-                return m > 0 ? `${h}h${m}` : `${h}h`;
+                // Ajoute un zéro devant les minutes si < 10 (ex: 1h05)
+                const mStr = m < 10 ? '0' + m : m;
+                return m > 0 ? `${h}h${mStr}` : `${h}h`;
             }
 
             function updateTotals() {
                 let weekTotalMinutes = 0;
 
                 rows.forEach(row => {
-                    const inputs = row.querySelectorAll('input[type="time"]');
-                    // inputs[0]=m_start, inputs[1]=m_end, inputs[2]=am_start, inputs[3]=am_end
+                    // On utilise la classe .js-time-input injectée par DailyScheduleType
+                    const inputs = row.querySelectorAll('.js-time-input');
 
-                    const morningMinutes = calculateTimeDiff(inputs[0].value, inputs[1].value);
-                    const afternoonMinutes = calculateTimeDiff(inputs[2].value, inputs[3].value);
+                    if (inputs.length === 4) {
+                        const morningMinutes = calculateTimeDiff(inputs[0].value, inputs[1].value);
+                        const afternoonMinutes = calculateTimeDiff(inputs[2].value, inputs[3].value);
 
-                    const dayTotalMinutes = morningMinutes + afternoonMinutes;
-                    weekTotalMinutes += dayTotalMinutes;
+                        const dayTotalMinutes = morningMinutes + afternoonMinutes;
+                        weekTotalMinutes += dayTotalMinutes;
 
-                    // Mise à jour affichage ligne
-                    row.querySelector('.day-total').textContent = formatHours(dayTotalMinutes);
+                        // Mise à jour affichage ligne
+                        row.querySelector('.day-total').textContent = formatHours(dayTotalMinutes);
+                    }
                 });
 
                 // Mise à jour total semaine
-                weekTotalDisplay.textContent = formatHours(weekTotalMinutes);
+                if (weekTotalDisplay) {
+                    weekTotalDisplay.textContent = formatHours(weekTotalMinutes);
+                }
 
                 // Alerte 35h
-                if (weekTotalMinutes < 35 * 60 && weekTotalMinutes > 0) {
-                    alert35h.classList.remove('d-none');
-                } else {
-                    alert35h.classList.add('d-none');
+                if (alert35h) {
+                    if (weekTotalMinutes < 35 * 60 && weekTotalMinutes > 0) {
+                        alert35h.classList.remove('d-none');
+                    } else {
+                        alert35h.classList.add('d-none');
+                    }
                 }
             }
 
-            // Écouteur d'événements sur tous les champs temps
+            // Écouteur d'événements sur tous les champs avec la classe .js-time-input
             document.querySelectorAll('.js-time-input').forEach(input => {
                 input.addEventListener('input', updateTotals);
+                input.addEventListener('change', updateTotals); // Sécurité supplémentaire
             });
 
-            // Calcul initial au chargement (si données déjà présentes)
+            // Calcul initial au chargement
             updateTotals();
         });
     </script>

@@ -1,10 +1,17 @@
 import './bootstrap.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
+// --- AJOUTER CES LIGNES POUR ACTIVER LES COMPOSANTS JS DE BOOTSTRAP (comme les Dropdowns) ---
+import * as bootstrap from 'bootstrap';
+import * as Popper from '@popperjs/core';
+
+// Optionnel: Rendre disponibles globalement pour le débogage (bonne pratique)
+window.bootstrap = bootstrap;
+window.Popper = Popper;
+
 /*
  * Welcome to your app's main JavaScript file!
- *
- * This file will be included onto the page via the importmap() Twig function,
- * which should already be in your base.html.twig.
+ * (Le reste de votre code)
  */
 import './styles/app.css';
 
