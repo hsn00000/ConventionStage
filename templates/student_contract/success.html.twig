@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Demande envoyée{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-sm rounded-4 border-0 text-center">
+                    <div class="card-body p-5">
+
+                        <div class="mb-4 text-success">
+                            <i class="fas fa-check-circle fa-5x"></i>
+                        </div>
+
+                        <h1 class="h3 mb-3 text-dark">Demande envoyée avec succès !</h1>
+
+                        <p class="text-muted mb-4">
+                            Un email contenant le lien sécurisé a été envoyé au responsable de l'entreprise.
+                        </p>
+
+                        <div class="alert alert-light border text-start mb-4">
+                            <h6 class="fw-bold"><i class="fas fa-hourglass-half me-2"></i> Prochaines étapes :</h6>
+                            <ul class="mb-0 ps-3 small text-secondary">
+                                <li>Le tuteur reçoit l'email et clique sur le lien.</li>
+                                <li>Il remplit les informations administratives et les horaires.</li>
+                                <li>Une fois validé, votre professeur référent recevra une notification.</li>
+                                <li>La convention finale sera générée pour signature.</li>
+                            </ul>
+                        </div>
+
+                        <a href="{{ path('app_home') }}" class="btn btn-outline-primary">
+                            Retour à l'accueil
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
