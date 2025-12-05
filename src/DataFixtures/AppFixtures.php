@@ -91,8 +91,17 @@ class AppFixtures extends Fixture
         $contract->setBonus(false);
         $contract->setTokenExpDate(new \DateTime('+1 month'));
 
-        // Remplissage des champs obligatoires pour éviter d'autres erreurs
-        $contract->setWorkHours('35h/semaine');
+        // --- CORRECTION ICI : On passe un tableau JSON au lieu d'une string ---
+        $contract->setWorkHours([
+            'lundi'    => ['m_start' => '08:00', 'm_end' => '12:00', 'am_start' => '13:00', 'am_end' => '17:00'],
+            'mardi'    => ['m_start' => '08:00', 'm_end' => '12:00', 'am_start' => '13:00', 'am_end' => '17:00'],
+            'mercredi' => ['m_start' => '08:00', 'm_end' => '12:00', 'am_start' => '13:00', 'am_end' => '17:00'],
+            'jeudi'    => ['m_start' => '08:00', 'm_end' => '12:00', 'am_start' => '13:00', 'am_end' => '17:00'],
+            'vendredi' => ['m_start' => '08:00', 'm_end' => '12:00', 'am_start' => '13:00', 'am_end' => '16:00'], // Finit plus tôt le vendredi ;)
+            'samedi'   => ['m_start' => null, 'm_end' => null, 'am_start' => null, 'am_end' => null],
+        ]);
+        // ---------------------------------------------------------------------
+
         $contract->setPlannedActivities('Développement Web');
         $contract->setSharingToken('token_test_123'); // Faux token
         $contract->setPdfUnsigned('path/to/unsigned.pdf'); // Faux chemin

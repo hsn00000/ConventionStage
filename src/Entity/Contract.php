@@ -34,8 +34,9 @@ class Contract
     #[ORM\Column]
     private ?bool $bonus = null;
 
-    #[ORM\Column(type: Types::TEXT)]
-    private ?string $workHours = null;
+    // --- MODIFICATION ICI : Passage en JSON pour le tableau d'horaires ---
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private array $workHours = [];
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $plannedActivities = null;
@@ -43,10 +44,8 @@ class Contract
     #[ORM\Column(length: 255)]
     private ?string $sharingToken = null;
 
-    // --- CORRECTION ---
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $tokenExpDate = null;
-    // --- FIN CORRECTION ---
 
     #[ORM\Column(length: 255)]
     private ?string $pdfUnsigned = null;
@@ -79,6 +78,20 @@ class Contract
     public function __construct()
     {
         $this->contractDates = new ArrayCollection();
+
+        // --- INITIALISATION DU TABLEAU D'HORAIRES ---
+        // Cela permet d'avoir la structure prête pour le formulaire
+        $this->workHours = [
+            'lundi'    => ['m_start' => null, 'm_end' => null, 'am_start' => null, 'am_end' => null],
+            'mardi'    => ['m_start' => null, 'm_end' => null, 'am_start' => null, 'am_end' => null],
+            'mercredi' => ['m_start' => null, 'm_end' => null, 'am_start' => null, 'am_end' => null],
+            'jeudi'    => ['m_start' => null, 'm_end' => null, 'am_start' => null, 'am_end' => null],
+            'vendredi' => ['m_start' => null, 'm_end' => null, 'am_start' => null, 'am_end' => null],
+            'samedi'   => ['m_start' => null, 'm_end' => null, 'am_start' => null, 'am_end' => null],
+        ];
+
+        // Statut par défaut
+        $this->status = 'Brouillon';
     }
 
     public function getId(): ?int
@@ -158,17 +171,21 @@ class Contract
         return $this;
     }
 
-    public function getWorkHours(): ?string
+    // --- MODIFICATION DES GETTER/SETTER POUR WORKHOURS ---
+
+    public function getWorkHours(): array
     {
         return $this->workHours;
     }
 
-    public function setWorkHours(string $workHours): static
+    public function setWorkHours(array $workHours): static
     {
         $this->workHours = $workHours;
 
         return $this;
     }
+
+    // -----------------------------------------------------
 
     public function getPlannedActivities(): ?string
     {
@@ -194,7 +211,6 @@ class Contract
         return $this;
     }
 
-    // --- CORRECTION ---
     public function getTokenExpDate(): ?\DateTimeInterface
     {
         return $this->tokenExpDate;
@@ -206,7 +222,6 @@ class Contract
 
         return $this;
     }
-    // --- FIN CORRECTION ---
 
     public function getPdfUnsigned(): ?string
     {
