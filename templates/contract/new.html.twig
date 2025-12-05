@@ -1,0 +1,195 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle Convention{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-9">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-body p-5">
+
+                        <h1 class="h3 mb-4 text-primary">Créer une nouvelle convention</h1>
+                        <p class="text-muted mb-4">
+                            Les informations administratives sont pré-remplies.
+                            Veuillez compléter les détails du stage.
+                        </p>
+
+                        {{ form_start(form) }}
+
+                        {# --- SECTION 1 : ENTREPRISE --- #}
+                        <h5 class="text-secondary border-bottom pb-2 mb-3">🏢 L'Entreprise</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                {{ form_row(form.organisation, {'attr': {'class': 'form-select'}}) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_row(form.tutor, {'attr': {'class': 'form-select'}}) }}
+                            </div>
+                        </div>
+
+                        {# --- SECTION 2 : LE STAGE --- #}
+                        <h5 class="text-secondary border-bottom pb-2 mb-3">🎓 Le Stage</h5>
+                        <div class="mb-3">
+                            {{ form_row(form.plannedActivities, {'attr': {'class': 'form-control', 'rows': 3}}) }}
+                        </div>
+
+                        {# --- SECTION 3 : HORAIRES (TABLEAU) --- #}
+                        <h5 class="text-secondary border-bottom pb-2 mb-3">📅 Emploi du temps</h5>
+
+                        {{ form_errors(form.workHours) }}
+
+                        <div class="table-responsive mb-2">
+                            <table class="table table-bordered text-center align-middle" id="schedule-table">
+                                <thead class="table-light small">
+                                <tr>
+                                    <th rowspan="2" style="width: 10%;">JOUR</th>
+                                    <th colspan="2">Matin</th>
+                                    <th colspan="2">Après-midi</th>
+                                    <th rowspan="2" style="width: 10%;">Total</th>
+                                </tr>
+                                <tr>
+                                    <th>Début</th>
+                                    <th>Fin</th>
+                                    <th>Début</th>
+                                    <th>Fin</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for day, dayForm in form.workHours %}
+                                    {# On ajoute une classe 'schedule-row' pour le JS #}
+                                    <tr class="schedule-row" data-day="{{ day }}">
+                                        <td class="fw-bold text-uppercase small bg-light">{{ day }}</td>
+
+                                        {# Les inputs ont la classe 'js-time-input' via le FormType #}
+                                        <td class="p-1">{{ form_widget(dayForm.m_start) }}</td>
+                                        <td class="p-1">{{ form_widget(dayForm.m_end) }}</td>
+
+                                        <td class="p-1">{{ form_widget(dayForm.am_start) }}</td>
+                                        <td class="p-1">{{ form_widget(dayForm.am_end) }}</td>
+
+                                        {# Total journalier #}
+                                        <td class="bg-light fw-bold text-primary day-total">0h</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                <tr class="table-active">
+                                    <td colspan="5" class="text-end fw-bold">Total Hebdomadaire :</td>
+                                    <td class="fw-bold text-success fs-5" id="week-total">0h</td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div id="alert-35h" class="alert alert-warning py-2 d-none">
+                            <small><i class="fas fa-exclamation-triangle"></i> Attention, le total est inférieur à 35h.</small>
+                        </div>
+
+                        {# Marquer le champ workHours comme rendu #}
+                        {% do form.workHours.setRendered() %}
+
+
+                        {# --- SECTION 4 : LOGISTIQUE --- #}
+                        <h5 class="text-secondary border-bottom pb-2 mb-3 mt-4">⚙️ Logistique</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    {{ form_widget(form.deplacement) }}
+                                    {{ form_label(form.deplacement) }}
+                                </div>
+                                <div class="form-check form-switch">
+                                    {{ form_widget(form.transportFreeTaken) }}
+                                    {{ form_label(form.transportFreeTaken) }}
+                                </div>
+                                <div class="form-check form-switch">
+                                    {{ form_widget(form.lunchTaken) }}
+                                    {{ form_label(form.lunchTaken) }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    {{ form_widget(form.hostTaken) }}
+                                    {{ form_label(form.hostTaken) }}
+                                </div>
+                                <div class="form-check form-switch">
+                                    {{ form_widget(form.bonus) }}
+                                    {{ form_label(form.bonus) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Valider la convention</button>
+                        </div>
+
+                        {{ form_end(form) }}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# --- SCRIPT DE CALCUL DES HORAIRES --- #}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('.schedule-row');
+            const weekTotalDisplay = document.getElementById('week-total');
+            const alert35h = document.getElementById('alert-35h');
+
+            function calculateTimeDiff(start, end) {
+                if (!start || !end) return 0;
+                const [startH, startM] = start.split(':').map(Number);
+                const [endH, endM] = end.split(':').map(Number);
+
+                let diffInMinutes = (endH * 60 + endM) - (startH * 60 + startM);
+                return diffInMinutes > 0 ? diffInMinutes : 0;
+            }
+
+            function formatHours(minutes) {
+                if (minutes === 0) return '0h';
+                const h = Math.floor(minutes / 60);
+                const m = minutes % 60;
+                return m > 0 ? `${h}h${m}` : `${h}h`;
+            }
+
+            function updateTotals() {
+                let weekTotalMinutes = 0;
+
+                rows.forEach(row => {
+                    const inputs = row.querySelectorAll('input[type="time"]');
+                    // inputs[0]=m_start, inputs[1]=m_end, inputs[2]=am_start, inputs[3]=am_end
+
+                    const morningMinutes = calculateTimeDiff(inputs[0].value, inputs[1].value);
+                    const afternoonMinutes = calculateTimeDiff(inputs[2].value, inputs[3].value);
+
+                    const dayTotalMinutes = morningMinutes + afternoonMinutes;
+                    weekTotalMinutes += dayTotalMinutes;
+
+                    // Mise à jour affichage ligne
+                    row.querySelector('.day-total').textContent = formatHours(dayTotalMinutes);
+                });
+
+                // Mise à jour total semaine
+                weekTotalDisplay.textContent = formatHours(weekTotalMinutes);
+
+                // Alerte 35h
+                if (weekTotalMinutes < 35 * 60 && weekTotalMinutes > 0) {
+                    alert35h.classList.remove('d-none');
+                } else {
+                    alert35h.classList.add('d-none');
+                }
+            }
+
+            // Écouteur d'événements sur tous les champs temps
+            document.querySelectorAll('.js-time-input').forEach(input => {
+                input.addEventListener('input', updateTotals);
+            });
+
+            // Calcul initial au chargement (si données déjà présentes)
+            updateTotals();
+        });
+    </script>
+{% endblock %}
