@@ -40,9 +40,15 @@
                     </div>
 
                     <div class="mb-3">
-                        {# Nom et Prénom #}
-                        {{ form_row(registrationForm.name, {
-                            'label': 'Nom et Prénom',
+                        {{ form_row(registrationForm.lastname, {
+                            'label': 'Nom de famille',
+                            'attr': {'class': 'form-control'}
+                        }) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_row(registrationForm.firstname, {
+                            'label': 'Prénom',
                             'attr': {'class': 'form-control'}
                         }) }}
                     </div>
