@@ -57,18 +57,15 @@
                                 </thead>
                                 <tbody>
                                 {% for day, dayForm in form.workHours %}
-                                    {# On ajoute une classe 'schedule-row' pour le JS #}
                                     <tr class="schedule-row" data-day="{{ day }}">
                                         <td class="fw-bold text-uppercase small bg-light">{{ day }}</td>
 
-                                        {# Les inputs ont la classe 'js-time-input' via le FormType #}
                                         <td class="p-1">{{ form_widget(dayForm.m_start) }}</td>
                                         <td class="p-1">{{ form_widget(dayForm.m_end) }}</td>
 
                                         <td class="p-1">{{ form_widget(dayForm.am_start) }}</td>
                                         <td class="p-1">{{ form_widget(dayForm.am_end) }}</td>
 
-                                        {# Total journalier #}
                                         <td class="bg-light fw-bold text-primary day-total">0h</td>
                                     </tr>
                                 {% endfor %}
@@ -85,9 +82,7 @@
                             <small><i class="fas fa-exclamation-triangle"></i> Attention, le total est inférieur à 35h.</small>
                         </div>
 
-                        {# Marquer le champ workHours comme rendu #}
                         {% do form.workHours.setRendered() %}
-
 
                         {# --- SECTION 4 : LOGISTIQUE --- #}
                         <h5 class="text-secondary border-bottom pb-2 mb-3 mt-4">⚙️ Logistique</h5>
@@ -132,7 +127,7 @@
         </div>
     </div>
 
-    {# --- SCRIPT DE CALCUL DES HORAIRES --- #}
+    {# --- SCRIPT DE CALCUL DES HORAIRES CORRIGÉ --- #}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const rows = document.querySelectorAll('.schedule-row');
@@ -144,6 +139,7 @@
                 const [startH, startM] = start.split(':').map(Number);
                 const [endH, endM] = end.split(':').map(Number);
 
+                // Calcul en minutes
                 let diffInMinutes = (endH * 60 + endM) - (startH * 60 + startM);
                 return diffInMinutes > 0 ? diffInMinutes : 0;
             }
@@ -152,43 +148,53 @@
                 if (minutes === 0) return '0h';
                 const h = Math.floor(minutes / 60);
                 const m = minutes % 60;
-                return m > 0 ? `${h}h${m}` : `${h}h`;
+                // Ajoute un zéro devant les minutes si < 10 (ex: 1h05)
+                const mStr = m < 10 ? '0' + m : m;
+                return m > 0 ? `${h}h${mStr}` : `${h}h`;
             }
 
             function updateTotals() {
                 let weekTotalMinutes = 0;
 
                 rows.forEach(row => {
-                    const inputs = row.querySelectorAll('input[type="time"]');
-                    // inputs[0]=m_start, inputs[1]=m_end, inputs[2]=am_start, inputs[3]=am_end
+                    // CORRECTION ICI : On utilise la classe .js-time-input au lieu du type="time"
+                    const inputs = row.querySelectorAll('.js-time-input');
 
-                    const morningMinutes = calculateTimeDiff(inputs[0].value, inputs[1].value);
-                    const afternoonMinutes = calculateTimeDiff(inputs[2].value, inputs[3].value);
+                    // On vérifie qu'on a bien trouvé les 4 champs pour éviter les erreurs JS
+                    if (inputs.length === 4) {
+                        const morningMinutes = calculateTimeDiff(inputs[0].value, inputs[1].value);
+                        const afternoonMinutes = calculateTimeDiff(inputs[2].value, inputs[3].value);
 
-                    const dayTotalMinutes = morningMinutes + afternoonMinutes;
-                    weekTotalMinutes += dayTotalMinutes;
+                        const dayTotalMinutes = morningMinutes + afternoonMinutes;
+                        weekTotalMinutes += dayTotalMinutes;
 
-                    // Mise à jour affichage ligne
-                    row.querySelector('.day-total').textContent = formatHours(dayTotalMinutes);
+                        // Mise à jour affichage ligne
+                        row.querySelector('.day-total').textContent = formatHours(dayTotalMinutes);
+                    }
                 });
 
                 // Mise à jour total semaine
-                weekTotalDisplay.textContent = formatHours(weekTotalMinutes);
+                if (weekTotalDisplay) {
+                    weekTotalDisplay.textContent = formatHours(weekTotalMinutes);
+                }
 
                 // Alerte 35h
-                if (weekTotalMinutes < 35 * 60 && weekTotalMinutes > 0) {
-                    alert35h.classList.remove('d-none');
-                } else {
-                    alert35h.classList.add('d-none');
+                if (alert35h) {
+                    if (weekTotalMinutes < 35 * 60 && weekTotalMinutes > 0) {
+                        alert35h.classList.remove('d-none');
+                    } else {
+                        alert35h.classList.add('d-none');
+                    }
                 }
             }
 
-            // Écouteur d'événements sur tous les champs temps
+            // Écouteur d'événements sur tous les champs avec la classe .js-time-input
             document.querySelectorAll('.js-time-input').forEach(input => {
                 input.addEventListener('input', updateTotals);
+                input.addEventListener('change', updateTotals); // Sécurité supplémentaire
             });
 
-            // Calcul initial au chargement (si données déjà présentes)
+            // Calcul initial au chargement
             updateTotals();
         });
     </script>
