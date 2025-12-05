@@ -21,10 +21,10 @@
 {% block body %}
 
     {# --------------------------------------------------------------------- #}
-    {# NAVIGATION BAR BOOTSTRAP 5 #}
-    {# --------------------------------------------------------------------- #}
-    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top border-bottom shadow-sm">
-        <div class="container-fluid">
+    {# NAVIGATION BAR BOOTSTRAP 5 (Non fixée et avec marges latérales) #}
+    {# Remplacement de 'fixed-top' et 'container-fluid' par 'container' #}
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
+        <div class="container">
             {# LOGO / MARQUE #}
             <a href="{{ path('app_home') }}" class="navbar-brand">
                 <img src="{{ asset('img/Conventio.png') }}" alt="Logo de l'application" style="height: 38px;" class="d-inline-block align-text-top me-2">
@@ -64,8 +64,7 @@
     </nav>
     {# --------------------------------------------------------------------- #}
 
-    {# ESPACEMENT OBLIGATOIRE : Ajout d'un div pour compenser la navbar fixed-top #}
-    <div style="height: 10px;"></div>
+    {# Le div d'espacement pour l'ancienne navbar fixe a été supprimé #}
 
 
     {# --------------------------------------------------------------------- #}
