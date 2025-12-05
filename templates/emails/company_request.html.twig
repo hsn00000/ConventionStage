@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Demande de Convention</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+<div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+    <h2 style="color: #0d6efd;">Demande de Convention de Stage</h2>
+
+    <p>Bonjour,</p>
+
+    <p>L'étudiant(e) <strong>{{ student.firstname }} {{ student.lastname }}</strong> du Lycée Gabriel Fauré souhaite effectuer un stage au sein de votre entreprise.</p>
+
+    <p>Pour établir la convention de stage officielle, nous avons besoin de collecter certaines informations administratives et logistiques.</p>
+
+    <p>Merci de bien vouloir cliquer sur le bouton ci-dessous pour accéder à notre formulaire sécurisé :</p>
+
+    <div style="text-align: center; margin: 30px 0;">
+        {# Note: Le lien pointe vers '#' pour l'instant car la route entreprise n'existe pas encore #}
+        <a href="#"
+           style="background-color: #0d6efd; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            Fournir les informations du stage
+        </a>
+    </div>
+
+    <p style="font-size: 0.9em; color: #666;">
+        Si le bouton ne fonctionne pas, ce lien sera disponible prochainement.
+        <br>Token de sécurité : {{ token }}
+    </p>
+
+    <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+
+    <p style="font-size: 0.8em; color: #888;">
+        Cordialement,<br>
+        Le secrétariat du Lycée Gabriel Fauré.
+    </p>
+</div>
+</body>
+</html>

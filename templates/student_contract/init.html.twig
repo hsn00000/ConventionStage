@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle demande de convention{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-sm rounded-4 border-0">
+                    <div class="card-body p-5">
+                        <h1 class="h3 mb-4 text-primary text-center">Démarrer une convention</h1>
+
+                        <div class="alert alert-info border-0 bg-info-subtle text-info-emphasis">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Vous ne connaissez pas toutes les informations administratives de l'entreprise ?
+                            Remplissez ce formulaire et nous enverrons un email à votre tuteur pour qu'il le fasse à votre place.
+                        </div>
+
+                        {{ form_start(form) }}
+                        <div class="mb-4">
+                            {{ form_row(form.companyName, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                        </div>
+                        <div class="mb-4">
+                            {{ form_row(form.tutorEmail, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                        </div>
+
+                        <div class="d-grid mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Envoyer la demande <i class="fas fa-paper-plane ms-2"></i>
+                            </button>
+                        </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
