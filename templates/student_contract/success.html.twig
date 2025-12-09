@@ -10,7 +10,10 @@
                     <div class="card-body p-5">
 
                         <div class="mb-4 text-success">
-                            <i class="fas fa-check-circle fa-5x"></i>
+                            {# Icône SVG "Validé" (Check circle fill) #}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                            </svg>
                         </div>
 
                         <h1 class="h3 mb-3 text-dark">Demande envoyée avec succès !</h1>
@@ -19,17 +22,17 @@
                             Un email contenant le lien sécurisé a été envoyé au responsable de l'entreprise.
                         </p>
 
-                        <div class="alert alert-light border text-start mb-4">
-                            <h6 class="fw-bold"><i class="fas fa-hourglass-half me-2"></i> Prochaines étapes :</h6>
-                            <ul class="mb-0 ps-3 small text-secondary">
-                                <li>Le tuteur reçoit l'email et clique sur le lien.</li>
-                                <li>Il remplit les informations administratives et les horaires.</li>
-                                <li>Une fois validé, votre professeur référent recevra une notification.</li>
-                                <li>La convention finale sera générée pour signature.</li>
+                        <div class="alert alert-light border text-start mb-4 bg-light">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-hourglass-half me-2"></i> Prochaines étapes :</h6>
+                            <ul class="mb-0 ps-3 text-secondary" style="list-style-type: none;">
+                                <li class="mb-2">📧 <strong>1.</strong> Le tuteur reçoit l'email et clique sur le lien.</li>
+                                <li class="mb-2">📝 <strong>2.</strong> Il remplit les informations administratives et les horaires.</li>
+                                <li class="mb-2">✅ <strong>3.</strong> Une fois validé, votre professeur référent recevra une notification.</li>
+                                <li>📄 <strong>4.</strong> La convention finale sera générée pour signature.</li>
                             </ul>
                         </div>
 
-                        <a href="{{ path('app_home') }}" class="btn btn-outline-primary">
+                        <a href="{{ path('app_home') }}" class="btn btn-outline-primary px-4">
                             Retour à l'accueil
                         </a>
 

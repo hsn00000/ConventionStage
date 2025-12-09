@@ -34,17 +34,92 @@ class StudentContractController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // ... (Tout votre code de création Tuteur/Organisation/Contrat reste identique) ...
-            // ...
-            // ...
+            $data = $form->getData();
+            /** @var Student $student */
+            $student = $this->getUser();
 
-            // --- COPIEZ LE CODE DE CRÉATION EXISTANT ICI (Lignes 38 à 138 environ) ---
-            // Pour gagner de la place, je ne le remets pas, mais gardez-le tel quel !
-            // -------------------------------------------------------------------------
+            // --- 1. Gestion du Tuteur ---
+            $tutorEmail = $data['tutorEmail'];
+            $existingUser = $em->getRepository(User::class)->findOneBy(['email' => $tutorEmail]);
+            $tutor = null;
 
-            // Juste après l'envoi du mail :
+            if ($existingUser) {
+                if ($existingUser instanceof Tutor) {
+                    $tutor = $existingUser;
+                } else {
+                    $this->addFlash('error', 'Cette adresse email est déjà utilisée par un compte qui n\'est pas un tuteur.');
+                    return $this->redirectToRoute('app_student_contract_init');
+                }
+            } else {
+                $tutor = new Tutor();
+                $tutor->setEmail($tutorEmail);
+                $tutor->setLastname('A compléter');
+                $tutor->setFirstname('A compléter');
+                $tutor->setRoles(['ROLE_TUTOR']);
+                $randomPassword = bin2hex(random_bytes(10));
+                $tutor->setPassword($passwordHasher->hashPassword($tutor, $randomPassword));
+                $em->persist($tutor);
+            }
 
-            // Au lieu de rediriger vers 'app_home', on redirige vers la page de succès
+            // --- 2. Organisation ---
+            $org = new Organisation();
+            $org->setName($data['companyName']);
+            $org->setAddressHq('A compléter');
+            $org->setPostalCodeHq('00000');
+            $org->setCityHq('A compléter');
+            $org->setAddressInternship('A compléter');
+            $org->setPostalCodeInternship('00000');
+            $org->setCityInternship('A compléter');
+            $org->setRespName('A compléter');
+            $org->setRespFunction('A compléter');
+            $org->setRespEmail($tutorEmail);
+            $org->setRespPhone('0000000000');
+            $org->setInsuranceName('A compléter');
+            $org->setInsuranceContract('A compléter');
+            $em->persist($org);
+
+            // --- 3. Contrat ---
+            $contract = new Contract();
+            $contract->setStudent($student);
+            $contract->setTutor($tutor);
+            $contract->setOrganisation($org);
+            $contract->setStatus('En attente entreprise');
+
+            $contract->setDeplacement(false);
+            $contract->setTransportFreeTaken(false);
+            $contract->setLunchTaken(false);
+            $contract->setHostTaken(false);
+            $contract->setBonus(false);
+            $contract->setPlannedActivities('A compléter par l\'entreprise');
+            $contract->setWorkHours([]);
+            $contract->setPdfUnsigned('');
+            $contract->setPdfSigned('');
+
+            $token = bin2hex(random_bytes(32));
+            $contract->setSharingToken($token);
+
+            if ($student->getProfReferent()) {
+                $contract->setCoordinator($student->getProfReferent());
+            }
+
+            $em->persist($contract);
+            $em->flush();
+
+            // --- 4. Email ---
+            $email = (new TemplatedEmail())
+                ->from('convention@lycee-faure.fr')
+                ->to($tutorEmail)
+                ->subject('Lycée Gabriel Fauré - Demande de Convention de Stage')
+                ->htmlTemplate('emails/company_request.html.twig')
+                ->context([
+                    'student' => $student,
+                    'contract' => $contract,
+                    'token' => $token,
+                ]);
+
+            $mailer->send($email);
+
+            // --- REDIRECTION VERS LA PAGE DE SUCCÈS ---
             return $this->redirectToRoute('app_student_contract_success');
         }
 
@@ -53,7 +128,7 @@ class StudentContractController extends AbstractController
         ]);
     }
 
-    #[Route('/succes', name: 'app_student_contract_success')]
+    #[Route('/demande-envoyee', name: 'app_student_contract_success')]
     public function success(): Response
     {
         return $this->render('student_contract/success.html.twig');
