@@ -26,16 +26,36 @@
                         Notre plateforme centralise le processus de création, signature et suivi de toutes vos conventions. Conçu pour les étudiants, professeurs et entreprises.
                     </p>
 
-                    {# Boutons CTA #}
+                    {# Boutons CTA (Logique conditionnelle mise à jour) #}
                     <div class="d-grid gap-3 d-sm-flex justify-content-center justify-content-lg-start">
-                        {# CTA Primaire : Inscription Étudiant #}
-                        <a href="{{ path('app_register_student') }}" class="btn btn-primary btn-lg px-4 me-sm-3 fw-bold shadow-lg">
-                            Commencer ma Convention
-                        </a>
-                        {# CTA Secondaire : Espace Professeur #}
-                        <a href="{{ path('app_register_professor') }}" class="btn btn-outline-secondary btn-lg px-4 shadow-sm">
-                            Espace Professeur
-                        </a>
+
+                        {# 1. Utilisateur NON CONNECTÉ : Affiche tous les liens d'inscription #}
+                        {% if not is_granted('IS_AUTHENTICATED_FULLY') %}
+                            {# CTA Primaire : Inscription Étudiant #}
+                            <a href="{{ path('app_student_contract_init') }}" class="btn btn-primary btn-lg px-4 me-sm-3 fw-bold shadow-lg">
+                                Commencer ma Convention
+                            </a>
+                            {# CTA Secondaire : Inscription Professeur #}
+                            <a href="{{ path('app_register_professor') }}" class="btn btn-outline-secondary btn-lg px-4 shadow-sm">
+                                Espace Professeur
+                            </a>
+
+                            {# 2. Utilisateur CONNECTÉ EN TANT QU'ÉTUDIANT : Affiche seulement le bouton Convention #}
+                        {% elseif is_granted('ROLE_STUDENT') %}
+                            {# CTA Primaire : Commencer / Continuer Convention #}
+                            <a href="{{ path('app_student_contract_init') }}" class="btn btn-primary btn-lg px-4 me-sm-3 fw-bold shadow-lg">
+                                Commencer ma Convention
+                            </a>
+
+                            {# 3. Utilisateur CONNECTÉ EN TANT QUE PROFESSEUR : Affiche seulement le bouton Espace Professeur (Dashboard) #}
+                        {% elseif is_granted('ROLE_PROFESSOR') %}
+                            {# CTA Primaire : Espace Professeur (Dashboard) #}
+                            {# Attention : J'utilise ici la route que nous allons créer à l'étape suivante : app_professor_dashboard #}
+                            <a href="{{ path('app_professor_dashboard', {'id': app.user.id}) }}" class="btn btn-primary btn-lg px-4 me-sm-3 fw-bold shadow-lg">
+                                Accéder au Dashboard Professeur
+                            </a>
+
+                        {% endif %}
                     </div>
 
                 </div>
