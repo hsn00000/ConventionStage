@@ -51,7 +51,7 @@
                         {% elseif is_granted('ROLE_PROFESSOR') %}
                             {# CTA Primaire : Espace Professeur (Dashboard) #}
                             {# Attention : J'utilise ici la route que nous allons créer à l'étape suivante : app_professor_dashboard #}
-                            <a href="{{ path('app_professor_dashboard', {'id': app.user.id}) }}" class="btn btn-primary btn-lg px-4 me-sm-3 fw-bold shadow-lg">
+                            <a href="{{ path('app_professor_show', {'id': app.user.id}) }}" class="btn btn-primary btn-lg px-4 me-sm-3 fw-bold shadow-lg">
                                 Accéder au Dashboard Professeur
                             </a>
 

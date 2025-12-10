@@ -24,7 +24,6 @@
 
     {# --------------------------------------------------------------------- #}
     {# NAVIGATION BAR BOOTSTRAP 5 (Non fixée et avec marges latérales) #}
-    {# Remplacement de 'fixed-top' et 'container-fluid' par 'container' #}
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
         <div class="container">
             {# LOGO / MARQUE #}
@@ -54,14 +53,28 @@
                             <a href="{{ path('app_login') }}" class="btn btn-primary shadow-sm">Se connecter</a>
                         </li>
                     {% else %}
-                        {# Lien Profil pour Étudiant avec icône Font Awesome (fa-user-circle) #}
+
+                        {# --- Éléments du Dashboard pour Utilisateur Connecté --- #}
+
+                        {# 1. Bouton Profil pour Professeur (Route différente, même style) #}
+                        {% if is_granted('ROLE_PROFESSOR') and app.user.id is defined %}
+                            <li class="nav-item me-2 mb-2 mb-lg-0">
+                                <a href="{{ path('app_professor_show', {'id': app.user.id}) }}" class="btn btn-secondary">
+                                    <i class="fas fa-user-circle me-1"></i> Profil
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {# 2. Bouton Profil pour Étudiant (Route différente, même style) #}
                         {% if is_granted('ROLE_STUDENT') and app.user.id is defined %}
-                            <li class="nav-item me-3 mb-2 mb-lg-0">
+                            <li class="nav-item me-2 mb-2 mb-lg-0">
                                 <a href="{{ path('app_student_show', {'id': app.user.id}) }}" class="btn btn-secondary">
                                     <i class="fas fa-user-circle me-1"></i> Profil
                                 </a>
                             </li>
                         {% endif %}
+
+
                         {# Bouton Se déconnecter #}
                         <li class="nav-item">
                             <a href="{{ path('app_logout') }}" class="btn btn-outline-danger">Se déconnecter</a>
