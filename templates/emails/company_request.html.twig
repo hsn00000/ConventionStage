@@ -17,16 +17,18 @@
     <p>Merci de bien vouloir cliquer sur le bouton ci-dessous pour accéder à notre formulaire sécurisé :</p>
 
     <div style="text-align: center; margin: 30px 0;">
-        {# Note: Le lien pointe vers '#' pour l'instant car la route entreprise n'existe pas encore #}
-        <a href="#"
+        {# --- CORRECTION : AJOUT DU PARAMÈTRE {token: token} --- #}
+        {# Utilisation de url() au lieu de path() pour avoir un lien absolu (http://...) dans l'email #}
+        <a href="{{ url('app_company_fill', {token: token}) }}"
            style="background-color: #0d6efd; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
             Fournir les informations du stage
         </a>
     </div>
 
     <p style="font-size: 0.9em; color: #666;">
-        Si le bouton ne fonctionne pas, ce lien sera disponible prochainement.
-        <br>Token de sécurité : {{ token }}
+        Si le bouton ne fonctionne pas, vous pouvez copier ce lien dans votre navigateur :<br>
+        {# Lien textuel de secours avec le token #}
+        {{ url('app_company_fill', {token: token}) }}
     </p>
 
     <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
