@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Merci - Dossier Enregistré</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>✅</text></svg>">
+
+    {# On charge le CSS de l'application (Bootstrap) #}
+    {% block stylesheets %}
+        {{ importmap('app') }}
+    {% endblock %}
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center vh-100">
+
+<div class="container text-center">
+    <div class="card shadow border-0 rounded-4 p-5 mx-auto" style="max-width: 600px;">
+
+        <div class="mb-4 text-success">
+            {# Icône SVG "Check" #}
+            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+            </svg>
+        </div>
+
+        <h1 class="h3 mb-3 fw-bold text-dark">Informations enregistrées !</h1>
+
+        <p class="text-muted mb-4">
+            Merci d'avoir pris le temps de compléter ce dossier.<br>
+            Toutes les informations administratives et pédagogiques ont bien été transmises au lycée.
+        </p>
+
+        <div class="alert alert-light border text-start bg-light mb-4 p-3 rounded-3">
+            <h6 class="fw-bold mb-2 text-dark"><i class="fas fa-info-circle me-2"></i> Suite du processus :</h6>
+            <p class="small text-secondary mb-0">
+                La convention de stage officielle sera générée automatiquement et vous sera envoyée par email pour <strong>signature électronique</strong> dans les prochains jours.
+            </p>
+        </div>
+
+        <p class="text-muted small mt-2">Vous pouvez fermer cette fenêtre en toute sécurité.</p>
+    </div>
+</div>
+
+</body>
+</html>
