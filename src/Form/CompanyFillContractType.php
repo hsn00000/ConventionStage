@@ -3,12 +3,12 @@
 namespace App\Form;
 
 use App\Entity\Contract;
-// Les imports des formulaires imbriqués sont cruciaux
 use App\Form\OrganisationType;
 use App\Form\TutorType;
 use App\Form\WeeklyScheduleType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -24,7 +24,7 @@ class CompanyFillContractType extends AbstractType
             ])
 
             // --- 2. TUTEUR (Sous-formulaire) ---
-            ->add('tutor', TutorType::class, [
+            ->add('tutor', ContractTutorType::class, [
                 'label' => false,
             ])
 
@@ -48,6 +48,14 @@ class CompanyFillContractType extends AbstractType
             ->add('bonus', CheckboxType::class, [
                 'label' => 'Une gratification est-elle prévue ?',
                 'required' => false,
+            ])
+            ->add('bonusAmount', MoneyType::class, [
+                'label' => 'Montant mensuel net',
+                'required' => false, // Important : false car on ne le remplit que si bonus est coché
+                'currency' => 'EUR',
+                'attr' => [
+                    'placeholder' => 'Ex: 600.00'
+                ]
             ])
 
             // --- 4. HORAIRES ---

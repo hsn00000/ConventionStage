@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+
 #[ORM\Entity(repositoryClass: ContractRepository::class)]
 class Contract
 {
@@ -52,6 +53,9 @@ class Contract
 
     #[ORM\Column(length: 255)]
     private ?string $pdfSigned = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $bonusAmount = null;
 
     #[ORM\ManyToOne(inversedBy: 'contracts')]
     #[ORM\JoinColumn(nullable: false)]
@@ -322,6 +326,17 @@ class Contract
             }
         }
 
+        return $this;
+    }
+
+    public function getBonusAmount(): ?float
+    {
+        return $this->bonusAmount;
+    }
+
+    public function setBonusAmount(?float $bonusAmount): static
+    {
+        $this->bonusAmount = $bonusAmount;
         return $this;
     }
 }

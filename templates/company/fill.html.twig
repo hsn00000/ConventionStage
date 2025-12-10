@@ -1,281 +1,109 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Convention de Stage - Informations Entreprise</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🏢</text></svg>">
+{% extends 'base.html.twig' %}
 
-    {# On charge les styles de l'application (Bootstrap) sans charger le menu de base #}
-    {% block stylesheets %}
-        {{ importmap('app') }}
-    {% endblock %}
-</head>
-<body class="bg-light">
+{% block title %}Compléter la convention{% endblock %}
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10 col-xl-9">
+{% block body %}
+    <div class="container my-5">
 
-            {# En-tête de la page #}
-            <div class="text-center mb-5">
-                <h1 class="h3 fw-bold text-primary">Convention de Stage</h1>
-                <p class="fs-5 text-muted">
-                    Dossier pour l'étudiant :
-                    <span class="text-dark fw-bold">{{ contract.student.firstname }} {{ contract.student.lastname|upper }}</span>
-                </p>
-                <div class="badge bg-warning text-dark px-3 py-2 shadow-sm">Espace Entreprise</div>
-            </div>
+        <div class="mb-4">
+            <h2>Convention de Stage</h2>
+            <p class="text-muted">Veuillez vérifier et compléter les informations ci-dessous.</p>
+        </div>
 
-            <div class="card shadow border-0 rounded-3">
-                <div class="card-body p-4 p-md-5">
+        {{ form_start(form) }}
 
-                    {{ form_start(form) }}
+        <div class="row g-5">
 
-                    {# --- BLOC 1 : L'ORGANISME D'ACCUEIL --- #}
-                    <h4 class="text-secondary border-bottom pb-2 mb-4">🏢 L'Organisme d'accueil</h4>
+            {# --- COLONNE GAUCHE : LES CONTACTS --- #}
+            <div class="col-lg-6">
+                <h4 class="mb-3 border-bottom pb-2">1. Informations Administratives</h4>
 
-                    <div class="bg-light p-4 rounded mb-5 border">
-                        <div class="alert alert-info border-0 d-flex align-items-center mb-4">
-                            <i class="fas fa-info-circle me-3 fs-4"></i>
-                            <div>Merci de vérifier et compléter les informations administratives de votre structure.</div>
-                        </div>
+                <div class="mb-4">
+                    <h5 class="text-primary h6">L'Entreprise</h5>
+                    {# Affiche tous les champs de l'organisation #}
+                    {{ form_widget(form.organisation) }}
+                </div>
 
-                        <div class="mb-3">
-                            {{ form_row(form.organisation.name, {label: 'Raison Sociale de l\'entreprise'}) }}
-                        </div>
-
-                        {# Si vous avez le champ site web #}
-                        <div class="mb-3">
-                            {{ form_row(form.organisation.website) }}
-                        </div>
-
-                        <label class="form-label fw-bold mt-2">Adresse du Siège Social</label>
-                        <div class="row g-3">
-                            <div class="col-md-6">{{ form_row(form.organisation.addressHq) }}</div>
-                            <div class="col-md-2">{{ form_row(form.organisation.postalCodeHq) }}</div>
-                            <div class="col-md-4">{{ form_row(form.organisation.cityHq) }}</div>
-                        </div>
-
-                        <div class="mt-4">
-                            <a class="text-decoration-none fw-bold" data-bs-toggle="collapse" href="#internshipAddress" role="button">
-                                <i class="fas fa-map-marker-alt me-1"></i> Le lieu du stage est différent du siège ?
-                            </a>
-                            <div class="collapse mt-2" id="internshipAddress">
-                                <div class="card card-body border bg-white">
-                                    {{ form_row(form.organisation.addressInternship) }}
-                                    <div class="row g-3">
-                                        <div class="col-md-4">{{ form_row(form.organisation.postalCodeInternship) }}</div>
-                                        <div class="col-md-8">{{ form_row(form.organisation.cityInternship) }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr class="my-4 text-muted">
-                        <h6 class="fw-bold text-dark mb-3"><i class="fas fa-user-tie me-2"></i> Responsable Signataire de la convention</h6>
-
-                        <div class="row g-3">
-                            <div class="col-md-6">{{ form_row(form.organisation.respName, {label: 'Nom et Prénom'}) }}</div>
-                            <div class="col-md-6">{{ form_row(form.organisation.respFunction, {label: 'Fonction'}) }}</div>
-                        </div>
-                        <div class="row g-3 mt-1">
-                            <div class="col-md-6">{{ form_row(form.organisation.respEmail) }}</div>
-                            <div class="col-md-6">{{ form_row(form.organisation.respPhone) }}</div>
-                        </div>
-
-                        <hr class="my-4 text-muted">
-                        <h6 class="fw-bold text-dark mb-3"><i class="fas fa-shield-alt me-2"></i> Assurance</h6>
-                        <div class="row g-3">
-                            <div class="col-md-6">{{ form_row(form.organisation.insuranceName) }}</div>
-                            <div class="col-md-6">{{ form_row(form.organisation.insuranceContract) }}</div>
-                        </div>
-                    </div>
-
-                    {# --- BLOC 2 : LE TUTEUR --- #}
-                    <h4 class="text-secondary border-bottom pb-2 mb-4">🧑‍🏫 Le Maître de Stage (Tuteur)</h4>
-                    <div class="bg-light p-4 rounded mb-5 border">
-                        <div class="row g-3">
-                            <div class="col-md-6">{{ form_row(form.tutor.lastname, {label: 'Nom'}) }}</div>
-                            <div class="col-md-6">{{ form_row(form.tutor.firstname, {label: 'Prénom'}) }}</div>
-                        </div>
-                        <div class="row g-3 mt-1">
-                            <div class="col-md-6">{{ form_row(form.tutor.email) }}</div>
-                            <div class="col-md-6">{{ form_row(form.tutor.telMobile, {label: 'Téléphone Portable'}) }}</div>
-                        </div>
-                    </div>
-
-                    {# --- BLOC 3 : PÉDAGOGIE & HORAIRES --- #}
-                    <h4 class="text-secondary border-bottom pb-2 mb-4">📅 Déroulement du Stage</h4>
-
-                    <div class="mb-4">
-                        {{ form_row(form.plannedActivities) }}
-                    </div>
-
-                    <div class="mb-5">
-                        <label class="form-label fw-bold mb-3">Horaires de présence hebdomadaires</label>
-
-                        {# TABLEAU DES HORAIRES #}
-                        <div class="table-responsive">
-                            <table class="table table-bordered text-center align-middle bg-white shadow-sm" id="schedule-table">
-                                <thead class="table-light small">
-                                <tr>
-                                    <th rowspan="2" class="align-middle">JOUR</th>
-                                    <th colspan="2">Matin</th>
-                                    <th colspan="2">Après-midi</th>
-                                    <th rowspan="2" class="align-middle bg-light" style="width: 100px;">Total</th>
-                                </tr>
-                                <tr>
-                                    <th>Début</th><th>Fin</th><th>Début</th><th>Fin</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for day, dayForm in form.workHours %}
-                                    <tr class="schedule-row">
-                                        <td class="fw-bold text-uppercase small bg-light">{{ day }}</td>
-                                        {# Les champs inputs ont la classe .js-time-input via le DailyScheduleType #}
-                                        <td class="p-1">{{ form_widget(dayForm.m_start) }}</td>
-                                        <td class="p-1">{{ form_widget(dayForm.m_end) }}</td>
-                                        <td class="p-1">{{ form_widget(dayForm.am_start) }}</td>
-                                        <td class="p-1">{{ form_widget(dayForm.am_end) }}</td>
-                                        <td class="fw-bold text-primary day-total bg-light">0h</td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                                <tfoot>
-                                <tr class="table-active">
-                                    <td colspan="5" class="text-end fw-bold">Total Hebdomadaire :</td>
-                                    <td class="fw-bold text-success fs-5" id="week-total">0h</td>
-                                </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                        {# Alerte visuelle pour les 35h #}
-                        <div id="alert-35h" class="alert alert-warning py-2 d-none mt-2">
-                            <small><i class="fas fa-exclamation-triangle"></i> Le total est inférieur à 35h.</small>
-                        </div>
-
-                        {# Indispensable pour éviter le double affichage #}
-                        {% do form.workHours.setRendered() %}
-                    </div>
-
-                    {# --- BLOC 4 : LOGISTIQUE --- #}
-                    <h4 class="text-secondary border-bottom pb-2 mb-4">⚙️ Logistique & Gratification</h4>
-                    <div class="bg-light p-4 rounded mb-4 border">
-                        <div class="form-check form-switch mb-3 ps-5">
-                            {{ form_widget(form.deplacement, {'attr': {'class': 'form-check-input', 'style': 'transform: scale(1.3); margin-left: -2.5em;'}}) }}
-                            {{ form_label(form.deplacement, null, {'label_attr': {'class': 'form-check-label fw-bold'}}) }}
-                        </div>
-                        <div class="form-check form-switch mb-3 ps-5">
-                            {{ form_widget(form.transportFreeTaken, {'attr': {'class': 'form-check-input', 'style': 'transform: scale(1.3); margin-left: -2.5em;'}}) }}
-                            {{ form_label(form.transportFreeTaken, null, {'label_attr': {'class': 'form-check-label fw-bold'}}) }}
-                        </div>
-                        <div class="form-check form-switch mb-3 ps-5">
-                            {{ form_widget(form.lunchTaken, {'attr': {'class': 'form-check-input', 'style': 'transform: scale(1.3); margin-left: -2.5em;'}}) }}
-                            {{ form_label(form.lunchTaken, null, {'label_attr': {'class': 'form-check-label fw-bold'}}) }}
-                        </div>
-                        <div class="form-check form-switch mb-3 ps-5">
-                            {{ form_widget(form.hostTaken, {'attr': {'class': 'form-check-input', 'style': 'transform: scale(1.3); margin-left: -2.5em;'}}) }}
-                            {{ form_label(form.hostTaken, null, {'label_attr': {'class': 'form-check-label fw-bold'}}) }}
-                        </div>
-                        <div class="form-check form-switch mb-0 ps-5">
-                            {{ form_widget(form.bonus, {'attr': {'class': 'form-check-input', 'style': 'transform: scale(1.3); margin-left: -2.5em;'}}) }}
-                            {{ form_label(form.bonus, null, {'label_attr': {'class': 'form-check-label fw-bold'}}) }}
-                        </div>
-                    </div>
-
-                    <hr class="my-5">
-
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-success btn-lg py-3 fw-bold shadow-sm">
-                            <i class="fas fa-check-circle me-2"></i> Valider et Transmettre le dossier
-                        </button>
-                        <div class="text-center mt-3 text-muted small">
-                            En validant, vous confirmez l'exactitude des informations saisies.
-                        </div>
-                    </div>
-
-                    {{ form_end(form) }}
-
+                <div class="mb-4">
+                    <h5 class="text-success h6">Le Tuteur</h5>
+                    {# Affiche les champs du tuteur #}
+                    {{ form_widget(form.tutor) }}
                 </div>
             </div>
 
-            <div class="text-center mt-5 text-muted small">
-                &copy; {{ "now"|date("Y") }} Lycée Gabriel Fauré - Plateforme de Convention de Stage
+            {# --- COLONNE DROITE : LE STAGE --- #}
+            <div class="col-lg-6">
+                <h4 class="mb-3 border-bottom pb-2">2. Le Stage</h4>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Missions et Compétences</label>
+                    {{ form_widget(form.plannedActivities, {'attr': {'rows': 6, 'class': 'form-control bg-light'}}) }}
+                </div>
+
+                <div class="mb-4 p-3 bg-light rounded">
+                    <h5 class="h6 mb-3">Logistique & Financements</h5>
+
+                    {# Case à cocher pour la Gratification #}
+                    <div class="mb-3" id="bonus-checkbox-row">
+                        {{ form_row(form.bonus) }}
+                    </div>
+
+                    {# Champ de montant conditionnel #}
+                    {# ATTENTION : J'utilise form.bonusAmount. Si ce n'est pas le nom du champ, le corriger. #}
+                    <div id="bonus-amount-field" style="display:none;">
+                        {{ form_row(form.bonusAmount, {'label': 'Montant de la gratification (Net, par mois)'}) }}
+                    </div>
+
+                    {# Autres options logistiques #}
+                    <div class="mb-2">{{ form_row(form.deplacement) }}</div>
+                    <div class="mb-2">{{ form_row(form.transportFreeTaken) }}</div>
+                    <div class="mb-2">{{ form_row(form.lunchTaken) }}</div>
+                    <div class="mb-0">{{ form_row(form.hostTaken) }}</div>
+                </div>
             </div>
-
         </div>
+
+        {# --- SECTION HORAIRES (Pleine largeur) --- #}
+        <div class="row mt-4">
+            <div class="col-12">
+                <h4 class="mb-3 border-bottom pb-2">3. Horaires de présence</h4>
+                {{ form_widget(form.workHours) }}
+            </div>
+        </div>
+
+        <div class="mt-5 text-end">
+            <button type="submit" class="btn btn-primary btn-lg px-5">
+                Valider la convention
+            </button>
+        </div>
+
+        {{ form_end(form) }}
     </div>
-</div>
 
-{# --- SCRIPT DE CALCUL DES HEURES (Copie adaptée pour l'entreprise) --- #}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const rows = document.querySelectorAll('.schedule-row');
-        const weekTotalDisplay = document.getElementById('week-total');
-        const alert35h = document.getElementById('alert-35h');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Définir les éléments
+            const bonusCheckbox = document.getElementById('contract_bonus'); // ID du checkbox "Une gratification est-elle prévue ?"
+            const bonusAmountField = document.getElementById('bonus-amount-field'); // Conteneur du champ de montant
 
-        function calculateTimeDiff(start, end) {
-            if (!start || !end) return 0;
-            const [startH, startM] = start.split(':').map(Number);
-            const [endH, endM] = end.split(':').map(Number);
+            if (bonusCheckbox && bonusAmountField) {
 
-            // Calcul simple en minutes
-            let diffInMinutes = (endH * 60 + endM) - (startH * 60 + startM);
-            return diffInMinutes > 0 ? diffInMinutes : 0;
-        }
-
-        function formatHours(minutes) {
-            if (minutes === 0) return '0h';
-            const h = Math.floor(minutes / 60);
-            const m = minutes % 60;
-            const mStr = m < 10 ? '0' + m : m;
-            return m > 0 ? `${h}h${mStr}` : `${h}h`;
-        }
-
-        function updateTotals() {
-            let weekTotalMinutes = 0;
-
-            rows.forEach(row => {
-                // On utilise la classe .js-time-input pour cibler les champs
-                const inputs = row.querySelectorAll('.js-time-input');
-
-                if (inputs.length === 4) {
-                    const mDiff = calculateTimeDiff(inputs[0].value, inputs[1].value);
-                    const amDiff = calculateTimeDiff(inputs[2].value, inputs[3].value);
-
-                    const dayTotal = mDiff + amDiff;
-                    weekTotalMinutes += dayTotal;
-
-                    // Affichage ligne
-                    const totalCell = row.querySelector('.day-total');
-                    if(totalCell) totalCell.textContent = formatHours(dayTotal);
+                // 2. Fonction pour mettre à jour l'affichage
+                function updateBonusFieldVisibility() {
+                    if (bonusCheckbox.checked) {
+                        bonusAmountField.style.display = 'block';
+                    } else {
+                        bonusAmountField.style.display = 'none';
+                    }
                 }
-            });
 
-            // Affichage total semaine
-            if (weekTotalDisplay) weekTotalDisplay.textContent = formatHours(weekTotalMinutes);
+                // 3. Écouter le changement sur le checkbox
+                bonusCheckbox.addEventListener('change', updateBonusFieldVisibility);
 
-            // Alerte 35h
-            if (alert35h) {
-                if (weekTotalMinutes < 35 * 60 && weekTotalMinutes > 0) {
-                    alert35h.classList.remove('d-none');
-                } else {
-                    alert35h.classList.add('d-none');
-                }
+                // 4. Initialiser l'affichage au chargement de la page (important si l'utilisateur revient en arrière)
+                updateBonusFieldVisibility();
             }
-        }
-
-        // Activation des écouteurs
-        document.querySelectorAll('.js-time-input').forEach(input => {
-            input.addEventListener('input', updateTotals);
-            input.addEventListener('change', updateTotals);
         });
+    </script>
 
-        // Calcul au chargement (si données existantes)
-        updateTotals();
-    });
-</script>
-
-</body>
-</html>
+{% endblock %}
