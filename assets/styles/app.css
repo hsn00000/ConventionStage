@@ -1,3 +1,180 @@
+:root {
+    --primary-gradient: linear-gradient(135deg, #005c97 0%, #363795 100%);
+    --header-bg: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    --accent-color: #0d6efd;
+    --success-color: #198754;
+    --danger-color: #dc3545; /* Ajout pour l'astérisque */
+}
+
 body {
-    background-color: white;
+    background-color: #f0f2f5;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #444;
+    padding-bottom: 80px; /* Espace pour le footer */
+}
+
+/* Conteneur Principal */
+.main-container {
+    background: rgba(255, 255, 255, 0.99);
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+    margin: -3rem auto 2rem; /* Remonte sur le header */
+    padding: 2.5rem;
+    position: relative;
+    z-index: 10;
+}
+
+/* En-tête */
+.header-bg {
+    background: var(--header-bg);
+    padding: 4rem 0 6rem;
+    color: white;
+    text-align: center;
+    position: relative; /* Pour positionner le sélecteur de langue */
+}
+
+.user-badge {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(5px);
+    color: white;
+    padding: 0.5rem 1.2rem;
+    border-radius: 30px;
+    font-weight: 500;
+    border: 1px solid rgba(255,255,255,0.2);
+    font-size: 0.95rem;
+}
+
+/* Sélecteur de langue */
+.language-selector {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 20;
+}
+
+/* Cartes Sections */
+.section-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #edf2f7;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.section-header {
+    background: #f8fafc;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #edf2f7;
+    display: flex;
+    align-items: center;
+}
+
+.section-header h4 {
+    margin: 0;
+    font-weight: 700;
+    color: #2d3748;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-header i {
+    color: var(--accent-color);
+    background: rgba(13, 110, 253, 0.1);
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.section-body { padding: 1.5rem; }
+
+/* Champs Formulaire */
+.form-label { font-weight: 600; color: #4a5568; font-size: 0.85rem; margin-bottom: 0.4rem; }
+
+/* Style pour les champs obligatoires */
+.form-label.required:after {
+    content: " *";
+    color: var(--danger-color);
+    font-weight: 700;
+    margin-left: 2px;
+}
+
+.form-control, .form-select {
+    border-radius: 8px; border: 1px solid #cbd5e0; padding: 0.6rem 0.8rem; font-size: 0.95rem;
+}
+.form-control:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1); }
+.form-control.bg-light { background-color: #f8fafc; }
+
+/* Switch Boxes - Logistique */
+.logistics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.switch-box {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.switch-box:hover { border-color: var(--accent-color); background: #f8faff; }
+
+.form-check-input { width: 2.5em; height: 1.3em; cursor: pointer; margin-top: 0; flex-shrink: 0; }
+.form-check-input:checked { background-color: var(--accent-color); border-color: var(--accent-color); }
+
+/* Bloc Gratification */
+.bonus-section {
+    background-color: #fffdf0;
+    border: 1px solid #ffeeba;
+    border-radius: 12px;
+    padding: 1.2rem;
+    margin-top: 1rem;
+}
+.bonus-header { display: flex; align-items: center; justify-content: space-between; }
+.bonus-amount-reveal {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #e6dbb9;
+    animation: fadeIn 0.3s ease-in-out;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Tableau Horaires (Intact) */
+.schedule-table-wrapper { border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; }
+#schedule-table thead { background: #f1f5f9; }
+#schedule-table th { font-weight: 600; color: #4a5568; padding: 0.8rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.day-cell { background-color: #f8fafc; font-weight: 700; color: #3182ce; text-transform: uppercase; font-size: 0.75rem; vertical-align: middle; }
+.js-time-input { text-align: center; font-weight: 500; font-family: monospace; }
+#week-total { color: var(--success-color); font-weight: 800; font-size: 1.2rem; }
+
+/* Bouton Valider */
+.btn-validate {
+    background: var(--success-color); border: none; border-radius: 50px;
+    padding: 1rem 3rem; font-weight: 700; font-size: 1.1rem; color: white;
+    box-shadow: 0 4px 15px rgba(25, 135, 84, 0.3); transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+}
+.btn-validate:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(25, 135, 84, 0.4); background-color: #157347; color: white; }
+
+/* Helpers */
+.icon-label { width: 24px; text-align: center; display: inline-block; margin-right: 8px; opacity: 0.7; }
+.text-section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: #a0aec0; margin-bottom: 1rem; }
+
+@media (max-width: 992px) {
+    .main-container {
+        padding: 1.5rem;
+        margin-top: -4rem;
+    }
+    .language-selector {
+        top: 0.5rem;
+        right: 0.5rem;
+    }
 }
