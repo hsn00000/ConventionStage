@@ -25,7 +25,8 @@ class RegistrationStudentType extends AbstractType
             // 1. Informations de base (Héritées de User)
             ->add('email', EmailType::class, [
                 'label' => 'Email du Lycée (@lycee-faure.fr)',
-                'attr' => ['placeholder' => 'prenom.nom@lycee-faure.fr']
+                'attr' => ['placeholder' => 'prenom.nom@lycee-faure.fr',
+                            'pattern' => '.*@lycee-faure\.fr$',]
             ])
             ->add('lastname', TextType::class, [
                 'label' => 'Nom de famille'

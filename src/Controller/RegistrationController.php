@@ -32,14 +32,10 @@ class RegistrationController extends AbstractController
         $form = $this->createForm(RegistrationStudentType::class, $user);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Hachage du mot de passe
-            /** @var string $plainPassword */
-            $plainPassword = $form->get('plainPassword')->getData();
-            $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
-
-            // --- DEBUT MODIFICATION : Assignation automatique du Professeur Référent ---
-            // On récupère le niveau (la classe) choisi par l'étudiant dans le formulaire
+        // --- CORRECTION : Assignation automatique du Professeur Référent ---
+        // On le fait AVANT de vérifier si le formulaire est valide
+        if ($form->isSubmitted()) {
+            // On récupère le niveau (la classe) choisi par l'étudiant
             $level = $user->getLevel();
 
             // Si le niveau est défini et qu'il a un professeur principal assigné
@@ -47,7 +43,14 @@ class RegistrationController extends AbstractController
                 // On définit ce professeur comme référent pour l'étudiant
                 $user->setProfReferent($level->getMainProfessor());
             }
-            // --- FIN MODIFICATION ---
+        }
+        // -------------------------------------------------------------------
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Hachage du mot de passe
+            /** @var string $plainPassword */
+            $plainPassword = $form->get('plainPassword')->getData();
+            $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
 
             $entityManager->persist($user);
             $entityManager->flush();
