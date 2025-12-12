@@ -1,42 +1,137 @@
+{# templates/student/show.html.twig - Dashboard Étudiant Style SaaS #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Student{% endblock %}
+{% block title %}Mon Tableau de Bord Étudiant{% endblock %}
 
-{% block body %}
-    <h1>Student</h1>
+{# Utiliser BLOCK CONTENT pour conserver la navbar #}
+{% block content %}
+    <main class="container py-5">
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ student.id }}</td>
-            </tr>
-            <tr>
-                <th>Email</th>
-                <td>{{ student.email }}</td>
-            </tr>
-            <tr>
-                <th>Roles</th>
-                <td>{{ student.roles ? student.roles|json_encode : '' }}</td>
-            </tr>
-            <tr>
-                <th>Password</th>
-                <td>{{ student.password }}</td>
-            </tr>
-            <tr>
-                <th>Name</th>
-                <td>{{ student.name }}</td>
-            </tr>
-            <tr>
-                <th>PersonalEmail</th>
-                <td>{{ student.personalEmail }}</td>
-            </tr>
-        </tbody>
-    </table>
+        {# HEADER DU DASHBOARD #}
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <div>
+                <h1 class="h2 text-primary mb-0">
+                    <i class="fas fa-tachometer-alt me-2"></i> Tableau de Bord
+                </h1>
+                <p class="text-muted mb-0">
+                    Bienvenue, **{{ student.firstname }} {{ student.lastname }}**. Gérez vos stages en un clin d'œil.
+                </p>
+            </div>
+            <a href="{{ path('app_student_contract_init') }}" class="btn btn-primary shadow-sm d-none d-md-inline-flex align-items-center">
+                <i class="fas fa-plus me-2"></i> Nouvelle Convention
+            </a>
+        </div>
 
-    <a href="{{ path('app_student_index') }}">back to list</a>
+        {# INDICATEURS CLÉS (CARDS STYLE SAAS) #}
+        <div class="row mt-4 g-4">
 
-    <a href="{{ path('app_student_edit', {'id': student.id}) }}">edit</a>
+            {# Carte 1: Statut de la convention #}
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-lg h-100 bg-light-subtle text-dark">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-file-contract fa-3x text-primary me-3"></i>
+                            <div>
+                                <p class="text-uppercase text-muted fw-bold mb-0">Statut Actuel</p>
+                                <h3 class="fw-bold mb-0 {% if contract_status starts with 'En cours' %}text-info{% elseif contract_status starts with 'Validée' %}text-success{% else %}text-secondary{% endif %}">
+                                    {{ contract_status }}
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    {{ include('student/_delete_form.html.twig') }}
+            {# Carte 2: Jours restants #}
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-lg h-100 bg-primary text-white">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-calendar-alt fa-3x me-3"></i>
+                            <div>
+                                <p class="text-uppercase fw-bold mb-0 opacity-75">Jours Restants</p>
+                                <h3 class="display-6 fw-bold mb-0">{{ remaining_days }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Carte 3: Conventions passées #}
+            <div class="col-lg-4 col-md-12">
+                <div class="card border-0 shadow-lg h-100 bg-white">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-double fa-3x text-success me-3"></i>
+                            <div>
+                                <p class="text-uppercase text-muted fw-bold mb-0">Historique Complété</p>
+                                <h3 class="display-6 fw-bold mb-0">{{ past_contracts_count }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# SECTION DE LISTE DES CONVENTIONS #}
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card shadow border-0 rounded-3">
+                    <div class="card-header bg-white border-bottom p-3">
+                        <h3 class="h5 mb-0 text-dark"><i class="fas fa-folder-open me-2"></i> Mes Documents et Suivis</h3>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% if contracts is empty %}
+                            <li class="list-group-item">
+                                <div class="alert alert-warning m-0 border-0">Aucun historique de convention trouvé.</div>
+                            </li>
+                        {% else %}
+                            {% for contract in contracts %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                    <div>
+                                        <span class="fw-bold text-dark">
+                                            Convention N°{{ contract.id }}
+                                            {% if contract.organisation is defined and contract.organisation.name is defined %}
+                                                - {{ contract.organisation.name }}
+                                            {% endif %}
+                                        </span>
+                                        <div class="text-muted small">
+                                            {# ATTENTION : Les méthodes getStartDate et getEndDate doivent exister sur l'objet contract #}
+                                            Du {{ contract.startDate is defined and contract.startDate is not null ? contract.startDate|date('d/m/Y') : 'Date N/A' }}
+                                            au {{ contract.endDate is defined and contract.endDate is not null ? contract.endDate|date('d/m/Y') : 'Date N/A' }}
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        {# Style de badge mis à jour #}
+                                        <span class="badge rounded-pill me-3
+                                            {% if contract.status == 'active' %}bg-info text-dark{% elseif contract.status == 'completed' %}bg-success{% elseif contract.status == 'submitted' %}bg-warning text-dark{% elseif contract.status == 'validated' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                            {{ contract.status|capitalize }}
+                                        </span>
+                                        {# Le lien est désactivé temporairement car app_contract_show n'existe pas encore #}
+                                        <button class="btn btn-sm btn-outline-secondary" disabled>
+                                            <i class="fas fa-eye me-1"></i> Voir (En dev)
+                                        </button>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {# Pied de page/Liens annexes (Le bouton Modifier a été retiré, ajout du bouton Réinitialiser MDP) #}
+        <div class="mt-5 pt-3 text-center border-top d-flex justify-content-center">
+
+            {# Bouton Réinitialiser MDP (AJOUTÉ ICI) #}
+            <a href="{{ path('app_forgot_password_request') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center me-3" title="Réinitialiser mon mot de passe">
+                <i class="fas fa-lock me-1"></i> Réinitialiser mon mot de passe
+            </a>
+
+            <a href="{{ path('app_home') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center">
+                <i class="fas fa-home me-1"></i> Retour à l'accueil
+            </a>
+        </div>
+
+    </main>
 {% endblock %}
