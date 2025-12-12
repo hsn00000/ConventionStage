@@ -65,17 +65,10 @@
                     <h5 class="mb-3 text-dark">Ma Scolarité</h5>
 
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div>
                             {# Classe/Niveau #}
                             {{ form_row(registrationForm.level, {
                                 'label': 'Votre Classe',
-                                'attr': {'class': 'form-control'}
-                            }) }}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {# Professeur Référent #}
-                            {{ form_row(registrationForm.prof_referent, {
-                                'label': 'Professeur Référent',
                                 'attr': {'class': 'form-control'}
                             }) }}
                         </div>
