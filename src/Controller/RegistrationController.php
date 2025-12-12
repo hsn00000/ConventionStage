@@ -28,24 +28,24 @@ class RegistrationController extends AbstractController
     #[Route('/register/student', name: 'app_register_student')]
     public function registerStudent(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
     {
-        $user = new Student(); // C'est ici que la restriction @lycee-faure.fr s'active
+        $user = new Student(); // Restriction @lycee-faure.fr gérée dans le Formulaire
         $form = $this->createForm(RegistrationStudentType::class, $user);
         $form->handleRequest($request);
 
-        // --- CORRECTION : Assignation automatique du Professeur Référent ---
-        // On le fait AVANT de vérifier si le formulaire est valide
+        // --- CORRECTION : Assigner le prof AVANT de valider le formulaire ---
         if ($form->isSubmitted()) {
-            // On récupère le niveau (la classe) choisi par l'étudiant
+            // 1. On récupère le niveau (la classe) choisi par l'étudiant
             $level = $user->getLevel();
 
-            // Si le niveau est défini et qu'il a un professeur principal assigné
+            // 2. Si le niveau existe et a un professeur principal assigné
             if ($level && $level->getMainProfessor()) {
-                // On définit ce professeur comme référent pour l'étudiant
+                // 3. On définit ce professeur comme référent pour l'étudiant
                 $user->setProfReferent($level->getMainProfessor());
             }
         }
-        // -------------------------------------------------------------------
+        // --------------------------------------------------------------------
 
+        // Maintenant que le prof est assigné, le formulaire sera valide
         if ($form->isSubmitted() && $form->isValid()) {
             // Hachage du mot de passe
             /** @var string $plainPassword */
@@ -76,7 +76,7 @@ class RegistrationController extends AbstractController
     #[Route('/register/professor', name: 'app_register_professor')]
     public function registerProfessor(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
     {
-        $user = new Professor(); // C'est ici que la restriction @ac-grenoble.fr s'active
+        $user = new Professor(); // Restriction @ac-grenoble.fr gérée dans le Formulaire
         $form = $this->createForm(RegistrationProfessorType::class, $user);
         $form->handleRequest($request);
 
@@ -123,11 +123,11 @@ class RegistrationController extends AbstractController
         } catch (VerifyEmailExceptionInterface $exception) {
             $this->addFlash('verify_email_error', $translator->trans($exception->getReason(), [], 'VerifyEmailBundle'));
 
-            return $this->redirectToRoute('app_login'); // Redirection en cas d'erreur
+            return $this->redirectToRoute('app_login');
         }
 
         $this->addFlash('success', 'Votre adresse email a bien été vérifiée !');
 
-        return $this->redirectToRoute('app_login'); // Redirection après succès vers le login
+        return $this->redirectToRoute('app_login');
     }
 }

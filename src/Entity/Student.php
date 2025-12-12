@@ -19,11 +19,6 @@ class Student extends User
     #[Assert\NotNull(message: "Un étudiant doit obligatoirement avoir un niveau.")] // <--- 3. INTERDIT le vide dans l'appli
     private ?Level $level = null;
 
-    #[ORM\ManyToOne(inversedBy: 'studentsReferred')]
-    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
-    #[Assert\NotNull(message: "L'étudiant doit avoir un professeur référent.")] // 2. Sécurité pour l'application
-    private ?Professor $prof_referent = null;
-
     /**
      * @var Collection<int, Contract>
      */
