@@ -38,6 +38,17 @@ class RegistrationController extends AbstractController
             $plainPassword = $form->get('plainPassword')->getData();
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
 
+            // --- DEBUT MODIFICATION : Assignation automatique du Professeur Référent ---
+            // On récupère le niveau (la classe) choisi par l'étudiant dans le formulaire
+            $level = $user->getLevel();
+
+            // Si le niveau est défini et qu'il a un professeur principal assigné
+            if ($level && $level->getMainProfessor()) {
+                // On définit ce professeur comme référent pour l'étudiant
+                $user->setProfReferent($level->getMainProfessor());
+            }
+            // --- FIN MODIFICATION ---
+
             $entityManager->persist($user);
             $entityManager->flush();
 

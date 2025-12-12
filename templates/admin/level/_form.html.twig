@@ -1,12 +1,37 @@
+{# templates/admin/level/_form.html.twig #}
+
 {{ form_start(form) }}
-<div class="mb-3">
-    {{ form_row(form.levelCode, {'attr': {'class': 'form-control'}}) }}
-</div>
+
+    {# 1. Code de la formation #}
 <div class="mb-4">
-    {{ form_row(form.levelName, {'attr': {'class': 'form-control'}}) }}
+    {{ form_label(form.levelCode, 'Code de la formation', {'label_attr': {'class': 'form-label fw-bold text-secondary small text-uppercase'}}) }}
+    {{ form_widget(form.levelCode, {'attr': {'class': 'form-control form-control-lg', 'placeholder': 'Ex: BTS SIO 1'}}) }}
+    {{ form_errors(form.levelCode) }}
 </div>
 
-<div class="d-grid gap-2">
-    <button class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
+{# 2. Libellé complet #}
+<div class="mb-4">
+    {{ form_label(form.levelName, 'Libellé complet', {'label_attr': {'class': 'form-label fw-bold text-secondary small text-uppercase'}}) }}
+    {{ form_widget(form.levelName, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Services Informatiques aux Organisations...'}}) }}
+    {{ form_errors(form.levelName) }}
 </div>
+
+{# 3. Professeur Référent (JUSTE AVANT LE BOUTON) #}
+<div class="mb-5">
+    {{ form_label(form.mainProfessor, 'Professeur Référent', {'label_attr': {'class': 'form-label fw-bold text-secondary small text-uppercase'}}) }}
+    <div class="input-group">
+        <span class="input-group-text bg-light"><i class="fas fa-chalkboard-teacher text-secondary"></i></span>
+        {{ form_widget(form.mainProfessor, {'attr': {'class': 'form-select'}}) }}
+    </div>
+    <div class="form-text text-muted">Ce professeur sera automatiquement assigné aux étudiants s'inscrivant dans cette classe.</div>
+    {{ form_errors(form.mainProfessor) }}
+</div>
+
+{# 4. Bouton d'action (LARGE et EN BAS) #}
+<div class="d-grid">
+    <button class="btn btn-primary btn-lg shadow-sm">
+        <i class="fas fa-save me-2"></i> {{ button_label|default('Enregistrer la classe') }}
+    </button>
+</div>
+
 {{ form_end(form) }}
