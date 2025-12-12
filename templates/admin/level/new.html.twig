@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle Classe{% endblock %}
+
+{% block content %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow rounded-4 border-0">
+                    <div class="card-header bg-white border-bottom p-4">
+                        <h2 class="h4 mb-0">Ajouter une classe</h2>
+                    </div>
+                    <div class="card-body p-4">
+                        {{ include('admin/level/_form.html.twig') }}
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ path('app_admin_level_index') }}" class="text-muted">Annuler</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

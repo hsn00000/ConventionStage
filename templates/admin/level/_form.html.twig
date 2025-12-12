@@ -1,0 +1,12 @@
+{{ form_start(form) }}
+<div class="mb-3">
+    {{ form_row(form.levelCode, {'attr': {'class': 'form-control'}}) }}
+</div>
+<div class="mb-4">
+    {{ form_row(form.levelName, {'attr': {'class': 'form-control'}}) }}
+</div>
+
+<div class="d-grid gap-2">
+    <button class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
+</div>
+{{ form_end(form) }}
