@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dossier de Convention - Finalisation</title>
 
+    {# Importation de vos assets spécifiques (importmap) #}
     {% block stylesheets %}
         {{ importmap('app') }}
     {% endblock %}
 
+    {# Lien vers Font Awesome #}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
+    {# --- VOS STYLES PERSONNALISÉS --- #}
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #005c97 0%, #363795 100%);
@@ -95,7 +98,7 @@
 
         .section-body { padding: 1.5rem; }
 
-        /* Champs Formulaire */
+        /* Champs Formulaire (Clé de l'amélioration) */
         .form-label { font-weight: 600; color: #4a5568; font-size: 0.85rem; margin-bottom: 0.4rem; }
         .form-control, .form-select {
             border-radius: 8px; border: 1px solid #cbd5e0; padding: 0.6rem 0.8rem; font-size: 0.95rem;
@@ -147,6 +150,9 @@
         #schedule-table th { font-weight: 600; color: #4a5568; padding: 0.8rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
         .day-cell { background-color: #f8fafc; font-weight: 700; color: #3182ce; text-transform: uppercase; font-size: 0.75rem; vertical-align: middle; }
         .js-time-input { text-align: center; font-weight: 500; font-family: monospace; }
+        .table .form-control-sm { padding: 0.25rem 0.5rem; }
+
+
         #week-total { color: var(--success-color); font-weight: 800; font-size: 1.2rem; }
 
         /* Bouton Valider */
@@ -184,9 +190,9 @@
     <div class="row justify-content-center">
         <div class="col-lg-11 col-xl-10">
 
-            {# FORMULAIRE #}
+            {# FORMULAIRE PRINCIPAL #}
             <div class="main-container">
-                {{ form_start(form, {'attr': {'class': 'needs-validation', 'id': 'convention-form'}}) }}
+                {{ form_start(form, {'attr': {'class': 'needs-validation', 'id': 'convention-form', 'novalidate': 'novalidate'}}) }}
 
                 <div class="row g-4">
 
@@ -202,12 +208,15 @@
                                 <div class="mb-4">
                                     <div class="text-section-title">🏢 L'Entreprise</div>
                                     <div class="mb-3">
-                                        {{ form_row(form.organisation.name, {'label': 'Raison Sociale', 'attr': {'placeholder': 'Ex: Tech Solutions'}}) }}
+                                        {{ form_row(form.organisation.name, {
+                                            'label': 'Raison Sociale',
+                                            'attr': {'placeholder': 'Ex: Tech Solutions', 'class': 'form-control'}
+                                        }) }}
                                     </div>
                                     <div class="row g-2">
-                                        <div class="col-12">{{ form_row(form.organisation.addressHq, {'attr': {'placeholder': 'Adresse complète'}}) }}</div>
-                                        <div class="col-4">{{ form_row(form.organisation.postalCodeHq, {'attr': {'placeholder': 'CP'}}) }}</div>
-                                        <div class="col-8">{{ form_row(form.organisation.cityHq, {'attr': {'placeholder': 'Ville'}}) }}</div>
+                                        <div class="col-12">{{ form_row(form.organisation.addressHq, {'attr': {'placeholder': 'Adresse complète', 'class': 'form-control'}}) }}</div>
+                                        <div class="col-4">{{ form_row(form.organisation.postalCodeHq, {'attr': {'placeholder': 'CP', 'class': 'form-control'}}) }}</div>
+                                        <div class="col-8">{{ form_row(form.organisation.cityHq, {'attr': {'placeholder': 'Ville', 'class': 'form-control'}}) }}</div>
                                     </div>
                                 </div>
 
@@ -215,21 +224,20 @@
                                 <div class="mb-4 pt-3 border-top">
                                     <div class="text-section-title">🖋️ Responsable Signataire</div>
                                     <div class="row g-2">
-                                        <div class="col-6">{{ form_row(form.organisation.respName, {'label': 'Nom', 'attr': {'placeholder': 'Nom Prénom'}}) }}</div>
-                                        <div class="col-6">{{ form_row(form.organisation.respFunction, {'label': 'Fonction'}) }}</div>
+                                        <div class="col-6">{{ form_row(form.organisation.respName, {'label': 'Nom', 'attr': {'placeholder': 'Nom Prénom', 'class': 'form-control'}}) }}</div>
+                                        <div class="col-6">{{ form_row(form.organisation.respFunction, {'label': 'Fonction', 'attr': {'class': 'form-control'}}) }}</div>
                                     </div>
                                     <div class="mb-2 mt-2">
-                                        {{ form_row(form.organisation.respEmail, {'label': 'Email'}) }}
+                                        {{ form_row(form.organisation.respEmail, {'label': 'Email', 'attr': {'class': 'form-control'}}) }}
                                     </div>
                                     {# Téléphones Signataire #}
                                     <div class="row g-2">
                                         <div class="col-6">
-                                            {{ form_row(form.organisation.respPhone, {'label': 'Téléphone'}) }}
+                                            {{ form_row(form.organisation.respPhone, {'label': 'Téléphone', 'attr': {'class': 'form-control'}}) }}
                                         </div>
                                         <div class="col-6">
-                                            {# Champ visuel fictif pour le portable si nécessaire #}
                                             <label class="form-label">Tél. Portable (Option)</label>
-                                            <input type="text" class="form-control" placeholder="06..." readonly style="background-color: #f8f9fa; cursor: not-allowed;" title="Champ non modifiable">
+                                            <input type="text" class="form-control bg-light" placeholder="06..." readonly title="Champ non modifiable">
                                         </div>
                                     </div>
                                 </div>
@@ -238,8 +246,8 @@
                                 <div class="pt-3 border-top">
                                     <div class="text-section-title">🛡️ Assurance</div>
                                     <div class="row g-2">
-                                        <div class="col-6">{{ form_row(form.organisation.insuranceName, {'label': 'Assureur'}) }}</div>
-                                        <div class="col-6">{{ form_row(form.organisation.insuranceContract, {'label': 'N° Police'}) }}</div>
+                                        <div class="col-6">{{ form_row(form.organisation.insuranceName, {'label': 'Assureur', 'attr': {'class': 'form-control'}}) }}</div>
+                                        <div class="col-6">{{ form_row(form.organisation.insuranceContract, {'label': 'N° Police', 'attr': {'class': 'form-control'}}) }}</div>
                                     </div>
                                 </div>
 
@@ -257,20 +265,19 @@
                             </div>
                             <div class="section-body">
                                 <div class="row g-2 mb-3">
-                                    <div class="col-6">{{ form_row(form.tutor.lastname, {'label': 'Nom'}) }}</div>
-                                    <div class="col-6">{{ form_row(form.tutor.firstname, {'label': 'Prénom'}) }}</div>
+                                    <div class="col-6">{{ form_row(form.tutor.lastname, {'label': 'Nom', 'attr': {'class': 'form-control'}}) }}</div>
+                                    <div class="col-6">{{ form_row(form.tutor.firstname, {'label': 'Prénom', 'attr': {'class': 'form-control'}}) }}</div>
                                 </div>
                                 <div class="mb-3">
-                                    {{ form_row(form.tutor.email, {'label': 'Email Direct'}) }}
+                                    {{ form_row(form.tutor.email, {'label': 'Email Direct', 'attr': {'class': 'form-control'}}) }}
                                 </div>
                                 <div class="row g-2">
                                     <div class="col-6">
-                                        {{ form_row(form.tutor.telMobile, {'label': 'Tél. Portable'}) }}
+                                        {{ form_row(form.tutor.telMobile, {'label': 'Tél. Portable', 'attr': {'class': 'form-control'}}) }}
                                     </div>
                                     <div class="col-6">
-                                        {# Champ visuel fictif pour le fixe #}
                                         <label class="form-label">Tél. Fixe (Option)</label>
-                                        <input type="text" class="form-control" placeholder="01..." readonly style="background-color: #f8f9fa; cursor: not-allowed;" title="Champ non modifiable">
+                                        <input type="text" class="form-control bg-light" placeholder="01..." readonly title="Champ non modifiable">
                                     </div>
                                 </div>
                             </div>
@@ -285,9 +292,10 @@
                                 <div class="mb-3">
                                     {{ form_label(form.plannedActivities, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
                                     {{ form_widget(form.plannedActivities, {'attr': {'class': 'form-control', 'rows': 4, 'placeholder': 'Décrivez les missions...'}}) }}
+                                    {{ form_errors(form.plannedActivities) }}
                                 </div>
 
-                                {# DÉBUT DE LA ZONE STIMULUS #}
+                                {# GRATIFICATION #}
                                 <div class="bonus-section" data-controller="bonus-toggle">
                                     <div class="bonus-header">
                                         <div>
@@ -296,7 +304,6 @@
                                             </label>
                                             <div class="small text-muted">Une prime est-elle prévue ?</div>
                                         </div>
-                                        {# ATTENTION : On retire l'ID et on ajoute data-target et data-action #}
                                         {{ form_widget(form.bonus, {
                                             'attr': {
                                                 'class': 'form-check-input',
@@ -306,12 +313,11 @@
                                         }) }}
                                     </div>
 
-                                    {# CONTENEUR DU CHAMP MONTANT - On ajoute data-target et on maintient le style initial #}
                                     <div data-bonus-toggle-target="amountContainer"
                                          class="bonus-amount-reveal"
+                                         id="bonusAmountContainer"
                                          style="display: none;">
 
-                                        {# Affichage manuel du champ form.bonusAmount avec son propre data-target #}
                                         <label class="form-label small fw-bold mt-2" for="{{ form.bonusAmount.vars.id }}">Montant et modalités de versement (obligatoire si oui)</label>
                                         {{ form_widget(form.bonusAmount, {'attr': {
                                             'class': 'form-control',
@@ -321,7 +327,6 @@
                                         {{ form_errors(form.bonusAmount) }}
                                     </div>
                                 </div>
-                                {# FIN DE LA ZONE STIMULUS #}
                             </div>
                         </div>
 
@@ -410,7 +415,49 @@
                     </div>
                 </div>
 
-                {# ACTIONS #}
+                {# --- INFORMATIONS COMPLÉMENTAIRES (NOUVEAU BLOC INTÉGRÉ ET STYLISÉ) --- #}
+                <div class="section-card mt-4">
+                    <div class="section-header">
+                        <h4><i class="fas fa-info-circle"></i> Informations Complémentaires</h4>
+                    </div>
+                    <div class="section-body">
+
+                        {# Site Web #}
+                        <div class="mb-3">
+                            <label class="form-label" for="siteWebInput">Site Web</label>
+                            {# Assurez-vous d'avoir un nom de champ si ces données sont soumises #}
+                            <input type="url" class="form-control" id="siteWebInput" name="site_web_complementary" placeholder="https://...">
+                        </div>
+
+                        {# Adresse du stage #}
+                        <div class="mb-3">
+                            <label class="form-label" for="addressStageInput">Adresse du stage (si différente)</label>
+                            <input type="text" class="form-control" id="addressStageInput" name="address_stage_complementary" placeholder="Adresse complète du lieu de stage">
+                            <small class="form-text text-muted">À compléter si l'adresse est différente du siège social.</small>
+                        </div>
+
+                        <div class="row g-3">
+                            {# Code Postal / Ville #}
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label" for="postalCodeStageInput">Code Postal</label>
+                                <input type="text" class="form-control" id="postalCodeStageInput" name="postal_code_stage_complementary" placeholder="00000">
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label" for="cityStageInput">Ville</label>
+                                <input type="text" class="form-control" id="cityStageInput" name="city_stage_complementary" placeholder="Ville à compléter">
+                            </div>
+                        </div>
+
+                        {# Autre téléphone #}
+                        <div class="mt-1">
+                            <label class="form-label" for="otherPhoneInput">Autre téléphone (Optionnel)</label>
+                            <input type="tel" class="form-control" id="otherPhoneInput" name="other_phone_complementary" placeholder="Numéro de ligne directe, etc.">
+                        </div>
+
+                    </div>
+                </div>
+
+                {# --- ACTIONS (Juste après le dernier bloc d'information) --- #}
                 <div class="text-center mt-5">
                     <button type="submit" class="btn-validate">
                         Valider le dossier <i class="fas fa-paper-plane ms-2"></i>
@@ -423,7 +470,8 @@
                 {{ form_end(form) }}
             </div>
 
-            <div class="text-center mt-4 text-muted small">
+            {# --- PIED DE PAGE (Hors du container principal) --- #}
+            <div class="text-center mt-3 mb-5 text-muted small">
                 &copy; {{ "now"|date("Y") }} Lycée Gabriel Fauré - Espace Entreprise
             </div>
 
@@ -431,24 +479,20 @@
     </div>
 </div>
 
-{# --- SCRIPT JS CORRIGÉ --- #}
+{# --- SCRIPT JS (À LA FIN DU BODY POUR LA PERFORMANCE) --- #}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // --- 1. Gestion Affichage Gratification ---
         const bonusCheckbox = document.getElementById('company_fill_contract_bonus');
-        const bonusContainer = document.getElementById('company_fill_contract_bonusAmount');
-        const bonusAmountInput = bonusContainer ? bonusContainer.querySelector('input') : null; // Cibler le champ de saisie réel
+        const bonusContainer = document.getElementById('bonusAmountContainer');
+        const bonusAmountInput = document.getElementById('company_fill_contract_bonusAmount');
 
         function toggleBonus() {
             if (bonusCheckbox && bonusContainer) {
                 if (bonusCheckbox.checked) {
-                    // Afficher le conteneur
                     bonusContainer.style.display = 'block';
                 } else {
-                    // Cacher le conteneur
                     bonusContainer.style.display = 'none';
-
-                    // Vider la valeur du champ réel si on décoche (important pour la validation)
                     if(bonusAmountInput) {
                         bonusAmountInput.value = '';
                     }
@@ -459,21 +503,19 @@
         if(bonusCheckbox) {
             bonusCheckbox.addEventListener('change', toggleBonus);
 
-            // État initial au chargement de la page:
-            // Si la page est rechargée (ex: validation échouée) et que le champ a une valeur, on l'affiche.
-            // Sinon, on se base sur l'état de la checkbox.
-            if (bonusCheckbox.checked || (bonusAmountInput && bonusAmountInput.value.length > 0)) {
+            const hasExistingValue = bonusAmountInput && bonusAmountInput.value.length > 0;
+
+            if (bonusCheckbox.checked || hasExistingValue) {
                 bonusContainer.style.display = 'block';
             } else {
                 bonusContainer.style.display = 'none';
             }
 
-            // S'assurer que le handler est appelé au cas où l'état initial a été forcé ci-dessus
-            // et que le user change d'avis sans recharger.
             toggleBonus();
         }
 
-        // --- 2. Calcul des Heures (La logique est correcte, je la garde telle quelle) ---
+
+        // --- 2. Calcul des Heures ---
         const rows = document.querySelectorAll('.schedule-row');
         const weekTotalDisplay = document.getElementById('week-total');
         const alert35h = document.getElementById('alert-35h');
@@ -513,7 +555,8 @@
             if (weekTotalDisplay) weekTotalDisplay.textContent = formatHours(weekTotal);
 
             if (alert35h) {
-                if (weekTotal > 0 && weekTotal < 35 * 60) {
+                // 35 heures * 60 minutes = 2100 minutes
+                if (weekTotal > 0 && weekTotal < 2100) {
                     alert35h.classList.remove('d-none');
                 } else {
                     alert35h.classList.add('d-none');
