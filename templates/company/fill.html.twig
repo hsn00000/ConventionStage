@@ -246,7 +246,7 @@
                                 <div class="pt-3 border-top">
                                     <div class="text-section-title">🛡️ Assurance</div>
                                     <div class="row g-2">
-                                        <div class="col-6">{{ form_row(form.organisation.insuranceName, {'label': 'Assureur', 'attr': {'class': 'form-control'}}) }}</div>
+                                        {{ form_row(form.organisation.insuranceName, {'label': 'Assureur', 'attr': {'class': 'form-control'}}) }}
                                         <div class="col-6">{{ form_row(form.organisation.insuranceContract, {'label': 'N° Police', 'attr': {'class': 'form-control'}}) }}</div>
                                     </div>
                                 </div>
@@ -411,47 +411,56 @@
                         <div id="alert-35h" class="alert alert-warning m-3 d-none shadow-sm border-warning small">
                             <i class="fas fa-exclamation-triangle me-2"></i> <strong>Attention :</strong> Le total hebdomadaire est inférieur à 35 heures.
                         </div>
-                        {% do form.workHours.setRendered() %}
                     </div>
                 </div>
 
-                {# --- INFORMATIONS COMPLÉMENTAIRES (NOUVEAU BLOC INTÉGRÉ ET STYLISÉ) --- #}
+                {# --- INFORMATIONS COMPLÉMENTAIRES (CORRECTION : Utilisation des ID exacts pour éviter la duplication) --- #}
                 <div class="section-card mt-4">
                     <div class="section-header">
                         <h4><i class="fas fa-info-circle"></i> Informations Complémentaires</h4>
                     </div>
                     <div class="section-body">
 
-                        {# Site Web #}
+                        {# Site Web (ID: company_fill_contract_organisation_website) #}
                         <div class="mb-3">
-                            <label class="form-label" for="siteWebInput">Site Web</label>
-                            {# Assurez-vous d'avoir un nom de champ si ces données sont soumises #}
-                            <input type="url" class="form-control" id="siteWebInput" name="site_web_complementary" placeholder="https://...">
+                            {{ form_row(form.organisation.website, {
+                                'label': 'Site Web',
+                                'attr': {'placeholder': 'https://...', 'class': 'form-control'}
+                            }) }}
                         </div>
 
-                        {# Adresse du stage #}
+                        {# Adresse du stage (ID: company_fill_contract_organisation_addressInternship) #}
                         <div class="mb-3">
-                            <label class="form-label" for="addressStageInput">Adresse du stage (si différente)</label>
-                            <input type="text" class="form-control" id="addressStageInput" name="address_stage_complementary" placeholder="Adresse complète du lieu de stage">
+                            {{ form_row(form.organisation.addressInternship, {
+                                'label': 'Adresse du stage (si différente)',
+                                'attr': {'placeholder': 'Adresse complète du lieu de stage', 'class': 'form-control'}
+                            }) }}
                             <small class="form-text text-muted">À compléter si l'adresse est différente du siège social.</small>
                         </div>
 
                         <div class="row g-3">
-                            {# Code Postal / Ville #}
+                            {# Code Postal (ID: company_fill_contract_organisation_postalCodeInternship) #}
                             <div class="col-md-4 mb-3">
-                                <label class="form-label" for="postalCodeStageInput">Code Postal</label>
-                                <input type="text" class="form-control" id="postalCodeStageInput" name="postal_code_stage_complementary" placeholder="00000">
+                                {{ form_row(form.organisation.postalCodeInternship, {
+                                    'label': 'Code Postal',
+                                    'attr': {'placeholder': '00000', 'class': 'form-control'}
+                                }) }}
                             </div>
+                            {# Ville (ID: company_fill_contract_organisation_cityInternship) #}
                             <div class="col-md-8 mb-3">
-                                <label class="form-label" for="cityStageInput">Ville</label>
-                                <input type="text" class="form-control" id="cityStageInput" name="city_stage_complementary" placeholder="Ville à compléter">
+                                {{ form_row(form.organisation.cityInternship, {
+                                    'label': 'Ville',
+                                    'attr': {'placeholder': 'Ville à compléter', 'class': 'form-control'}
+                                }) }}
                             </div>
                         </div>
 
-                        {# Autre téléphone #}
+                        {# Autre téléphone (ID: company_fill_contract_tutor_telOther) #}
                         <div class="mt-1">
-                            <label class="form-label" for="otherPhoneInput">Autre téléphone (Optionnel)</label>
-                            <input type="tel" class="form-control" id="otherPhoneInput" name="other_phone_complementary" placeholder="Numéro de ligne directe, etc.">
+                            {{ form_row(form.tutor.telOther, {
+                                'label': 'Autre téléphone (Optionnel)',
+                                'attr': {'placeholder': 'Numéro de ligne directe, etc.', 'class': 'form-control'}
+                            }) }}
                         </div>
 
                     </div>
@@ -467,6 +476,7 @@
                     </p>
                 </div>
 
+                {# form_end rendra uniquement les champs cachés (jeton CSRF, etc.) #}
                 {{ form_end(form) }}
             </div>
 
@@ -483,9 +493,9 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // --- 1. Gestion Affichage Gratification ---
-        const bonusCheckbox = document.getElementById('company_fill_contract_bonus');
+        const bonusCheckbox = document.getElementById('{{ form.bonus.vars.id }}');
         const bonusContainer = document.getElementById('bonusAmountContainer');
-        const bonusAmountInput = document.getElementById('company_fill_contract_bonusAmount');
+        const bonusAmountInput = document.getElementById('{{ form.bonusAmount.vars.id }}');
 
         function toggleBonus() {
             if (bonusCheckbox && bonusContainer) {
