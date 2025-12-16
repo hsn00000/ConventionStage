@@ -24,7 +24,8 @@ class RegistrationProfessorType extends AbstractType
             // 1. Email avec indication claire du domaine académique
             ->add('email', EmailType::class, [
                 'label' => 'Email Académique (@ac-grenoble.fr)',
-                'attr' => ['placeholder' => 'prenom.nom@ac-grenoble.fr']
+                'attr' => ['placeholder' => 'prenom.nom@ac-grenoble.fr',
+                            'pattern' => '.*@ac-grenoble\.fr$',]
             ])
 
             ->add('lastname', TextType::class, [
