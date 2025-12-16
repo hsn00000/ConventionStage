@@ -38,10 +38,13 @@ class RegistrationProfessorType extends AbstractType
             // --- AJOUT 1 : SÉLECTION DES SECTIONS ---
             ->add('sections', EntityType::class, [
                 'class' => Level::class,
-                'choice_label' => 'levelName', // Ou votre méthode __toString()
-                'multiple' => true,  // Choix multiple
-                'expanded' => true,  // true = cases à cocher (plus joli), false = liste déroulante
-                'label' => 'Sections concernées',
+                'choice_label' => 'levelName',
+                'multiple' => true,
+                'expanded' => true,
+                'label' => 'Quelles classes gérez-vous ?', // Libellé plus accueillant
+                'label_attr' => ['class' => 'fw-bold mb-2'], // Style du titre
+                // C'est ici qu'on prépare le terrain pour le CSS
+                'row_attr' => ['class' => 'mb-3'],
             ])
 
             // 3. Mot de passe (Non mappé, hashé dans le contrôleur)
