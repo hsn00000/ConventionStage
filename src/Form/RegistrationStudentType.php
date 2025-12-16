@@ -62,12 +62,6 @@ class RegistrationStudentType extends AbstractType
                 'placeholder' => 'Choisir une classe',
                 // Symfony utilisera automatiquement votre méthode __toString() de Level
             ])
-            ->add('prof_referent', EntityType::class, [
-                'class' => Professor::class,
-                'label' => 'Professeur Référent',
-                'placeholder' => 'Choisir un professeur',
-                // Symfony utilisera automatiquement votre méthode __toString() de User/Professor
-            ])
 
             // 4. Consentement (Obligatoire pour le RGPD)
             ->add('agreeTerms', CheckboxType::class, [

@@ -54,9 +54,19 @@
                         </li>
                     {% else %}
 
+                        {# --- MODIFICATION ICI : Bouton Admin --- #}
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <li class="nav-item me-2 mb-2 mb-lg-0">
+                                <a href="{{ path('app_admin_level_index') }}" class="btn btn-dark">
+                                    <i class="fas fa-cog me-1"></i> Admin
+                                </a>
+                            </li>
+                        {% endif %}
+                        {# --------------------------------------- #}
+
                         {# --- Éléments du Dashboard pour Utilisateur Connecté --- #}
 
-                        {# 1. Bouton Profil pour Professeur (Route différente, même style) #}
+                        {# 1. Bouton Profil pour Professeur #}
                         {% if is_granted('ROLE_PROFESSOR') and app.user.id is defined %}
                             <li class="nav-item me-2 mb-2 mb-lg-0">
                                 <a href="{{ path('app_professor_show', {'id': app.user.id}) }}" class="btn btn-secondary">
@@ -65,7 +75,7 @@
                             </li>
                         {% endif %}
 
-                        {# 2. Bouton Profil pour Étudiant (Route différente, même style) #}
+                        {# 2. Bouton Profil pour Étudiant #}
                         {% if is_granted('ROLE_STUDENT') and app.user.id is defined %}
                             <li class="nav-item me-2 mb-2 mb-lg-0">
                                 <a href="{{ path('app_student_show', {'id': app.user.id}) }}" class="btn btn-secondary">
@@ -73,7 +83,6 @@
                                 </a>
                             </li>
                         {% endif %}
-
 
                         {# Bouton Se déconnecter #}
                         <li class="nav-item">
@@ -85,9 +94,6 @@
         </div>
     </nav>
     {# --------------------------------------------------------------------- #}
-
-    {# Le div d'espacement pour l'ancienne navbar fixe a été supprimé #}
-
 
     {# --------------------------------------------------------------------- #}
     {# BLOC CONTENT : Ce contenu sera affiché par défaut ou remplacé par les pages enfants #}

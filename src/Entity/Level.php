@@ -33,6 +33,10 @@ class Level
     #[ORM\ManyToMany(targetEntity: Professor::class, mappedBy: 'sections')]
     private Collection $professors;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)] // Peut être null si on n'a pas encore assigné de prof
+    private ?Professor $mainProfessor = null;
+
     public function __construct()
     {
         $this->students = new ArrayCollection();
@@ -126,6 +130,18 @@ class Level
         if ($this->professors->removeElement($professor)) {
             $professor->removeSection($this);
         }
+
+        return $this;
+    }
+
+    public function getMainProfessor(): ?Professor
+    {
+        return $this->mainProfessor;
+    }
+
+    public function setMainProfessor(?Professor $mainProfessor): static
+    {
+        $this->mainProfessor = $mainProfessor;
 
         return $this;
     }

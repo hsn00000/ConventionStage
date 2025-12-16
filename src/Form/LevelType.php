@@ -3,11 +3,12 @@
 namespace App\Form;
 
 use App\Entity\Level;
+use App\Entity\Professor; // Import important
+use Symfony\Bridge\Doctrine\Form\Type\EntityType; // Import important
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LevelType extends AbstractType
 {
@@ -15,14 +16,23 @@ class LevelType extends AbstractType
     {
         $builder
             ->add('levelCode', TextType::class, [
-                'label' => 'Code de la formation',
-                'attr' => ['placeholder' => 'Ex: STS SIO 1'],
-                'constraints' => [new NotBlank(['message' => 'Le code est obligatoire'])]
+                'label' => 'Code (ex: BTS SIO 1)',
+                'attr' => ['class' => 'form-control']
             ])
             ->add('levelName', TextType::class, [
-                'label' => 'Libellé de la formation',
-                'attr' => ['placeholder' => 'Ex: Services Informatiques aux Organisations 1ère année'],
-                'constraints' => [new NotBlank(['message' => 'Le libellé est obligatoire'])]
+                'label' => 'Libellé complet',
+                'attr' => ['class' => 'form-control']
+            ])
+            // AJOUT : Sélection du Professeur Référent
+            ->add('mainProfessor', EntityType::class, [
+                'class' => Professor::class,
+                'label' => 'Professeur Référent de la classe',
+                'placeholder' => 'Sélectionner un professeur',
+                'choice_label' => function (Professor $prof) {
+                    return $prof->getLastname() . ' ' . $prof->getFirstname();
+                },
+                'attr' => ['class' => 'form-select'],
+                'required' => false // Optionnel au début
             ])
         ;
     }
