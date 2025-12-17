@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Validation du stage{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow border-0 rounded-4">
+                    <div class="card-header bg-primary text-white p-4 rounded-top-4">
+                        <h2 class="h4 mb-0 text-center">Validation du Sujet de Stage</h2>
+                    </div>
+
+                    <div class="card-body p-5">
+
+                        {# Infos Étudiant #}
+                        <div class="mb-4">
+                            <h5 class="text-uppercase text-muted small fw-bold mb-3">Étudiant</h5>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar bg-light text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; font-size: 1.2rem;">
+                                    {{ contract.student.firstname|first }}{{ contract.student.lastname|first }}
+                                </div>
+                                <div>
+                                    <h4 class="mb-0 h5">{{ contract.student.firstname }} {{ contract.student.lastname }}</h4>
+                                    <small class="text-muted">{{ contract.student.email }}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        {# Le Sujet à valider #}
+                        <div class="mb-4">
+                            <h5 class="text-uppercase text-muted small fw-bold mb-3">Sujet du stage proposé</h5>
+                            <div class="bg-light p-4 rounded-3 border-start border-4 border-info">
+                                <p class="mb-0 fs-5 text-dark">{{ contract.plannedActivities }}</p>
+                            </div>
+                        </div>
+
+                        {# Actions (Boutons) #}
+                        <form method="post" class="mt-5 d-grid gap-3 d-md-flex justify-content-md-center">
+                            <button type="submit" name="action" value="validate" class="btn btn-success btn-lg px-5 rounded-pill shadow-sm">
+                                <i class="fas fa-check-circle me-2"></i> Valider le sujet
+                            </button>
+
+                            <button type="submit" name="action" value="refuse" class="btn btn-outline-danger btn-lg px-5 rounded-pill" onclick="return confirm('Êtes-vous sûr de vouloir refuser ce sujet ?');">
+                                <i class="fas fa-times-circle me-2"></i> Refuser
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
