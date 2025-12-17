@@ -20,7 +20,7 @@ class Student extends User
     private ?Level $level = null;
 
     // --- CORRECTION : AJOUT DE LA PROPRIÉTÉ MANQUANTE ---
-    #[ORM\ManyToOne(targetEntity: Professor::class)]
+    #[ORM\ManyToOne(targetEntity: Professor::class, inversedBy: 'studentsReferred')]
     #[ORM\JoinColumn(nullable: true)]
     private ?Professor $profReferent = null;
     // ----------------------------------------------------

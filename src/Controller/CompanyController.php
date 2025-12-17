@@ -33,7 +33,7 @@ class CompanyController extends AbstractController
         MailerInterface $mailer
     ): Response
     {
-        $contract = $contractRepository->findOneBy(['token' => $token]);
+        $contract = $contractRepository->findOneBy(['sharingToken' => $token]);
 
         if (!$contract) {
             throw $this->createNotFoundException('Contrat non trouvé');

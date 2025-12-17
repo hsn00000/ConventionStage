@@ -11,41 +11,30 @@
             <p class="text-muted mb-0">Bienvenue, {{ professor.firstname }} {{ professor.lastname }}</p>
         </div>
 
-        {# --- Messages Flash (Alerte Visuelle) --- #}
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-        {% for message in app.flashes('error') %}
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-        {% for message in app.flashes('warning') %}
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+        {# --- Messages Flash --- #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
         {% endfor %}
 
         {# --- 1. Cartes de Métriques Clés (KPIs) --- #}
         <div class="row mb-5 g-4">
-
-            {# KPI 1: Conventions en Attente (Urgent) #}
+            {# KPI 1: Conventions en Attente #}
             <div class="col-md-4">
-                <div class="card shadow-sm border-danger border-3 rounded-3 h-100">
+                <div class="card shadow-sm border-warning border-3 rounded-3 h-100">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
-                            <span class="fs-1 me-3 text-danger">🚨</span>
+                            <span class="fs-1 me-3 text-warning">🚨</span>
                             <div>
-                                <h6 class="card-subtitle mb-2 text-danger text-uppercase small fw-bold">Action Requise</h6>
+                                <h6 class="card-subtitle mb-2 text-warning text-uppercase small fw-bold">À Valider</h6>
                                 <h3 class="card-title mb-0">{{ pending_validation_count }} Conventions</h3>
                             </div>
                         </div>
-                        <p class="mt-3 mb-0 text-muted small">Cliquer ci-dessous pour voir la liste à valider.</p>
+                        <p class="mt-3 mb-0 text-muted small">En attente de votre signature.</p>
                     </div>
                 </div>
             </div>
@@ -57,11 +46,11 @@
                         <div class="d-flex align-items-center">
                             <span class="fs-1 me-3 text-success">✅</span>
                             <div>
-                                <h6 class="card-subtitle mb-2 text-success text-uppercase small fw-bold">Suivi en Cours</h6>
-                                <h3 class="card-title mb-0">{{ active_contracts_count }} Conventions Actives</h3>
+                                <h6 class="card-subtitle mb-2 text-success text-uppercase small fw-bold">Validées</h6>
+                                <h3 class="card-title mb-0">{{ active_contracts_count }} Conventions</h3>
                             </div>
                         </div>
-                        <p class="mt-3 mb-0 text-muted small">Nombre de stages en cours de déroulement.</p>
+                        <p class="mt-3 mb-0 text-muted small">Stages validés par le professeur.</p>
                     </div>
                 </div>
             </div>
@@ -73,68 +62,57 @@
                         <div class="d-flex align-items-center">
                             <span class="fs-1 me-3 text-primary">🎓</span>
                             <div>
-                                <h6 class="card-subtitle mb-2 text-primary text-uppercase small fw-bold">Vos Référents</h6>
+                                <h6 class="card-subtitle mb-2 text-primary text-uppercase small fw-bold">Vos Étudiants</h6>
                                 <h3 class="card-title mb-0">{{ students_count }} Étudiants</h3>
                             </div>
                         </div>
-                        <p class="mt-3 mb-0 text-muted small">Nombre total d'étudiants dont vous êtes référent.</p>
+                        <p class="mt-3 mb-0 text-muted small">Nombre total d'étudiants sous votre responsabilité.</p>
                     </div>
                 </div>
             </div>
-
         </div>
 
-        {# --- 2. Section: Conventions à Valider (La plus importante) --- #}
+        {# --- 2. Section: Conventions à Valider (Workflow) --- #}
         <div class="row mb-5">
             <div class="col-12">
-                <div class="card shadow rounded-3 border-danger">
-                    <div class="card-header bg-danger text-white p-3">
-                        <h4 class="mb-0">🚨 Conventions Nécessitant Votre Validation ({{ pending_validation_count }})</h4>
+                <div class="card shadow rounded-3 border-warning">
+                    <div class="card-header bg-warning text-dark p-3">
+                        <h4 class="mb-0 fs-5"><i class="fas fa-file-signature me-2"></i>Conventions en attente de validation</h4>
                     </div>
 
                     <div class="card-body p-0">
                         {% if pending_validation_count == 0 %}
-                            {# Style amélioré pour l'alerte verte #}
-                            <div class="p-4 bg-light-subtle rounded-bottom text-center">
-                                <span class="text-success fs-4 me-2">👍</span>
-                                <span class="fw-bold text-success">Toutes les conventions urgentes ont été traitées. Bon travail !</span>
+                            <div class="p-5 text-center text-muted">
+                                <i class="fas fa-check-circle fs-1 text-success mb-3"></i>
+                                <p class="mb-0">Aucune convention en attente pour le moment.</p>
                             </div>
                         {% else %}
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
                                     <thead class="table-light">
                                     <tr>
-                                        <th class="py-3 px-3">ID</th>
-                                        <th class="py-3 px-3">Étudiant</th>
-                                        <th class="py-3 px-3">Entreprise</th>
-                                        <th class="py-3 px-3">Statut</th>
-                                        <th class="py-3 px-3" style="width: 250px;">Actions</th>
+                                        <th class="px-4">Étudiant</th>
+                                        <th class="px-4">Entreprise</th>
+                                        <th class="px-4">Statut</th>
+                                        <th class="text-end px-4">Actions</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {% for contract in contracts_to_validate %}
-                                        {% if contract.status == 'A valider Prof' %}
-                                            <tr class="alert-danger-subtle">
-                                                <td class="px-3">#{{ contract.id }}</td>
-                                                <td class="px-3">
-                                                    <span class="fw-bold">{{ contract.student.firstname }} {{ contract.student.lastname }}</span>
+                                        {# On affiche uniquement celles qui sont à l'étape 'filled_by_company' #}
+                                        {% if contract.status == 'filled_by_company' %}
+                                            <tr>
+                                                <td class="px-4 fw-bold">
+                                                    {{ contract.student.firstname }} {{ contract.student.lastname }}
                                                 </td>
-                                                <td class="px-3">{{ contract.organisation.name }}</td>
-                                                <td class="px-3">
-                                                    <span class="badge bg-danger fw-bold py-2">ACTION REQUISE</span>
+                                                <td class="px-4">{{ contract.organisation.name }}</td>
+                                                <td class="px-4">
+                                                    <span class="badge bg-warning text-dark">À valider</span>
                                                 </td>
-                                                <td class="px-3">
-                                                    {# Bouton de Validation (POST) #}
-                                                    <form method="POST" action="{{ path('app_professor_contract_validate', {'id': contract.id}) }}" style="display: inline-block;" onsubmit="return confirm('Confirmez-vous la VALIDATION de cette convention ?');">
-                                                        <input type="hidden" name="_token" value="{{ csrf_token('validate' ~ contract.id) }}">
-                                                        <button type="submit" class="btn btn-sm btn-success me-2">Valider</button>
-                                                    </form>
-
-                                                    {# Bouton de Refus (POST) #}
-                                                    <form method="POST" action="{{ path('app_professor_contract_refuse', {'id': contract.id}) }}" style="display: inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir REFUSER cette convention ?');">
-                                                        <input type="hidden" name="_token" value="{{ csrf_token('refuse' ~ contract.id) }}">
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger">Refuser</button>
-                                                    </form>
+                                                <td class="px-4 text-end">
+                                                    <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn btn-sm btn-primary">
+                                                        Examiner la demande
+                                                    </a>
                                                 </td>
                                             </tr>
                                         {% endif %}
@@ -148,79 +126,68 @@
             </div>
         </div>
 
-        {# --- 3. Section: Conventions en Suivi (Moins Urgent) --- #}
+        {# --- 3. Section: Historique et Suivi --- #}
         <div class="row">
             <div class="col-12">
                 <div class="card shadow rounded-3">
                     <div class="card-header bg-light p-3">
-                        <h4 class="mb-0 text-secondary">Conventions en Suivi (En attente d'autres acteurs)</h4>
+                        <h4 class="mb-0 fs-5 text-secondary">Toutes les Conventions</h4>
                     </div>
                     <div class="card-body p-0">
-                        {% set pending_follow_up = contracts_to_validate|filter(c => c.status != 'A valider Prof') %}
-
-                        {% if pending_follow_up is empty %}
-                            <div class="alert alert-info m-3 mb-0" role="alert">
-                                Aucune convention en attente de l'entreprise ou de l'étudiant.
-                            </div>
-                        {% else %}
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                <tr>
+                                    <th class="px-4">ID</th>
+                                    <th class="px-4">Étudiant</th>
+                                    <th class="px-4">Entreprise</th>
+                                    <th class="px-4">Statut Actuel</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for contract in all_coordinated_contracts %}
                                     <tr>
-                                        <th class="py-3 px-3">ID</th>
-                                        <th class="py-3 px-3">Étudiant</th>
-                                        <th class="py-3 px-3">Entreprise</th>
-                                        <th class="py-3 px-3">Statut</th>
-                                        <th class="py-3 px-3">Progression</th>
+                                        <td class="px-4 text-muted">#{{ contract.id }}</td>
+                                        <td class="px-4">{{ contract.student.firstname }} {{ contract.student.lastname }}</td>
+                                        <td class="px-4">{{ contract.organisation.name }}</td>
+                                        <td class="px-4">
+                                            {# Affichage conditionnel des badges selon le statut technique #}
+                                            {% if contract.status == 'Brouillon' %}
+                                                <span class="badge bg-secondary">Brouillon</span>
+                                            {% elseif contract.status == 'filled_by_company' %}
+                                                <span class="badge bg-warning text-dark">À valider</span>
+                                            {% elseif contract.status == 'validated_by_prof' %}
+                                                <span class="badge bg-success">Validée</span>
+                                            {% elseif contract.status == 'refused' or contract.status == 'refuse_subject' %}
+                                                <span class="badge bg-danger">Refusée</span>
+                                            {% else %}
+                                                <span class="badge bg-light text-dark border">{{ contract.status }}</span>
+                                            {% endif %}
+                                        </td>
                                     </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for contract in pending_follow_up %}
-                                        <tr>
-                                            <td class="px-3">#{{ contract.id }}</td>
-                                            <td class="px-3">{{ contract.student.firstname }} {{ contract.student.lastname }}</td>
-                                            <td class="px-3">{{ contract.organisation.name }}</td>
-                                            <td class="px-3">
-                                                {% set badge_color = 'warning-subtle text-warning' %}
-                                                {% if contract.status == 'Brouillon' %}{% set badge_color = 'secondary-subtle text-secondary' %}
-                                                {% elseif contract.status == 'En attente entreprise' %}{% set badge_color = 'info-subtle text-info' %}
-                                                {% endif %}
-                                                <span class="badge bg-{{ badge_color }} fw-bold py-2">{{ contract.status|upper }}</span>
-                                            </td>
-                                            <td class="px-3">
-                                                <a href="#" class="btn btn-sm btn-outline-secondary">Détails/Rappel</a>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        {% endif %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">Aucune convention trouvée.</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {# --- 4. Section: Mon Profil (Informations Détaillées) --- #}
-        <div class="card shadow-sm mt-5 rounded-3">
-            <div class="card-header bg-light p-3">
-                <h4 class="mb-0 text-secondary">Mon Profil & Sécurité</h4>
-            </div>
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <p><strong>Nom :</strong> {{ professor.lastname }}</p>
-                        <p><strong>Prénom :</strong> {{ professor.firstname }}</p>
-                        <p><strong>Email :</strong> {{ professor.email }}</p>
-                    </div>
-                    <div class="col-md-6 text-md-end">
-                        {# Remplacement du bouton "Modifier mes informations" par "Modifier le mot de passe" #}
-                        {# La route app_forgot_password_request renvoie vers le formulaire de demande de réinitialisation. #}
-                        <a href="{{ path('app_forgot_password_request') }}" class="btn btn-warning">
-                            Modifier le mot de passe
-                        </a>
-                    </div>
+        {# --- 4. Profil --- #}
+        <div class="card shadow-sm mt-5 rounded-3 mb-5">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1">{{ professor.firstname }} {{ professor.lastname }}</h5>
+                    <p class="text-muted mb-0">{{ professor.email }}</p>
                 </div>
+                <a href="{{ path('app_forgot_password_request') }}" class="btn btn-outline-secondary">
+                    Modifier mot de passe
+                </a>
             </div>
         </div>
 
