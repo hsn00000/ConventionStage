@@ -4,38 +4,92 @@ namespace App\Controller;
 
 use App\Entity\Contract;
 use App\Form\CompanyFillContractType;
+use App\Repository\ContractRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Workflow\Registry;
 
-#[Route('/entreprise')]
 class CompanyController extends AbstractController
 {
-    #[Route('/collecte/{token}', name: 'app_company_fill')]
-    public function fill(string $token, Request $request, EntityManagerInterface $em): Response
+    private $workflowRegistry;
+
+    public function __construct(Registry $workflowRegistry)
     {
-        // 1. On cherche le contrat avec ce token
-        $contract = $em->getRepository(Contract::class)->findOneBy(['sharingToken' => $token]);
+        $this->workflowRegistry = $workflowRegistry;
+    }
+
+    #[Route('/company/fill/{token}', name: 'app_company_fill')]
+    public function fill(
+        string $token,
+        Request $request,
+        ContractRepository $contractRepository,
+        EntityManagerInterface $entityManager,
+        MailerInterface $mailer
+    ): Response
+    {
+        $contract = $contractRepository->findOneBy(['token' => $token]);
 
         if (!$contract) {
-            throw $this->createNotFoundException('Ce lien est invalide.');
+            throw $this->createNotFoundException('Contrat non trouvé');
         }
 
-        // 2. On affiche le formulaire
         $form = $this->createForm(CompanyFillContractType::class, $contract);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $contract->setStatus('Validé par entreprise');
-            $em->flush();
-            return $this->render('company/thanks.html.twig'); // Affichage direct de la page merci
+
+            // On récupère le workflow
+            $workflow = $this->workflowRegistry->get($contract);
+
+            // On vérifie si on peut passer à l'étape suivante
+            if ($workflow->can($contract, 'fill_by_company')) {
+                try {
+                    $workflow->apply($contract, 'fill_by_company');
+                } catch (\LogicException $e) {
+                    // Erreur silencieuse ou log
+                }
+            }
+
+            $entityManager->persist($contract);
+            $entityManager->flush();
+
+            // --- Envoi de l'email au Professeur ---
+            $student = $contract->getStudent();
+            $professor = $student ? $student->getProfReferent() : null;
+
+            if ($professor && $professor->getEmail()) {
+                $email = (new TemplatedEmail())
+                    ->from(new Address('no-reply@lycee-faure.fr', 'Convention Stage'))
+                    ->to($professor->getEmail())
+                    ->subject('Validation requise : Stage de ' . $student->getFirstname() . ' ' . $student->getLastname())
+                    ->htmlTemplate('emails/professor_validation_request.html.twig')
+                    ->context([
+                        'contract' => $contract,
+                        'professor' => $professor,
+                        'student' => $student
+                    ]);
+
+                $mailer->send($email);
+            }
+
+            return $this->redirectToRoute('app_company_thanks');
         }
 
         return $this->render('company/fill.html.twig', [
             'form' => $form->createView(),
             'contract' => $contract,
         ]);
+    }
+
+    #[Route('/company/thanks', name: 'app_company_thanks')]
+    public function thanks(): Response
+    {
+        return $this->render('company/thanks.html.twig');
     }
 }
