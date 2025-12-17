@@ -15,9 +15,15 @@ class Student extends User
     private ?string $personalEmail = null;
 
     #[ORM\ManyToOne(inversedBy: 'students')]
-    #[ORM\JoinColumn(nullable: true)] // <--- 2. Autorise le vide en DB (pour que les profs existent)
-    #[Assert\NotNull(message: "Un étudiant doit obligatoirement avoir un niveau.")] // <--- 3. INTERDIT le vide dans l'appli
+    #[ORM\JoinColumn(nullable: true)]
+    #[Assert\NotNull(message: "Un étudiant doit obligatoirement avoir un niveau.")]
     private ?Level $level = null;
+
+    // --- CORRECTION : AJOUT DE LA PROPRIÉTÉ MANQUANTE ---
+    #[ORM\ManyToOne(targetEntity: Professor::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Professor $profReferent = null;
+    // ----------------------------------------------------
 
     /**
      * @var Collection<int, Contract>
@@ -56,17 +62,19 @@ class Student extends User
         return $this;
     }
 
+    // --- CORRECTION DES GETTERS/SETTERS (CamelCase) ---
     public function getProfReferent(): ?Professor
     {
-        return $this->prof_referent;
+        return $this->profReferent; // Utilise la propriété déclarée plus haut
     }
 
-    public function setProfReferent(?Professor $prof_referent): static
+    public function setProfReferent(?Professor $profReferent): static
     {
-        $this->prof_referent = $prof_referent;
+        $this->profReferent = $profReferent;
 
         return $this;
     }
+    // --------------------------------------------------
 
     /**
      * @return Collection<int, Contract>
