@@ -2,33 +2,48 @@
 
 {% block title %}Connexion - Conventio{% endblock %}
 
-{% block body %}
+{# Utilisation de 'block content' au lieu de 'block body' pour conserver la Navbar #}
+{% block content %}
     <main class="container-fluid d-flex align-items-center justify-content-center min-vh-100 py-5">
-        {# Conteneur principal de la double colonne, agrandi et arrondi #}
+        {# Conteneur principal #}
         <div class="row w-100 shadow-lg bg-white rounded-4 overflow-hidden" style="max-width: 1400px; min-height: 85vh;">
 
             {# ----------------------------------------------------- #}
-            {# COLONNE 1 : Le Formulaire de Connexion (Gauche) #}
-            {# Modification : Suppression de 'justify-content-center' pour remonter le contenu, utilisation de 'p-5' pour le padding général. #}
-            <div class="col-12 col-lg-6 d-flex flex-column p-5 border-end">
+            {# COLONNE 1 : Formulaire (Gauche) #}
+            <div class="col-12 col-lg-6 d-flex flex-column p-5 border-end justify-content-center">
 
-                {# Modification : Centrage du titre avec 'text-center' et ajustement de la marge basse. #}
-                <h1 class="h3 mb-5 text-center">Connectez-vous à Conventio</h1>
+                <h1 class="h3 mb-4 text-center">Connectez-vous à Conventio</h1>
 
-                {# Affichage des messages de sécurité (Erreur ou Utilisateur connecté) #}
+                {# --- ZONE DES MESSAGES FLASH (Confirmation Email, etc.) --- #}
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success mb-4 text-center shadow-sm" role="alert">
+                        <i class="fas fa-check-circle me-2"></i> {{ message }}
+                    </div>
+                {% endfor %}
+
+                {% for message in app.flashes('verify_email_error') %}
+                    <div class="alert alert-danger mb-4 text-center shadow-sm" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i> {{ message }}
+                    </div>
+                {% endfor %}
+
+                {# Messages d'erreur de connexion #}
                 {% if error %}
-                    <div class="alert alert-danger" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-                {% endif %}
-
-                {% if app.user %}
-                    <div class="alert alert-success mb-3 text-center">
-                        Vous êtes connecté en tant que **{{ app.user.userIdentifier }}**.
-                        <a href="{{ path('app_logout') }}">Se déconnecter</a>
+                    <div class="alert alert-danger text-center" role="alert">
+                        {{ error.messageKey|trans(error.messageData, 'security') }}
                     </div>
                 {% endif %}
 
+                {% if app.user %}
+                    <div class="alert alert-info mb-3 text-center">
+                        Vous êtes déjà connecté en tant que <strong>{{ app.user.userIdentifier }}</strong>.<br>
+                        <a href="{{ path('app_logout') }}" class="alert-link">Se déconnecter</a>
+                    </div>
+                {% endif %}
+                {# ---------------------------------------------------------- #}
+
                 {# Formulaire de Connexion #}
-                <form method="post" class="mx-auto w-100" style="max-width: 380px;">
+                <form method="post" class="mx-auto w-100 mt-3" style="max-width: 380px;">
 
                     <div class="form-floating mb-3">
                         <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="email" required autofocus placeholder="Adresse email">
@@ -42,33 +57,30 @@
 
                     <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
 
-                    {# Section 'Mot de passe oublié' #}
                     <div class="mb-4 text-end">
-                        <a href="{{ path('app_forgot_password_request') }}" class="text-decoration-none">Mot de passe oublié ?</a>
+                        <a href="{{ path('app_forgot_password_request') }}" class="text-decoration-none small">Mot de passe oublié ?</a>
                     </div>
 
-                    <button class="btn btn-lg btn-primary w-100" type="submit">
+                    <button class="btn btn-lg btn-primary w-100 shadow-sm" type="submit">
                         Se connecter
                     </button>
                 </form>
 
-                {# Lien vers la page d'inscription #}
                 <div class="mt-4 text-center">
-                    <p class="text-muted">
-                        Pas encore inscrit ?
-                        <a href="{{ path('app_register_student') }}" class="text-decoration-none">Étudiant</a> ou
-                        <a href="{{ path('app_register_professor') }}" class="text-decoration-none">Professeur</a>
+                    <p class="text-muted small">
+                        Pas encore inscrit ?<br>
+                        <a href="{{ path('app_register_student') }}" class="fw-bold text-decoration-none">Étudiant</a> ou
+                        <a href="{{ path('app_register_professor') }}" class="fw-bold text-decoration-none">Professeur</a>
                     </p>
                 </div>
 
             </div>
 
             {# ----------------------------------------------------- #}
-            {# COLONNE 2 : L'Image/Illustration (Droite) #}
-            {# Utilisation du bleu comme couleur principale #}
-            <div class="col-12 col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-center p-5 text-white rounded-end-4"
+            {# COLONNE 2 : Image (Droite) #}
+            <div class="col-12 col-lg-6 d-none d-lg-block p-0"
                  style="background-color: #007bff; background-image: url('{{ asset('img/themebleu.jpg') }}'); background-size: cover; background-position: center;">
-
+                {# L'image couvre toute la hauteur grâce à d-lg-block et p-0 #}
             </div>
 
         </div>

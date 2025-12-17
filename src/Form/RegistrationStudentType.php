@@ -25,7 +25,8 @@ class RegistrationStudentType extends AbstractType
             // 1. Informations de base (Héritées de User)
             ->add('email', EmailType::class, [
                 'label' => 'Email du Lycée (@lycee-faure.fr)',
-                'attr' => ['placeholder' => 'prenom.nom@lycee-faure.fr']
+                'attr' => ['placeholder' => 'prenom.nom@lycee-faure.fr',
+                            'pattern' => '.*@lycee-faure\.fr$',]
             ])
             ->add('lastname', TextType::class, [
                 'label' => 'Nom de famille'
@@ -61,12 +62,6 @@ class RegistrationStudentType extends AbstractType
                 'label' => 'Votre Classe',
                 'placeholder' => 'Choisir une classe',
                 // Symfony utilisera automatiquement votre méthode __toString() de Level
-            ])
-            ->add('prof_referent', EntityType::class, [
-                'class' => Professor::class,
-                'label' => 'Professeur Référent',
-                'placeholder' => 'Choisir un professeur',
-                // Symfony utilisera automatiquement votre méthode __toString() de User/Professor
             ])
 
             // 4. Consentement (Obligatoire pour le RGPD)

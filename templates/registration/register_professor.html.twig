@@ -9,10 +9,8 @@
 
             {# ----------------------------------------------------- #}
             {# COLONNE 1 : Le Formulaire d'Inscription (Gauche) #}
-            {# Modification : Suppression de 'justify-content-center' pour remonter le contenu, utilisation de 'p-5' pour le padding. #}
             <div class="col-12 col-lg-6 d-flex flex-column p-5 border-end">
 
-                {# Modification : Centrage du titre et du sous-titre. Augmentation de la marge basse. #}
                 <h1 class="mb-2 text-center h3">Espace Professeur</h1>
                 <p class="text-muted text-center mb-5">Créez votre compte avec votre adresse académique.</p>
 
@@ -54,9 +52,34 @@
                         }) }}
                     </div>
 
-                    <div class="mb-3">
-                        {{ form_row(registrationForm.sections) }}
+                    {# --- DÉBUT MODIFICATION : SECTIONS STYLISÉES --- #}
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">{{ form_label(registrationForm.sections) }}</label>
+
+                        {# Conteneur grille pour les options (Chips / Boutons) #}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for child in registrationForm.sections %}
+                                <div class="position-relative">
+                                    {# La classe 'btn-check' cache la checkbox native de Bootstrap #}
+                                    {{ form_widget(child, {'attr': {'class': 'btn-check'}}) }}
+
+                                    {# On style le label pour qu'il ressemble à un bouton #}
+                                    {{ form_label(child, null, {
+                                        'label_attr': {'class': 'btn btn-outline-primary rounded-pill px-3 py-2 border-2 fw-semibold'}
+                                    }) }}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        {# Affichage des erreurs éventuelles pour ce champ #}
+                        <div class="text-danger small mt-1">
+                            {{ form_errors(registrationForm.sections) }}
+                        </div>
+                        <small class="text-muted d-block mt-2">
+                            <i class="fas fa-info-circle me-1"></i>Sélectionnez les classes dont vous êtes responsable.
+                        </small>
                     </div>
+                    {# --- FIN MODIFICATION --- #}
 
                     <div class="mb-3 mt-4">
                         {# Termes et conditions #}
@@ -76,10 +99,8 @@
 
             {# ----------------------------------------------------- #}
             {# COLONNE 2 : L'Image/Illustration (Droite) #}
-            {# Utilisation du bleu comme couleur principale #}
             <div class="col-12 col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-center p-5 text-white mt-3 mt-lg-0 rounded-end-4"
                  style="background-color: #007bff; background-image: url('{{ asset('img/themebleu.jpg') }}'); background-size: cover; background-position: center;">
-
             </div>
 
         </div>

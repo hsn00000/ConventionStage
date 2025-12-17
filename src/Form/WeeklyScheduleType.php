@@ -18,7 +18,7 @@ class WeeklyScheduleType extends AbstractType
             // C'EST ICI LE POINT CRITIQUE :
             $builder->add($day, DailyScheduleType::class, [
                 'label' => ucfirst($day),
-                'required' => false,
+                  'required' => false,
             ]);
         }
     }

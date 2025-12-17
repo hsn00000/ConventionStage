@@ -4,9 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Professor;
 use App\Entity\Student;
-use App\Entity\User;
 use App\Form\RegistrationProfessorType;
 use App\Form\RegistrationStudentType;
+use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -28,12 +28,19 @@ class RegistrationController extends AbstractController
     #[Route('/register/student', name: 'app_register_student')]
     public function registerStudent(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
     {
-        $user = new Student(); // C'est ici que la restriction @lycee-faure.fr s'active
+        $user = new Student();
         $form = $this->createForm(RegistrationStudentType::class, $user);
         $form->handleRequest($request);
 
+        // Logique spécifique pour assigner le prof référent selon la classe
+        if ($form->isSubmitted()) {
+            $level = $user->getLevel();
+            if ($level && $level->getMainProfessor()) {
+                $user->setProfReferent($level->getMainProfessor());
+            }
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
-            // Hachage du mot de passe
             /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
@@ -41,7 +48,7 @@ class RegistrationController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // Envoi de l'email de confirmation
+            // Envoi de l'email
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
                 (new TemplatedEmail())
                     ->from(new Address('no-reply@lycee-faure.fr', 'Lycée Fauré'))
@@ -50,7 +57,7 @@ class RegistrationController extends AbstractController
                     ->htmlTemplate('registration/confirmation_email.html.twig')
             );
 
-            $this->addFlash('success', 'Un email de confirmation vous a été envoyé. Veuillez cliquer sur le lien pour activer votre compte.');
+            $this->addFlash('success', 'Un email de confirmation vous a été envoyé. Vérifiez votre boîte mail.');
             return $this->redirectToRoute('app_login');
         }
 
@@ -62,23 +69,20 @@ class RegistrationController extends AbstractController
     #[Route('/register/professor', name: 'app_register_professor')]
     public function registerProfessor(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
     {
-        $user = new Professor(); // C'est ici que la restriction @ac-grenoble.fr s'active
+        $user = new Professor();
         $form = $this->createForm(RegistrationProfessorType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Hachage du mot de passe
             /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
 
-            // On s'assure qu'il a le rôle prof
             $user->setRoles(['ROLE_PROFESSOR']);
 
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // Envoi de l'email de confirmation
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
                 (new TemplatedEmail())
                     ->from(new Address('no-reply@lycee-faure.fr', 'Lycée Fauré'))
@@ -87,7 +91,7 @@ class RegistrationController extends AbstractController
                     ->htmlTemplate('registration/confirmation_email.html.twig')
             );
 
-            $this->addFlash('success', 'Un email de confirmation vous a été envoyé. Veuillez cliquer sur le lien pour activer votre compte.');
+            $this->addFlash('success', 'Un email de confirmation vous a été envoyé. Vérifiez votre boîte mail.');
             return $this->redirectToRoute('app_login');
         }
 
@@ -97,23 +101,35 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/verify/email', name: 'app_verify_email')]
-    public function verifyUserEmail(Request $request, TranslatorInterface $translator): Response
+    public function verifyUserEmail(Request $request, TranslatorInterface $translator, UserRepository $userRepository): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        // 1. Récupération de l'ID depuis l'URL
+        $id = $request->query->get('id');
 
-        // Validation du lien email, passe isVerified=true
+        // Si l'ID est absent, lien invalide -> Login
+        if (null === $id) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        // 2. Recherche de l'utilisateur
+        $user = $userRepository->find($id);
+
+        // Si l'utilisateur n'existe pas -> Login
+        if (null === $user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        // 3. Validation sécurisée
         try {
-            /** @var User $user */
-            $user = $this->getUser();
             $this->emailVerifier->handleEmailConfirmation($request, $user);
         } catch (VerifyEmailExceptionInterface $exception) {
             $this->addFlash('verify_email_error', $translator->trans($exception->getReason(), [], 'VerifyEmailBundle'));
-
-            return $this->redirectToRoute('app_login'); // Redirection en cas d'erreur
+            return $this->redirectToRoute('app_login');
         }
 
-        $this->addFlash('success', 'Votre adresse email a bien été vérifiée !');
+        // 4. Succès -> Login avec message vert
+        $this->addFlash('success', 'Votre email a été vérifié avec succès ! Vous pouvez maintenant vous connecter.');
 
-        return $this->redirectToRoute('app_login'); // Redirection après succès vers le login
+        return $this->redirectToRoute('app_login');
     }
 }
