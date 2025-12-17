@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\Entity\Professor;
 use App\Entity\Contract;
+use App\Entity\Professor;
 use App\Form\ProfessorType;
 use App\Repository\ProfessorRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,7 +11,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Workflow\Registry; // <--- Ne pas oublier cet import
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Workflow\Registry;
 
 #[Route('/professor')]
 final class ProfessorController extends AbstractController
@@ -44,20 +45,68 @@ final class ProfessorController extends AbstractController
         ]);
     }
 
-    // --- NOUVELLE MÉTHODE POUR LA VALIDATION DU SUJET ---
+    /**
+     * TABLEAU DE BORD PROFESSEUR
+     * Affiche les statistiques et les conventions à valider.
+     */
+    #[Route('/{id}', name: 'app_professor_show', methods: ['GET'])]
+    #[IsGranted('ROLE_PROFESSOR')]
+    public function show(Professor $professor): Response
+    {
+        // SÉCURITÉ : Vérifier que le prof connecté regarde son propre profil
+        if ($this->getUser() === null || $this->getUser()->getId() !== $professor->getId()) {
+            throw $this->createAccessDeniedException("Vous n'êtes pas autorisé à accéder à ce profil.");
+        }
+
+        // Récupération des étudiants suivis (Méthode issue du main)
+        // Si cette méthode n'existe pas encore dans ton entité Professor, utilise $professor->getStudents() ou une liste vide []
+        $students = method_exists($professor, 'getStudentsReferred') ? $professor->getStudentsReferred() : [];
+
+        // Récupération des contrats via la relation
+        $allCoordinatedContracts = $professor->getContracts();
+
+        // 1. Filtrer les conventions à valider (Status Workflow : 'filled_by_company')
+        $contractsToValidate = $allCoordinatedContracts->filter(function (Contract $contract) {
+            return $contract->getStatus() === 'filled_by_company';
+        });
+
+        // 2. Filtrer les conventions actives/validées
+        $activeContracts = $allCoordinatedContracts->filter(function (Contract $contract) {
+            return $contract->getStatus() === 'validated_by_prof';
+        });
+
+        // 3. Filtrer les conventions terminées/archivées
+        $pastContracts = $allCoordinatedContracts->filter(function (Contract $contract) {
+            return in_array($contract->getStatus(), ['completed', 'archived', 'refused']);
+        });
+
+        return $this->render('professor/show.html.twig', [
+            'professor' => $professor,
+            'students_count' => count($students),
+            'pending_validation_count' => $contractsToValidate->count(),
+            'active_contracts_count' => $activeContracts->count(),
+            'past_contracts_count' => $pastContracts->count(),
+            'contracts_to_validate' => $contractsToValidate,
+            'all_coordinated_contracts' => $allCoordinatedContracts,
+        ]);
+    }
+
+    /**
+     * VALIDATION DE CONVENTION (Via Workflow)
+     * Cette méthode gère le lien reçu par email ET le bouton du dashboard.
+     */
     #[Route('/contract/{id}/validate', name: 'app_professor_validate_contract', methods: ['GET', 'POST'])]
     public function validateContract(
         Contract $contract,
         Request $request,
         EntityManagerInterface $entityManager,
-        Registry $workflowRegistry // Injection du service Workflow
+        Registry $workflowRegistry
     ): Response
     {
-        // On récupère le workflow associé à l'entité Contract
+        // On récupère le workflow
         $workflow = $workflowRegistry->get($contract);
 
         if ($request->isMethod('POST')) {
-            // On récupère l'action du bouton cliqué (validate ou refuse)
             $action = $request->request->get('action');
 
             try {
@@ -72,122 +121,27 @@ final class ProfessorController extends AbstractController
                     $this->addFlash('warning', 'Le sujet de stage a été refusé.');
 
                 } else {
-                    $this->addFlash('danger', 'Action impossible pour le statut actuel de la convention.');
+                    $this->addFlash('danger', 'Action impossible pour le statut actuel (' . $contract->getStatus() . ').');
                 }
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors du changement de statut.');
+                $this->addFlash('error', 'Une erreur est survenue : ' . $e->getMessage());
             }
 
-            // Sauvegarde en base de données
             $entityManager->flush();
 
-            // Redirection vers la liste des profs (ou un dashboard si tu en as un)
-            return $this->redirectToRoute('app_professor_index');
+            // Si le prof est connecté, on le renvoie vers son dashboard
+            if ($this->getUser()) {
+                return $this->redirectToRoute('app_professor_show', ['id' => $this->getUser()->getId()]);
+            }
+
+            // Sinon (accès via mail sans être connecté), on reste sur la page ou on va à l'accueil
+            return $this->redirectToRoute('app_home');
         }
 
-        // Affichage de la vue de validation
+        // Si c'est un GET (clic sur le lien email), on affiche la page de confirmation
         return $this->render('professor/validate.html.twig', [
             'contract' => $contract,
         ]);
-    }
-    // ----------------------------------------------------
-
-    #[Route('/{id}', name: 'app_professor_show', methods: ['GET'])]
-    #[IsGranted('ROLE_PROFESSOR')]
-    // Note: Le nom de la route est maintenant 'app_professor_show'
-    public function show(Professor $professor): Response
-    {
-        // SECURITE: S'assurer que l'utilisateur connecté accède à son propre dashboard
-        if ($this->getUser() === null || $this->getUser()->getId() !== $professor->getId()) {
-            throw $this->createAccessDeniedException("Vous n'êtes pas autorisé à accéder à ce profil.");
-        }
-
-        // CORRECTION DE L'ERREUR: Utiliser la méthode getStudentsReferred()
-        $students = $professor->getStudentsReferred();
-
-        // On utilise la relation ManyToOne pour récupérer tous les contrats dont ce professeur est coordinateur
-        $allCoordinatedContracts = $professor->getContracts();
-
-        // Filtration des conventions qui requièrent une action du professeur
-        $contractsToValidate = $allCoordinatedContracts->filter(function (Contract $contract) {
-            // Statut à ajuster selon votre flux réel (ici, 'A valider Prof' est utilisé comme exemple)
-            return $contract->getStatus() === 'A valider Prof' || $contract->getStatus() === 'En attente entreprise';
-        });
-
-        // Calculs pour les statistiques
-        $studentsCount = count($students);
-        $pendingValidationCount = $contractsToValidate->filter(function (Contract $contract) {
-            return $contract->getStatus() === 'A valider Prof';
-        })->count();
-
-        $totalActiveContracts = $allCoordinatedContracts->filter(function (Contract $contract) {
-            return $contract->getStatus() === 'Validated' || $contract->getStatus() === 'Active';
-        })->count();
-
-        $totalPastContracts = $allCoordinatedContracts->filter(function (Contract $contract) {
-            return $contract->getStatus() === 'Completed' || $contract->getStatus() === 'Archived';
-        })->count();
-
-        // Rendu dans le template 'show.html.twig'
-        return $this->render('professor/show.html.twig', [
-            'professor' => $professor,
-            'students_count' => $studentsCount,
-            'pending_validation_count' => $pendingValidationCount,
-            'active_contracts_count' => $totalActiveContracts,
-            'past_contracts_count' => $totalPastContracts,
-            'contracts_to_validate' => $contractsToValidate, // La liste des conventions à valider/suivre
-            'all_coordinated_contracts' => $allCoordinatedContracts,
-        ]);
-    }
-
-    /**
-     * Action pour valider une convention.
-     */
-    #[Route('/contract/{id}/validate', name: 'app_professor_contract_validate', methods: ['POST'])]
-    #[IsGranted('ROLE_PROFESSOR')]
-    public function validateContract(Request $request, Contract $contract, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->getUser() !== $contract->getCoordinator()) {
-            throw $this->createAccessDeniedException('Vous n\'êtes pas le professeur référent de cette convention.');
-        }
-
-        if (!$this->isCsrfTokenValid('validate' . $contract->getId(), $request->getPayload()->getString('_token'))) {
-            throw $this->createAccessDeniedException('Jeton de sécurité invalide.');
-        }
-
-        if ($contract->getStatus() === 'A valider Prof') {
-            $contract->setStatus('Validée par Professeur');
-            $entityManager->flush();
-            $this->addFlash('success', 'La convention de ' . $contract->getStudent()->getFirstname() . ' a été validée.');
-        } else {
-            $this->addFlash('warning', 'La convention n\'est pas dans l\'état "A valider Prof". Statut actuel : ' . $contract->getStatus());
-        }
-
-        // Redirection vers le profil (maintenant le tableau de bord)
-        return $this->redirectToRoute('app_professor_show', ['id' => $this->getUser()->getId()]);
-    }
-
-    /**
-     * Action pour refuser une convention.
-     */
-    #[Route('/contract/{id}/refuse', name: 'app_professor_contract_refuse', methods: ['POST'])]
-    #[IsGranted('ROLE_PROFESSOR')]
-    public function refuseContract(Request $request, Contract $contract, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->getUser() !== $contract->getCoordinator()) {
-            throw $this->createAccessDeniedException('Vous n\'êtes pas le professeur référent de cette convention.');
-        }
-
-        if (!$this->isCsrfTokenValid('refuse' . $contract->getId(), $request->getPayload()->getString('_token'))) {
-            throw $this->createAccessDeniedException('Jeton de sécurité invalide.');
-        }
-
-        $contract->setStatus('Refusée par Professeur');
-        $entityManager->flush();
-        $this->addFlash('error', 'La convention de ' . $contract->getStudent()->getFirstname() . ' a été refusée.');
-
-        // Redirection vers le profil (maintenant le tableau de bord)
-        return $this->redirectToRoute('app_professor_show', ['id' => $this->getUser()->getId()]);
     }
 
     #[Route('/{id}/edit', name: 'app_professor_edit', methods: ['GET', 'POST'])]
