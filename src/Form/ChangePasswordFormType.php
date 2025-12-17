@@ -19,48 +19,37 @@ class ChangePasswordFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            // Le visiteur doit saisir et confirmer son nouveau mot de passe.
             ->add('password', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'options' => [
-                    'attr' => [
-                        'autocomplete' => 'new-password',
-                    ],
+                    'attr' => ['autocomplete' => 'new-password'],
                 ],
-                // Configuration des deux champs de mot de passe
-                // 'first_options' pour le premier champ
-                // 'second_options' pour le second champ
                 'first_options' => [
-
-
-                    // Controle de la robustesse du mot de passe
                     'constraints' => [
-                        // NotBlank → interdit un mot de passe vide.
                         new NotBlank([
-                            'message' => 'Please enter a password',
+                            'message' => 'Veuillez entrer un mot de passe',
                         ]),
-                        // Length(min=12) → impose une longueur minimale (12 caractères).
                         new Length([
                             'min' => 8,
-                            'minMessage' => 'Your password should be at least {{ limit }} characters',
-                            // max length allowed by Symfony for security reasons
+                            'minMessage' => 'Votre mot de passe doit contenir au moins {{ limit }} caractères',
                             'max' => 4096,
                         ]),
-                        // PasswordStrength() → impose une complexité (majuscules, chiffres, caractères spéciaux…).
+                        // --- TRADUCTION ICI ---
                         new PasswordStrength([
                             'minScore' => PasswordStrength::STRENGTH_WEAK,
+                            'message' => 'La sécurité du mot de passe est trop faible. Veuillez utiliser un mot de passe plus robuste.',
                         ]),
-                        // NotCompromisedPassword() → vérifie que le mot de passe n’apparaît pas dans une base de données de mots de passe piratés.
-                        new NotCompromisedPassword(),
+                        new NotCompromisedPassword([
+                            'message' => 'Ce mot de passe a été divulgué dans une fuite de données. Veuillez en choisir un autre.',
+                        ]),
+                        // -----------------------
                     ],
-                    'label' => 'New password',
+                    'label' => 'Nouveau mot de passe',
                 ],
                 'second_options' => [
-                    'label' => 'Repeat Password',
+                    'label' => 'Confirmer le mot de passe',
                 ],
-                'invalid_message' => 'The password fields must match.',
-                // Instead of being set onto the object directly,
-                // this is read and encoded in the controller
+                'invalid_message' => 'Les deux mots de passe doivent être identiques.',
                 'mapped' => false,
             ])
         ;
