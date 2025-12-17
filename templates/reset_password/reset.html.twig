@@ -11,10 +11,28 @@
 
                 {{ form_start(resetForm) }}
 
+                {# Champ 1 : Nouveau mot de passe #}
                 <div class="mb-3">
-                    {{ form_label(resetForm.plainPassword, 'Nouveau mot de passe') }}
-                    {{ form_widget(resetForm.plainPassword, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(resetForm.plainPassword) }}
+                    {# On utilise .password au lieu de .plainPassword #}
+                    {{ form_label(resetForm.password.first, 'Nouveau mot de passe') }}
+                    {{ form_widget(resetForm.password.first, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le nouveau mot de passe'}}) }}
+                    <div class="text-danger small">
+                        {{ form_errors(resetForm.password.first) }}
+                    </div>
+                </div>
+
+                {# Champ 2 : Confirmation #}
+                <div class="mb-3">
+                    {{ form_label(resetForm.password.second, 'Confirmer le mot de passe') }}
+                    {{ form_widget(resetForm.password.second, {'attr': {'class': 'form-control', 'placeholder': 'Répétez le mot de passe'}}) }}
+                    <div class="text-danger small">
+                        {{ form_errors(resetForm.password.second) }}
+                    </div>
+                </div>
+
+                {# Erreurs globales du champ password #}
+                <div class="text-danger mb-3">
+                    {{ form_errors(resetForm.password) }}
                 </div>
 
                 <button class="btn btn-primary w-100" type="submit">Réinitialiser</button>
@@ -25,4 +43,3 @@
         </div>
     </div>
 {% endblock %}
-
