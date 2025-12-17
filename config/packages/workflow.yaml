@@ -1,0 +1,27 @@
+framework:
+    workflows:
+        contract_workflow:
+            type: 'state_machine'
+            audit_trail:
+                enabled: true
+            marking_store:
+                type: 'method'
+                property: 'status' # <--- On utilise bien ta propriété 'status'
+            supports:
+                - App\Entity\Contract
+            initial_marking: Brouillon # <--- Correspond à ton constructeur
+            places:
+                - Brouillon
+                - filled_by_company
+                - validated_by_prof
+                - refused
+            transitions:
+                fill_by_company:
+                    from: Brouillon
+                    to:   filled_by_company
+                validate_by_prof:
+                    from: filled_by_company
+                    to:   validated_by_prof
+                refuse_subject:
+                    from: filled_by_company
+                    to:   refused

@@ -83,7 +83,7 @@ class StudentContractController extends AbstractController
             $contract->setStudent($student);
             $contract->setTutor($tutor);
             $contract->setOrganisation($org);
-            $contract->setStatus('En attente entreprise');
+            $contract->setStatus('Brouillon');
 
             $contract->setDeplacement(false);
             $contract->setTransportFreeTaken(false);
@@ -98,9 +98,25 @@ class StudentContractController extends AbstractController
             $token = bin2hex(random_bytes(32));
             $contract->setSharingToken($token);
 
-            if ($student->getProfReferent()) {
-                $contract->setCoordinator($student->getProfReferent());
+            // --- CORRECTION : Attribution du Coordinateur (Professeur) ---
+
+            // a. On essaie le prof référent direct de l'étudiant
+            $coordinator = $student->getProfReferent();
+
+            // b. Si pas de référent, on tente le Prof Principal de sa classe
+            if (!$coordinator && $student->getLevel()) {
+                $coordinator = $student->getLevel()->getMainProfessor();
             }
+
+            // c. Si toujours personne, on bloque l'enregistrement pour éviter l'erreur SQL
+            if (!$coordinator) {
+                $this->addFlash('error', 'Impossible de créer la convention : vous n\'avez aucun professeur référent ou principal assigné. Veuillez contacter l\'administration.');
+                return $this->redirectToRoute('app_student_contract_init');
+            }
+
+            // On assigne le prof trouvé
+            $contract->setCoordinator($coordinator);
+            // -------------------------------------------------------------
 
             $em->persist($contract);
             $em->flush();

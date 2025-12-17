@@ -37,7 +37,7 @@ class StudentType extends AbstractType
                 'class' => Level::class,
                 'placeholder' => 'Choisir un niveau',
             ])
-            ->add('prof_referent', EntityType::class, [
+            ->add('profReferent', EntityType::class, [
                 'class' => Professor::class,
                 'placeholder' => 'Choisir un professeur référent',
             ])

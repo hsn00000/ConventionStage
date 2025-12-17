@@ -14,7 +14,7 @@ class Professor extends User
      * @var Collection<int, Student>
      */
     // Doit s'appeler 'studentsReferred' pour correspondre à votre 'inversedBy'
-    #[ORM\OneToMany(targetEntity: Student::class, mappedBy: 'prof_referent')]
+    #[ORM\OneToMany(targetEntity: Student::class, mappedBy: 'profReferent')]
     private Collection $studentsReferred;
 
     /**
