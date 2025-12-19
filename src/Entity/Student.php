@@ -11,9 +11,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: StudentRepository::class)]
 class Student extends User
 {
-    #[ORM\Column(length: 255)]
-    private ?string $personalEmail = null;
-
     #[ORM\ManyToOne(inversedBy: 'students')]
     #[ORM\JoinColumn(nullable: true)]
     #[Assert\NotNull(message: "Un étudiant doit obligatoirement avoir un niveau.")]
@@ -36,18 +33,6 @@ class Student extends User
         parent::__construct();
         $this->contracts = new ArrayCollection();
         $this->setRoles(['ROLE_STUDENT']);
-    }
-
-    public function getPersonalEmail(): ?string
-    {
-        return $this->personalEmail;
-    }
-
-    public function setPersonalEmail(string $personalEmail): static
-    {
-        $this->personalEmail = $personalEmail;
-
-        return $this;
     }
 
     public function getLevel(): ?Level

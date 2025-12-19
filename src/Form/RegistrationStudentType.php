@@ -52,11 +52,6 @@ class RegistrationStudentType extends AbstractType
                 ],
             ])
 
-            // 3. Informations spécifiques Étudiant (Entité Student)
-            ->add('personalEmail', EmailType::class, [
-                'label' => 'Email personnel (secours)',
-                'required' => false, // Facultatif
-            ])
             ->add('level', EntityType::class, [
                 'class' => Level::class,
                 'label' => 'Votre Classe',
