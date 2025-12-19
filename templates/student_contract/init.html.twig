@@ -10,14 +10,35 @@
                     <div class="card-body p-5">
                         <h1 class="h3 mb-4 text-primary text-center">Démarrer une convention</h1>
 
-                        <div class="alert alert-info border-0 bg-info-subtle text-info-emphasis">
+                        {# --- 1. AFFICHER LES MESSAGES FLASH (Erreurs du contrôleur) --- #}
+                        {# C'est ici que l'erreur "Aucun professeur..." s'affichera #}
+                        {% for label, messages in app.flashes %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-exclamation-circle me-2"></i> {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                        {# -------------------------------------------------------------- #}
+
+                        <div class="alert alert-info border-0 bg-info-subtle text-info-emphasis mt-3">
                             <i class="fas fa-info-circle me-2"></i>
                             Vous ne connaissez pas toutes les informations administratives de l'entreprise ?
                             Remplissez ce formulaire et nous enverrons un email à votre tuteur pour qu'il le fasse à votre place.
                         </div>
 
                         {{ form_start(form) }}
-                        <div class="mb-4">
+
+                        {# --- 2. AFFICHER LES ERREURS DU FORMULAIRE (CSRF, etc.) --- #}
+                        {% if form.vars.errors|length > 0 %}
+                            <div class="alert alert-danger mt-3">
+                                {{ form_errors(form) }}
+                            </div>
+                        {% endif %}
+                        {# ---------------------------------------------------------- #}
+
+                        <div class="mb-4 mt-4">
                             {{ form_row(form.companyName, {'attr': {'class': 'form-control form-control-lg'}}) }}
                         </div>
                         <div class="mb-4">

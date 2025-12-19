@@ -110,7 +110,9 @@ class StudentContractController extends AbstractController
 
             // c. Si toujours personne, on bloque l'enregistrement pour éviter l'erreur SQL
             if (!$coordinator) {
-                $this->addFlash('error', 'Impossible de créer la convention : vous n\'avez aucun professeur référent ou principal assigné. Veuillez contacter l\'administration.');
+                // Modification du message d'erreur pour l'utilisateur
+                $this->addFlash('error', 'Aucun professeur n\'est assigné à votre classe pour le moment. Veuillez patienter avant de refaire votre demande ou contacter l\'administration.');
+
                 return $this->redirectToRoute('app_student_contract_init');
             }
 
