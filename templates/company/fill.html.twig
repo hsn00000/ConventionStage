@@ -1,3 +1,4 @@
+{# templates/company/fill.html.twig #}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -98,11 +99,19 @@
 
         .section-body { padding: 1.5rem; }
 
-        /* Champs Formulaire (Clé de l'amélioration) */
+        /* Champs Formulaire */
         .form-label { font-weight: 600; color: #4a5568; font-size: 0.85rem; margin-bottom: 0.4rem; }
+
         .form-control, .form-select {
             border-radius: 8px; border: 1px solid #cbd5e0; padding: 0.6rem 0.8rem; font-size: 0.95rem;
         }
+
+        /* Style spécifique pour s'assurer que le placeholder est bien gris */
+        .form-control::placeholder {
+            color: #a0aec0;
+            opacity: 1; /* Firefox */
+        }
+
         .form-control:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1); }
         .form-control.bg-light { background-color: #f8fafc; }
 
@@ -150,6 +159,10 @@
         #schedule-table th { font-weight: 600; color: #4a5568; padding: 0.8rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
         .day-cell { background-color: #f8fafc; font-weight: 700; color: #3182ce; text-transform: uppercase; font-size: 0.75rem; vertical-align: middle; }
         .js-time-input { text-align: center; font-weight: 500; font-family: monospace; }
+
+        /* Placeholder pour les horaires aussi */
+        .js-time-input::placeholder { color: #cbd5e0; font-weight: 300; }
+
         .table .form-control-sm { padding: 0.25rem 0.5rem; }
 
 
@@ -214,7 +227,7 @@
                                         }) }}
                                     </div>
                                     <div class="row g-2">
-                                        <div class="col-12">{{ form_row(form.organisation.addressHq, {'attr': {'placeholder': 'Adresse complète', 'class': 'form-control'}}) }}</div>
+                                        <div class="col-12">{{ form_row(form.organisation.addressHq, {'attr': {'placeholder': 'Ex: 12 avenue des Lilas', 'class': 'form-control'}}) }}</div>
                                         <div class="col-4">{{ form_row(form.organisation.postalCodeHq, {'attr': {'placeholder': 'CP', 'class': 'form-control'}}) }}</div>
                                         <div class="col-8">{{ form_row(form.organisation.cityHq, {'attr': {'placeholder': 'Ville', 'class': 'form-control'}}) }}</div>
                                     </div>
@@ -224,20 +237,17 @@
                                 <div class="mb-4 pt-3 border-top">
                                     <div class="text-section-title">🖋️ Responsable Signataire</div>
                                     <div class="row g-2">
-                                        <div class="col-6">{{ form_row(form.organisation.respName, {'label': 'Nom', 'attr': {'placeholder': 'Nom Prénom', 'class': 'form-control'}}) }}</div>
-                                        <div class="col-6">{{ form_row(form.organisation.respFunction, {'label': 'Fonction', 'attr': {'class': 'form-control'}}) }}</div>
+                                        <div class="col-6">{{ form_row(form.organisation.respName, {'label': 'Nom', 'attr': {'placeholder': 'Ex: Martin Paul', 'class': 'form-control'}}) }}</div>
+                                        <div class="col-6">{{ form_row(form.organisation.respFunction, {'label': 'Fonction', 'attr': {'class': 'form-control', 'placeholder': 'Ex: Gérant, DRH...'}}) }}</div>
                                     </div>
                                     <div class="mb-2 mt-2">
-                                        {{ form_row(form.organisation.respEmail, {'label': 'Email', 'attr': {'class': 'form-control'}}) }}
+                                        {{ form_row(form.organisation.respEmail, {'label': 'Email', 'attr': {'class': 'form-control', 'placeholder': 'Ex: responsable@entreprise.com'}}) }}
                                     </div>
                                     {# Téléphones Signataire #}
                                     <div class="row g-2">
-                                        <div class="col-6">
-                                            {{ form_row(form.organisation.respPhone, {'label': 'Téléphone', 'attr': {'class': 'form-control'}}) }}
-                                        </div>
-                                        <div class="col-6">
-                                            <label class="form-label">Tél. Portable (Option)</label>
-                                            <input type="text" class="form-control bg-light" placeholder="06..." readonly title="Champ non modifiable">
+                                        <div class="col-12">
+                                            {# Note : J'ai retiré le faux champ "Mobile" car votre base de données ne le gère pas encore #}
+                                            {{ form_row(form.organisation.respPhone, {'label': 'Téléphone', 'attr': {'class': 'form-control', 'placeholder': 'Ex: 01 23 45 67 89'}}) }}
                                         </div>
                                     </div>
                                 </div>
@@ -246,8 +256,8 @@
                                 <div class="pt-3 border-top">
                                     <div class="text-section-title">🛡️ Assurance</div>
                                     <div class="row g-2">
-                                        {{ form_row(form.organisation.insuranceName, {'label': 'Assureur', 'attr': {'class': 'form-control'}}) }}
-                                        <div class="col-6">{{ form_row(form.organisation.insuranceContract, {'label': 'N° Police', 'attr': {'class': 'form-control'}}) }}</div>
+                                        {{ form_row(form.organisation.insuranceName, {'label': 'Assureur', 'attr': {'class': 'form-control', 'placeholder': 'Ex: AXA, Allianz...'}}) }}
+                                        <div class="col-6">{{ form_row(form.organisation.insuranceContract, {'label': 'N° Police', 'attr': {'class': 'form-control', 'placeholder': 'N° Contrat'}}) }}</div>
                                     </div>
                                 </div>
 
@@ -265,19 +275,22 @@
                             </div>
                             <div class="section-body">
                                 <div class="row g-2 mb-3">
-                                    <div class="col-6">{{ form_row(form.tutor.lastname, {'label': 'Nom', 'attr': {'class': 'form-control'}}) }}</div>
-                                    <div class="col-6">{{ form_row(form.tutor.firstname, {'label': 'Prénom', 'attr': {'class': 'form-control'}}) }}</div>
+                                    <div class="col-6">{{ form_row(form.tutor.lastname, {'label': 'Nom', 'attr': {'class': 'form-control', 'placeholder': 'Ex: Dupont'}}) }}</div>
+                                    <div class="col-6">{{ form_row(form.tutor.firstname, {'label': 'Prénom', 'attr': {'class': 'form-control', 'placeholder': 'Ex: Jean'}}) }}</div>
                                 </div>
                                 <div class="mb-3">
-                                    {{ form_row(form.tutor.email, {'label': 'Email Direct', 'attr': {'class': 'form-control'}}) }}
+                                    {{ form_row(form.tutor.email, {'label': 'Email Direct', 'attr': {'class': 'form-control', 'placeholder': 'Ex: tuteur@entreprise.com'}}) }}
                                 </div>
                                 <div class="row g-2">
                                     <div class="col-6">
-                                        {{ form_row(form.tutor.telMobile, {'label': 'Tél. Portable', 'attr': {'class': 'form-control'}}) }}
+                                        {{ form_row(form.tutor.telMobile, {'label': 'Tél. Portable', 'attr': {'class': 'form-control', 'placeholder': 'Ex: 06 12 34 56 78'}}) }}
                                     </div>
                                     <div class="col-6">
-                                        <label class="form-label">Tél. Fixe (Option)</label>
-                                        <input type="text" class="form-control bg-light" placeholder="01..." readonly title="Champ non modifiable">
+                                        {# Correction : Utilisation du vrai champ telOther au lieu du champ bloqué #}
+                                        {{ form_row(form.tutor.telOther, {
+                                            'label': 'Tél. Fixe (Option)',
+                                            'attr': {'class': 'form-control', 'placeholder': 'Ex: 01 23 45 67 89'}
+                                        }) }}
                                     </div>
                                 </div>
                             </div>
@@ -291,7 +304,7 @@
                             <div class="section-body">
                                 <div class="mb-3">
                                     {{ form_label(form.plannedActivities, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
-                                    {{ form_widget(form.plannedActivities, {'attr': {'class': 'form-control', 'rows': 4, 'placeholder': 'Décrivez les missions...'}}) }}
+                                    {{ form_widget(form.plannedActivities, {'attr': {'class': 'form-control', 'rows': 4, 'placeholder': 'Ex: Décrivez ici les missions principales qui seront confiées au stagiaire...'}}) }}
                                     {{ form_errors(form.plannedActivities) }}
                                 </div>
 
@@ -392,10 +405,11 @@
                                 {% for day, dayForm in form.workHours %}
                                     <tr class="schedule-row">
                                         <td class="day-cell">{{ day|capitalize }}</td>
-                                        <td class="p-1">{{ form_widget(dayForm.m_start, {'attr': {'class': 'form-control form-control-sm text-center js-time-input'}}) }}</td>
-                                        <td class="p-1">{{ form_widget(dayForm.m_end, {'attr': {'class': 'form-control form-control-sm text-center js-time-input'}}) }}</td>
-                                        <td class="p-1">{{ form_widget(dayForm.am_start, {'attr': {'class': 'form-control form-control-sm text-center js-time-input'}}) }}</td>
-                                        <td class="p-1">{{ form_widget(dayForm.am_end, {'attr': {'class': 'form-control form-control-sm text-center js-time-input'}}) }}</td>
+                                        {# Ajout de placeholder '--:--' pour les horaires #}
+                                        <td class="p-1">{{ form_widget(dayForm.m_start, {'attr': {'class': 'form-control form-control-sm text-center js-time-input', 'placeholder': '--:--'}}) }}</td>
+                                        <td class="p-1">{{ form_widget(dayForm.m_end, {'attr': {'class': 'form-control form-control-sm text-center js-time-input', 'placeholder': '--:--'}}) }}</td>
+                                        <td class="p-1">{{ form_widget(dayForm.am_start, {'attr': {'class': 'form-control form-control-sm text-center js-time-input', 'placeholder': '--:--'}}) }}</td>
+                                        <td class="p-1">{{ form_widget(dayForm.am_end, {'attr': {'class': 'form-control form-control-sm text-center js-time-input', 'placeholder': '--:--'}}) }}</td>
                                         <td class="fw-bold day-total bg-light" style="color: var(--accent-color);">0h</td>
                                     </tr>
                                 {% endfor %}
@@ -414,59 +428,53 @@
                     </div>
                 </div>
 
-                {# --- INFORMATIONS COMPLÉMENTAIRES (CORRECTION : Utilisation des ID exacts pour éviter la duplication) --- #}
+                {# --- INFORMATIONS COMPLÉMENTAIRES --- #}
                 <div class="section-card mt-4">
                     <div class="section-header">
                         <h4><i class="fas fa-info-circle"></i> Informations Complémentaires</h4>
                     </div>
                     <div class="section-body">
 
-                        {# Site Web (ID: company_fill_contract_organisation_website) #}
+                        {# Site Web #}
                         <div class="mb-3">
                             {{ form_row(form.organisation.website, {
                                 'label': 'Site Web',
-                                'attr': {'placeholder': 'https://...', 'class': 'form-control'}
+                                'attr': {'placeholder': 'Ex: https://www.exemple.com', 'class': 'form-control'}
                             }) }}
                         </div>
 
-                        {# Adresse du stage (ID: company_fill_contract_organisation_addressInternship) #}
+                        {# Adresse du stage #}
                         <div class="mb-3">
                             {{ form_row(form.organisation.addressInternship, {
                                 'label': 'Adresse du stage (si différente)',
-                                'attr': {'placeholder': 'Adresse complète du lieu de stage', 'class': 'form-control'}
+                                'attr': {'placeholder': 'Ex: 12 rue de l\'Industrie...', 'class': 'form-control'}
                             }) }}
                             <small class="form-text text-muted">À compléter si l'adresse est différente du siège social.</small>
                         </div>
 
                         <div class="row g-3">
-                            {# Code Postal (ID: company_fill_contract_organisation_postalCodeInternship) #}
+                            {# Code Postal #}
                             <div class="col-md-4 mb-3">
                                 {{ form_row(form.organisation.postalCodeInternship, {
                                     'label': 'Code Postal',
-                                    'attr': {'placeholder': '00000', 'class': 'form-control'}
+                                    'attr': {'placeholder': 'Ex: 75000', 'class': 'form-control'}
                                 }) }}
                             </div>
-                            {# Ville (ID: company_fill_contract_organisation_cityInternship) #}
+                            {# Ville #}
                             <div class="col-md-8 mb-3">
                                 {{ form_row(form.organisation.cityInternship, {
                                     'label': 'Ville',
-                                    'attr': {'placeholder': 'Ville à compléter', 'class': 'form-control'}
+                                    'attr': {'placeholder': 'Ex: Paris', 'class': 'form-control'}
                                 }) }}
                             </div>
                         </div>
 
-                        {# Autre téléphone (ID: company_fill_contract_tutor_telOther) #}
-                        <div class="mt-1">
-                            {{ form_row(form.tutor.telOther, {
-                                'label': 'Autre téléphone (Optionnel)',
-                                'attr': {'placeholder': 'Numéro de ligne directe, etc.', 'class': 'form-control'}
-                            }) }}
-                        </div>
+                        {# Ici, j'ai supprimé le doublon de telOther qui se trouvait ici #}
 
                     </div>
                 </div>
 
-                {# --- ACTIONS (Juste après le dernier bloc d'information) --- #}
+                {# --- ACTIONS --- #}
                 <div class="text-center mt-5">
                     <button type="submit" class="btn-validate">
                         Valider le dossier <i class="fas fa-paper-plane ms-2"></i>
@@ -476,11 +484,9 @@
                     </p>
                 </div>
 
-                {# form_end rendra uniquement les champs cachés (jeton CSRF, etc.) #}
                 {{ form_end(form) }}
             </div>
 
-            {# --- PIED DE PAGE (Hors du container principal) --- #}
             <div class="text-center mt-3 mb-5 text-muted small">
                 &copy; {{ "now"|date("Y") }} Lycée Gabriel Fauré - Espace Entreprise
             </div>
@@ -489,7 +495,7 @@
     </div>
 </div>
 
-{# --- SCRIPT JS (À LA FIN DU BODY POUR LA PERFORMANCE) --- #}
+{# --- SCRIPT JS --- #}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // --- 1. Gestion Affichage Gratification ---
@@ -504,7 +510,8 @@
                 } else {
                     bonusContainer.style.display = 'none';
                     if(bonusAmountInput) {
-                        bonusAmountInput.value = '';
+                        // On ne vide pas la valeur ici si on veut garder la donnée en cas d'erreur
+                        // bonusAmountInput.value = '';
                     }
                 }
             }
@@ -512,18 +519,14 @@
 
         if(bonusCheckbox) {
             bonusCheckbox.addEventListener('change', toggleBonus);
-
             const hasExistingValue = bonusAmountInput && bonusAmountInput.value.length > 0;
-
             if (bonusCheckbox.checked || hasExistingValue) {
                 bonusContainer.style.display = 'block';
             } else {
                 bonusContainer.style.display = 'none';
             }
-
             toggleBonus();
         }
-
 
         // --- 2. Calcul des Heures ---
         const rows = document.querySelectorAll('.schedule-row');
@@ -565,7 +568,6 @@
             if (weekTotalDisplay) weekTotalDisplay.textContent = formatHours(weekTotal);
 
             if (alert35h) {
-                // 35 heures * 60 minutes = 2100 minutes
                 if (weekTotal > 0 && weekTotal < 2100) {
                     alert35h.classList.remove('d-none');
                 } else {
@@ -579,7 +581,6 @@
             input.addEventListener('change', updateTotals);
         });
 
-        // Calcul initial
         updateTotals();
     });
 </script>
