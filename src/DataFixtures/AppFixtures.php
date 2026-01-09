@@ -91,7 +91,6 @@ class AppFixtures extends Fixture
         $student->setFirstname('Paul');
         $student->setRoles(['ROLE_STUDENT']);
         $student->setPassword($this->hasher->hashPassword($student, 'password'));
-        $student->setPersonalEmail('paul.perso@gmail.com');
         $student->setLevel($level);
         $student->setProfReferent($prof);
         $manager->persist($student);
