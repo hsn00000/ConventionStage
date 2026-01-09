@@ -19,7 +19,7 @@ class ChangePasswordFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('password', RepeatedType::class, [
+            ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'options' => [
                     'attr' => ['autocomplete' => 'new-password'],
