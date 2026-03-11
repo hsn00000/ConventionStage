@@ -3,56 +3,55 @@
 namespace App\Controller;
 
 use App\Entity\Contract;
-use App\Entity\Student;
-use App\Form\ContractType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Workflow\WorkflowInterface;
 
-#[Route('/convention')]
+#[Route('/contract')]
 class ContractController extends AbstractController
 {
-    #[Route('/nouvelle', name: 'app_contract_new', methods: ['GET', 'POST'])]
-    #[IsGranted('ROLE_STUDENT')] // Seul un étudiant peut accéder à cette page
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $contract = new Contract();
+    // ... tes autres méthodes (index, show, new, edit, etc.)
 
-        // 1. Récupération de l'étudiant connecté
-        /** @var Student $user */
-        $user = $this->getUser();
+    #[Route('/{id}/validate-by-student', name: 'app_contract_validate_by_student', methods: ['POST'])]
+    public function validateByStudent(
+        Request $request,
+        Contract $contract,
+        WorkflowInterface $contractWorkflowStateMachine,
+        EntityManagerInterface $entityManager
+    ): Response {
 
-        // 2. Pré-remplissage des données obligatoires non saisies
-        $contract->setStudent($user);
-        $contract->setStatus('Brouillon'); // Statut par défaut
-
-        // On assigne automatiquement le prof référent si l'étudiant en a un
-        if ($user->getProfReferent()) {
-            $contract->setCoordinator($user->getProfReferent());
+        // 1. Sécurité : On s'assure que c'est bien l'étudiant concerné qui valide
+        // (À adapter si tu as une hiérarchie de rôles ou une logique d'accès spécifique)
+        if ($this->getUser() !== $contract->getStudent()) {
+            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à valider ce contrat.');
         }
 
-        // 3. Création et traitement du formulaire
-        $form = $this->createForm(ContractType::class, $contract);
-        $form->handleRequest($request);
+        // 2. Sécurité CSRF : On vérifie le token envoyé par le formulaire
+        if ($this->isCsrfTokenValid('validate_by_student'.$contract->getId(), $request->request->get('_token'))) {
 
-        if ($form->isSubmitted() && $form->isValid()) {
+            // 3. Workflow : On vérifie si la transition est possible
+            if ($contractWorkflowStateMachine->can($contract, 'validate_by_student')) {
 
-            // TODO: Plus tard, on pourra générer ici le "sharingToken" ou les PDF
+                // On applique la transition (le statut passera à 'validated_by_student')
+                $contractWorkflowStateMachine->apply($contract, 'validate_by_student');
 
-            $entityManager->persist($contract);
-            $entityManager->flush();
+                // On sauvegarde en base de données
+                $entityManager->flush();
 
-            $this->addFlash('success', 'Votre convention a été créée avec succès !');
+                // TODO : Ajouter l'envoi d'email au professeur ici
 
-            // Redirection vers la page d'accueil ou une liste (à créer plus tard)
-            return $this->redirectToRoute('app_home');
+                $this->addFlash('success', 'Le contrat a été validé avec succès et transmis à votre professeur.');
+            } else {
+                $this->addFlash('error', 'Impossible de valider ce contrat. Vérifiez son statut actuel.');
+            }
+        } else {
+            $this->addFlash('error', 'Jeton CSRF invalide.');
         }
 
-        return $this->render('contract/new.html.twig', [
-            'form' => $form,
-        ]);
+        // Redirection vers la page de détails du contrat ou le tableau de bord de l'étudiant
+        return $this->redirectToRoute('app_contract_show', ['id' => $contract->getId()], Response::HTTP_SEE_OTHER);
     }
 }
