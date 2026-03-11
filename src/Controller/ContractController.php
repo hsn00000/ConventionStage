@@ -3,19 +3,65 @@
 namespace App\Controller;
 
 use App\Entity\Contract;
+use App\Entity\Student;
+use App\Form\ContractType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Workflow\WorkflowInterface;
 
-#[Route('/contract')]
+#[Route('/convention')]
 class ContractController extends AbstractController
 {
-    // ... tes autres méthodes (index, show, new, edit, etc.)
+    #[Route('/nouvelle', name: 'app_contract_new', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_STUDENT')] // Seul un étudiant peut accéder à cette page
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $contract = new Contract();
 
-    #[Route('/{id}/validate-by-student', name: 'app_contract_validate_by_student', methods: ['POST'])]
+        // 1. Récupération de l'étudiant connecté
+        /** @var Student $user */
+        $user = $this->getUser();
+
+        // 2. Pré-remplissage des données obligatoires non saisies
+        $contract->setStudent($user);
+        $contract->setStatus('Brouillon'); // Statut par défaut
+
+        // On assigne automatiquement le prof référent si l'étudiant en a un
+        if ($user->getProfReferent()) {
+            $contract->setCoordinator($user->getProfReferent());
+        }
+
+        // 3. Création et traitement du formulaire
+        $form = $this->createForm(ContractType::class, $contract);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            // TODO: Plus tard, on pourra générer ici le "sharingToken" ou les PDF
+
+            $entityManager->persist($contract);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Votre convention a été créée avec succès !');
+
+            // Redirection vers la page d'accueil ou une liste (à créer plus tard)
+            return $this->redirectToRoute('app_home');
+        }
+
+        return $this->render('contract/new.html.twig', [
+            'form' => $form,
+        ]);
+    }
+
+    /**
+     * Étape 2 : L'étudiant valide les informations saisies par l'entreprise
+     */
+    #[Route('/{id}/valider', name: 'app_contract_validate_by_student', methods: ['POST'])]
+    #[IsGranted('ROLE_STUDENT')]
     public function validateByStudent(
         Request $request,
         Contract $contract,
@@ -23,35 +69,32 @@ class ContractController extends AbstractController
         EntityManagerInterface $entityManager
     ): Response {
 
-        // 1. Sécurité : On s'assure que c'est bien l'étudiant concerné qui valide
-        // (À adapter si tu as une hiérarchie de rôles ou une logique d'accès spécifique)
+        // Sécurité : Vérifier que seul l'étudiant propriétaire peut valider
         if ($this->getUser() !== $contract->getStudent()) {
-            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à valider ce contrat.');
+            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à valider cette convention.');
         }
 
-        // 2. Sécurité CSRF : On vérifie le token envoyé par le formulaire
+        // Sécurité CSRF : Vérification du token envoyé par le formulaire
         if ($this->isCsrfTokenValid('validate_by_student'.$contract->getId(), $request->request->get('_token'))) {
 
-            // 3. Workflow : On vérifie si la transition est possible
+            // Workflow : Vérifier si la transition 'validate_by_student' est autorisée depuis l'état actuel
             if ($contractWorkflowStateMachine->can($contract, 'validate_by_student')) {
 
-                // On applique la transition (le statut passera à 'validated_by_student')
+                // Application de la transition (le statut passe à 'validated_by_student')
                 $contractWorkflowStateMachine->apply($contract, 'validate_by_student');
-
-                // On sauvegarde en base de données
                 $entityManager->flush();
 
-                // TODO : Ajouter l'envoi d'email au professeur ici
+                // TODO : Ajouter l'envoi d'un email au professeur responsable ici
 
-                $this->addFlash('success', 'Le contrat a été validé avec succès et transmis à votre professeur.');
+                $this->addFlash('success', 'La convention a été validée avec succès et transmise à votre professeur.');
             } else {
-                $this->addFlash('error', 'Impossible de valider ce contrat. Vérifiez son statut actuel.');
+                $this->addFlash('error', 'Impossible de valider cette convention dans son état actuel.');
             }
         } else {
-            $this->addFlash('error', 'Jeton CSRF invalide.');
+            $this->addFlash('error', 'Action non autorisée (Jeton CSRF invalide).');
         }
 
-        // Redirection vers la page de détails du contrat ou le tableau de bord de l'étudiant
-        return $this->redirectToRoute('app_contract_show', ['id' => $contract->getId()], Response::HTTP_SEE_OTHER);
+        // Redirection vers la vue détaillée de la convention (à adapter selon tes routes existantes)
+        return $this->redirectToRoute('app_home');
     }
 }
