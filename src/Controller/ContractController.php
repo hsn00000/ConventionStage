@@ -61,6 +61,22 @@ class ContractController extends AbstractController
     }
 
     /**
+     * Étape 2 : L'étudiant relit les informations saisies par l'entreprise
+     */
+    #[Route('/{id}', name: 'app_contract_show', methods: ['GET'])]
+    #[IsGranted('ROLE_STUDENT')]
+    public function show(Contract $contract): Response
+    {
+        if ($this->getUser() !== $contract->getStudent()) {
+            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à consulter cette convention.');
+        }
+
+        return $this->render('contract/show.html.twig', [
+            'contract' => $contract,
+        ]);
+    }
+
+    /**
      * Étape 2 : L'étudiant valide les informations saisies par l'entreprise
      */
     #[Route('/{id}/valider', name: 'app_contract_validate_by_student', methods: ['POST'])]
@@ -112,7 +128,6 @@ class ContractController extends AbstractController
             $this->addFlash('error', 'Action non autorisée (Jeton CSRF invalide).');
         }
 
-        // Redirection vers la vue détaillée de la convention (à adapter selon tes routes existantes)
-        return $this->redirectToRoute('app_home');
+        return $this->redirectToRoute('app_contract_show', ['id' => $contract->getId()]);
     }
 }

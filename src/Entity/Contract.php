@@ -130,6 +130,21 @@ class Contract
         return $this;
     }
 
+    public function getStatusLabel(): string
+    {
+        return match ($this->status) {
+            self::STATUS_COLLECTION_SENT => 'Collecte envoyée',
+            self::STATUS_FILLED_BY_COMPANY => 'Complétée par l’entreprise',
+            self::STATUS_VALIDATED_BY_STUDENT => 'Validée par l’étudiant',
+            self::STATUS_VALIDATED_BY_PROF => 'Validée par le professeur',
+            self::STATUS_VALIDATED_BY_DDF => 'Validée par la DDF',
+            self::STATUS_SIGNATURE_REQUESTED => 'Signature en cours',
+            self::STATUS_SIGNED => 'Signée',
+            self::STATUS_REFUSED => 'Refusée',
+            default => (string) $this->status,
+        };
+    }
+
     public function getDeplacement(): ?bool
     {
         return $this->deplacement;

@@ -5,6 +5,81 @@
 
 {# Utiliser BLOCK CONTENT pour conserver la navbar #}
 {% block content %}
+    <style>
+        .contract-status-chip {
+            min-width: 180px;
+            padding: 0.7rem 1rem;
+            font-size: 0.82rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            text-align: center;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+        }
+
+        .student-contract-cta {
+            min-width: 190px;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 0.75rem 1.15rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff7a18 0%, #ffb347 100%);
+            border-color: #ff9a3d;
+            color: #1f2937;
+            box-shadow: 0 12px 28px rgba(255, 122, 24, 0.28);
+        }
+
+        .student-contract-cta-outline {
+            min-width: 150px;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 0.7rem 1rem;
+            font-weight: 600;
+            background: #f3f7ff;
+            border-color: #b8c9f5;
+            color: #25438f;
+        }
+
+        .student-contract-cta:hover,
+        .student-contract-cta:focus {
+            background: linear-gradient(135deg, #ff8f32 0%, #ffc36a 100%);
+            border-color: #ff9a3d;
+            color: #1f2937;
+        }
+
+        .student-contract-cta-outline:hover,
+        .student-contract-cta-outline:focus {
+            background: #dfe9ff;
+            border-color: #9eb8f2;
+            color: #17357d;
+        }
+
+        .student-contract-row {
+            gap: 1rem;
+        }
+
+        .student-contract-card-title {
+            font-size: 1.05rem;
+        }
+
+        @media (max-width: 767px) {
+            .student-contract-row {
+                align-items: flex-start !important;
+            }
+
+            .student-contract-actions {
+                width: 100%;
+            }
+
+            .student-contract-actions .btn {
+                width: 100%;
+            }
+
+            .contract-status-chip {
+                width: 100%;
+                margin-bottom: 0.75rem;
+            }
+        }
+    </style>
     <main class="container py-5">
 
         {# HEADER DU DASHBOARD #}
@@ -87,9 +162,10 @@
                             </li>
                         {% else %}
                             {% for contract in contracts %}
-                                <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <li class="list-group-item py-4">
+                                    <div class="d-flex justify-content-between align-items-center student-contract-row flex-column flex-md-row">
                                     <div>
-                                        <span class="fw-bold text-dark">
+                                        <span class="fw-bold text-dark student-contract-card-title d-block mb-1">
                                             Convention N°{{ contract.id }}
                                             {% if contract.organisation is defined and contract.organisation.name is defined %}
                                                 - {{ contract.organisation.name }}
@@ -101,16 +177,22 @@
                                             au {{ contract.endDate is defined and contract.endDate is not null ? contract.endDate|date('d/m/Y') : 'Date N/A' }}
                                         </div>
                                     </div>
-                                    <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center student-contract-actions flex-column flex-md-row">
                                         {# Style de badge mis à jour #}
-                                        <span class="badge rounded-pill me-3
-                                            {% if contract.status == 'active' %}bg-info text-dark{% elseif contract.status == 'completed' %}bg-success{% elseif contract.status == 'submitted' %}bg-warning text-dark{% elseif contract.status == 'validated' %}bg-primary{% else %}bg-secondary{% endif %}">
-                                            {{ contract.status|capitalize }}
+                                        <span class="badge rounded-pill contract-status-chip me-md-3
+                                            {% if contract.status == 'filled_by_company' %}bg-warning text-dark{% elseif contract.status == 'validated_by_student' %}bg-primary{% elseif contract.status == 'validated_by_prof' %}bg-info text-dark{% elseif contract.status == 'signature_requested' %}bg-dark{% elseif contract.status == 'signed' %}bg-success{% else %}bg-secondary{% endif %}">
+                                            {{ contract.statusLabel }}
                                         </span>
-                                        {# Le lien est désactivé temporairement car app_contract_show n'existe pas encore #}
-                                        <button class="btn btn-sm btn-outline-secondary" disabled>
-                                            <i class="fas fa-eye me-1"></i> Voir (En dev)
-                                        </button>
+                                        {% if contract.status == 'filled_by_company' %}
+                                            <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="btn btn-primary d-inline-flex align-items-center student-contract-cta">
+                                                <i class="fas fa-clipboard-check me-2"></i> Verifier et valider
+                                            </a>
+                                        {% else %}
+                                            <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="btn btn-outline-secondary d-inline-flex align-items-center student-contract-cta-outline">
+                                                <i class="fas fa-eye me-2"></i> Voir la convention
+                                            </a>
+                                        {% endif %}
+                                    </div>
                                     </div>
                                 </li>
                             {% endfor %}

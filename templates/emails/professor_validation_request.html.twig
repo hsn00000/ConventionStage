@@ -1,0 +1,11 @@
+<h2>Convention a valider</h2>
+
+<p>Bonjour {{ professor.firstname }},</p>
+
+<p>L'etudiant {{ contract.student.firstname }} {{ contract.student.lastname }} a valide sa collecte d'informations.</p>
+
+<p>Vous pouvez maintenant proceder a la validation pedagogique de la convention.</p>
+
+<p>
+    <a href="{{ url('app_professor_validate_contract', {'id': contract.id}) }}">Ouvrir la convention</a>
+</p>
