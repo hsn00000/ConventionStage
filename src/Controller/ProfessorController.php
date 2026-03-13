@@ -58,24 +58,24 @@ final class ProfessorController extends AbstractController
             throw $this->createAccessDeniedException("Vous n'êtes pas autorisé à accéder à ce profil.");
         }
 
-        // Récupération des étudiants suivis (Méthode issue du main)
-        // Si cette méthode n'existe pas encore dans ton entité Professor, utilise $professor->getStudents() ou une liste vide []
+        // Récupération des étudiants suivis
         $students = method_exists($professor, 'getStudentsReferred') ? $professor->getStudentsReferred() : [];
 
         // Récupération des contrats via la relation
         $allCoordinatedContracts = $professor->getContracts();
 
-        // 1. Filtrer les conventions à valider (Status Workflow : 'filled_by_company')
+        // 1. Filtrer les conventions à valider (L'étudiant a validé, le prof doit valider)
+        // Note: Selon ton workflow.yaml, c'est 'validated_by_student' qui est en attente du prof
         $contractsToValidate = $allCoordinatedContracts->filter(function (Contract $contract) {
-            return $contract->getStatus() === 'filled_by_company';
+            return $contract->getStatus() === 'validated_by_student';
         });
 
-        // 2. Filtrer les conventions actives/validées
+        // 2. Filtrer les conventions actives/validées par le prof
         $activeContracts = $allCoordinatedContracts->filter(function (Contract $contract) {
             return $contract->getStatus() === 'validated_by_prof';
         });
 
-        // 3. Filtrer les conventions terminées/archivées
+        // 3. Filtrer les conventions terminées/archivées/refusées
         $pastContracts = $allCoordinatedContracts->filter(function (Contract $contract) {
             return in_array($contract->getStatus(), ['completed', 'archived', 'refused']);
         });
@@ -93,6 +93,7 @@ final class ProfessorController extends AbstractController
 
     /**
      * VALIDATION DE CONVENTION (Via Workflow)
+     * ÉTAPE 3 : Le professeur valide ou refuse la convention
      * Cette méthode gère le lien reçu par email ET le bouton du dashboard.
      */
     #[Route('/contract/{id}/validate', name: 'app_professor_validate_contract', methods: ['GET', 'POST'])]
@@ -103,23 +104,25 @@ final class ProfessorController extends AbstractController
         Registry $workflowRegistry
     ): Response
     {
-        // On récupère le workflow
+        // On récupère le workflow associé à l'entité Contract
         $workflow = $workflowRegistry->get($contract);
 
         if ($request->isMethod('POST')) {
+            // SÉCURITÉ CSRF : Assure-toi que ton formulaire envoie bien un token
+            if (!$this->isCsrfTokenValid('validate_contract'.$contract->getId(), $request->request->get('_token'))) {
+                $this->addFlash('error', 'Jeton de sécurité invalide.');
+                return $this->redirectToRoute('app_home');
+            }
+
             $action = $request->request->get('action');
 
             try {
                 if ($action === 'validate' && $workflow->can($contract, 'validate_by_prof')) {
-
                     $workflow->apply($contract, 'validate_by_prof');
-                    $this->addFlash('success', 'Le sujet de stage a été validé avec succès !');
-
+                    $this->addFlash('success', 'La convention a été validée pédagogiquement avec succès ! Elle part à la DDF.');
                 } elseif ($action === 'refuse' && $workflow->can($contract, 'refuse_subject')) {
-
                     $workflow->apply($contract, 'refuse_subject');
-                    $this->addFlash('warning', 'Le sujet de stage a été refusé.');
-
+                    $this->addFlash('warning', 'La convention a été refusée.');
                 } else {
                     $this->addFlash('danger', 'Action impossible pour le statut actuel (' . $contract->getStatus() . ').');
                 }
@@ -134,11 +137,11 @@ final class ProfessorController extends AbstractController
                 return $this->redirectToRoute('app_professor_show', ['id' => $this->getUser()->getId()]);
             }
 
-            // Sinon (accès via mail sans être connecté), on reste sur la page ou on va à l'accueil
+            // Sinon on va à l'accueil
             return $this->redirectToRoute('app_home');
         }
 
-        // Si c'est un GET (clic sur le lien email), on affiche la page de confirmation
+        // Si c'est un GET, on affiche la page de confirmation (template: professor/validate.html.twig)
         return $this->render('professor/validate.html.twig', [
             'contract' => $contract,
         ]);
