@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Contract;
+use App\Repository\ContractRepository;
 use App\Entity\Professor;
 use App\Form\ProfessorType;
 use App\Repository\ProfessorRepository;
@@ -51,7 +52,7 @@ final class ProfessorController extends AbstractController
      */
     #[Route('/{id}', name: 'app_professor_show', methods: ['GET'])]
     #[IsGranted('ROLE_PROFESSOR')]
-    public function show(Professor $professor): Response
+    public function show(Professor $professor, ContractRepository $contractRepository): Response
     {
         // SÉCURITÉ : Vérifier que le prof connecté regarde son propre profil
         if ($this->getUser() === null || $this->getUser()->getId() !== $professor->getId()) {
@@ -61,23 +62,20 @@ final class ProfessorController extends AbstractController
         // Récupération des étudiants suivis
         $students = method_exists($professor, 'getStudentsReferred') ? $professor->getStudentsReferred() : [];
 
-        // Récupération des contrats via la relation
         $allCoordinatedContracts = $professor->getContracts();
-
-        // 1. Filtrer les conventions à valider (L'étudiant a validé, le prof doit valider)
-        // Note: Selon ton workflow.yaml, c'est 'validated_by_student' qui est en attente du prof
-        $contractsToValidate = $allCoordinatedContracts->filter(function (Contract $contract) {
-            return $contract->getStatus() === 'validated_by_student';
-        });
-
-        // 2. Filtrer les conventions actives/validées par le prof
+        $contractsToValidate = $contractRepository->findPendingProfessorValidation($professor);
         $activeContracts = $allCoordinatedContracts->filter(function (Contract $contract) {
-            return $contract->getStatus() === 'validated_by_prof';
+            return in_array($contract->getStatus(), [
+                Contract::STATUS_VALIDATED_BY_PROF,
+                Contract::STATUS_VALIDATED_BY_DDF,
+                Contract::STATUS_SIGNATURE_REQUESTED,
+            ], true);
         });
-
-        // 3. Filtrer les conventions terminées/archivées/refusées
         $pastContracts = $allCoordinatedContracts->filter(function (Contract $contract) {
-            return in_array($contract->getStatus(), ['completed', 'archived', 'refused']);
+            return in_array($contract->getStatus(), [
+                Contract::STATUS_SIGNED,
+                Contract::STATUS_REFUSED,
+            ], true);
         });
 
         return $this->render('professor/show.html.twig', [
@@ -97,6 +95,7 @@ final class ProfessorController extends AbstractController
      * Cette méthode gère le lien reçu par email ET le bouton du dashboard.
      */
     #[Route('/contract/{id}/validate', name: 'app_professor_validate_contract', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_PROFESSOR')]
     public function validateContract(
         Contract $contract,
         Request $request,
@@ -104,6 +103,10 @@ final class ProfessorController extends AbstractController
         Registry $workflowRegistry
     ): Response
     {
+        if ($this->getUser() !== $contract->getCoordinator()) {
+            throw $this->createAccessDeniedException("Vous n'êtes pas autorise a valider cette convention.");
+        }
+
         // On récupère le workflow associé à l'entité Contract
         $workflow = $workflowRegistry->get($contract);
 

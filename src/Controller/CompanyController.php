@@ -39,18 +39,24 @@ class CompanyController extends AbstractController
             throw $this->createNotFoundException('Contrat non trouvé');
         }
 
+        $workflow = $this->workflowRegistry->get($contract);
+
+        if (!$workflow->can($contract, 'fill_by_company')) {
+            return $this->render('company/already_filled.html.twig', [
+                'contract' => $contract,
+            ]);
+        }
+
         $form = $this->createForm(CompanyFillContractType::class, $contract);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $workflow = $this->workflowRegistry->get($contract);
-
-            if ($workflow->can($contract, 'fill_by_company')) {
-                try {
-                    $workflow->apply($contract, 'fill_by_company');
-                } catch (\LogicException $e) {
-                    // Tu pourras logger l'erreur plus tard si besoin
-                }
+            try {
+                $workflow->apply($contract, 'fill_by_company');
+            } catch (\LogicException $e) {
+                return $this->render('company/already_filled.html.twig', [
+                    'contract' => $contract,
+                ]);
             }
 
             $entityManager->persist($contract);

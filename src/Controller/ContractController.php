@@ -6,9 +6,12 @@ use App\Entity\Contract;
 use App\Entity\Student;
 use App\Form\ContractType;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Workflow\WorkflowInterface;
@@ -28,7 +31,7 @@ class ContractController extends AbstractController
 
         // 2. Pré-remplissage des données obligatoires non saisies
         $contract->setStudent($user);
-        $contract->setStatus('Brouillon'); // Statut par défaut
+        $contract->setStatus(Contract::STATUS_COLLECTION_SENT);
 
         // On assigne automatiquement le prof référent si l'étudiant en a un
         if ($user->getProfReferent()) {
@@ -66,7 +69,8 @@ class ContractController extends AbstractController
         Request $request,
         Contract $contract,
         WorkflowInterface $contractWorkflowStateMachine,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        MailerInterface $mailer
     ): Response {
 
         // Sécurité : Vérifier que seul l'étudiant propriétaire peut valider
@@ -84,7 +88,21 @@ class ContractController extends AbstractController
                 $contractWorkflowStateMachine->apply($contract, 'validate_by_student');
                 $entityManager->flush();
 
-                // TODO : Ajouter l'envoi d'un email au professeur responsable ici
+                $coordinator = $contract->getCoordinator();
+
+                if ($coordinator?->getEmail()) {
+                    $mailer->send(
+                        (new TemplatedEmail())
+                            ->from(new Address('no-reply@lycee-faure.fr', 'Conventio'))
+                            ->to($coordinator->getEmail())
+                            ->subject('Convention a valider pedagogiquement')
+                            ->htmlTemplate('emails/professor_validation_request.html.twig')
+                            ->context([
+                                'contract' => $contract,
+                                'professor' => $coordinator,
+                            ])
+                    );
+                }
 
                 $this->addFlash('success', 'La convention a été validée avec succès et transmise à votre professeur.');
             } else {

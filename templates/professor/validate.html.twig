@@ -39,6 +39,7 @@
 
                         {# Actions (Boutons) #}
                         <form method="post" class="mt-5 d-grid gap-3 d-md-flex justify-content-md-center">
+                            <input type="hidden" name="_token" value="{{ csrf_token('validate_contract' ~ contract.id) }}">
                             <button type="submit" name="action" value="validate" class="btn btn-success btn-lg px-5 rounded-pill shadow-sm">
                                 <i class="fas fa-check-circle me-2"></i> Valider le sujet
                             </button>

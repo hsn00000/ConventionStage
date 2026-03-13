@@ -12,6 +12,15 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ContractRepository::class)]
 class Contract
 {
+    public const STATUS_COLLECTION_SENT = 'collection_sent';
+    public const STATUS_FILLED_BY_COMPANY = 'filled_by_company';
+    public const STATUS_VALIDATED_BY_STUDENT = 'validated_by_student';
+    public const STATUS_VALIDATED_BY_PROF = 'validated_by_prof';
+    public const STATUS_VALIDATED_BY_DDF = 'validated_by_ddf';
+    public const STATUS_SIGNATURE_REQUESTED = 'signature_requested';
+    public const STATUS_SIGNED = 'signed';
+    public const STATUS_REFUSED = 'refused';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -57,6 +66,12 @@ class Contract
     #[ORM\Column(nullable: true)]
     private ?float $bonusAmount = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $yousignDocumentId = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $yousignSignatureRequestId = null;
+
     #[ORM\ManyToOne(inversedBy: 'contracts')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Student $student = null;
@@ -95,7 +110,7 @@ class Contract
         ];
 
         // Statut par défaut
-        $this->status = 'Brouillon';
+        $this->status = self::STATUS_COLLECTION_SENT;
     }
 
     public function getId(): ?int
@@ -337,6 +352,30 @@ class Contract
     public function setBonusAmount(?float $bonusAmount): static
     {
         $this->bonusAmount = $bonusAmount;
+        return $this;
+    }
+
+    public function getYousignDocumentId(): ?string
+    {
+        return $this->yousignDocumentId;
+    }
+
+    public function setYousignDocumentId(?string $yousignDocumentId): static
+    {
+        $this->yousignDocumentId = $yousignDocumentId;
+
+        return $this;
+    }
+
+    public function getYousignSignatureRequestId(): ?string
+    {
+        return $this->yousignSignatureRequestId;
+    }
+
+    public function setYousignSignatureRequestId(?string $yousignSignatureRequestId): static
+    {
+        $this->yousignSignatureRequestId = $yousignSignatureRequestId;
+
         return $this;
     }
 }

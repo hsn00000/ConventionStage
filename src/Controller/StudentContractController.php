@@ -83,7 +83,7 @@ class StudentContractController extends AbstractController
             $contract->setStudent($student);
             $contract->setTutor($tutor);
             $contract->setOrganisation($org);
-            $contract->setStatus('Brouillon');
+            $contract->setStatus(Contract::STATUS_COLLECTION_SENT);
 
             $contract->setDeplacement(false);
             $contract->setTransportFreeTaken(false);

@@ -16,6 +16,15 @@ class ParametersRepository extends ServiceEntityRepository
         parent::__construct($registry, Parameters::class);
     }
 
+    public function findCurrent(): ?Parameters
+    {
+        return $this->createQueryBuilder('p')
+            ->orderBy('p.id', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     //    /**
     //     * @return Parameters[] Returns an array of Parameters objects
     //     */

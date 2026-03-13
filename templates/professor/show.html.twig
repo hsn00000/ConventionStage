@@ -113,31 +113,21 @@
                                     </thead>
                                     <tbody>
                                     {% for contract in contracts_to_validate %}
-                                        {% if contract.status == 'A valider Prof' %}
-                                            <tr class="alert-danger-subtle">
-                                                <td class="px-3">#{{ contract.id }}</td>
-                                                <td class="px-3">
-                                                    <span class="fw-bold">{{ contract.student.firstname }} {{ contract.student.lastname }}</span>
-                                                </td>
-                                                <td class="px-3">{{ contract.organisation.name }}</td>
-                                                <td class="px-3">
-                                                    <span class="badge bg-danger fw-bold py-2">ACTION REQUISE</span>
-                                                </td>
-                                                <td class="px-3">
-                                                    {# Bouton de Validation (POST) #}
-                                                    <form method="POST" action="{{ path('app_professor_contract_validate', {'id': contract.id}) }}" style="display: inline-block;" onsubmit="return confirm('Confirmez-vous la VALIDATION de cette convention ?');">
-                                                        <input type="hidden" name="_token" value="{{ csrf_token('validate' ~ contract.id) }}">
-                                                        <button type="submit" class="btn btn-sm btn-success me-2">Valider</button>
-                                                    </form>
-
-                                                    {# Bouton de Refus (POST) #}
-                                                    <form method="POST" action="{{ path('app_professor_contract_refuse', {'id': contract.id}) }}" style="display: inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir REFUSER cette convention ?');">
-                                                        <input type="hidden" name="_token" value="{{ csrf_token('refuse' ~ contract.id) }}">
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger">Refuser</button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        {% endif %}
+                                        <tr class="alert-danger-subtle">
+                                            <td class="px-3">#{{ contract.id }}</td>
+                                            <td class="px-3">
+                                                <span class="fw-bold">{{ contract.student.firstname }} {{ contract.student.lastname }}</span>
+                                            </td>
+                                            <td class="px-3">{{ contract.organisation.name }}</td>
+                                            <td class="px-3">
+                                                <span class="badge bg-danger fw-bold py-2">ACTION REQUISE</span>
+                                            </td>
+                                            <td class="px-3">
+                                                <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn btn-sm btn-success me-2">
+                                                    Ouvrir et traiter
+                                                </a>
+                                            </td>
+                                        </tr>
                                     {% endfor %}
                                     </tbody>
                                 </table>
@@ -156,7 +146,7 @@
                         <h4 class="mb-0 text-secondary">Conventions en Suivi (En attente d'autres acteurs)</h4>
                     </div>
                     <div class="card-body p-0">
-                        {% set pending_follow_up = contracts_to_validate|filter(c => c.status != 'A valider Prof') %}
+                        {% set pending_follow_up = all_coordinated_contracts|filter(c => c.status in ['collection_sent', 'filled_by_company', 'validated_by_prof', 'validated_by_ddf', 'signature_requested']) %}
 
                         {% if pending_follow_up is empty %}
                             <div class="alert alert-info m-3 mb-0" role="alert">
@@ -181,14 +171,28 @@
                                             <td class="px-3">{{ contract.student.firstname }} {{ contract.student.lastname }}</td>
                                             <td class="px-3">{{ contract.organisation.name }}</td>
                                             <td class="px-3">
-                                                {% set badge_color = 'warning-subtle text-warning' %}
-                                                {% if contract.status == 'Brouillon' %}{% set badge_color = 'secondary-subtle text-secondary' %}
-                                                {% elseif contract.status == 'En attente entreprise' %}{% set badge_color = 'info-subtle text-info' %}
+                                                {% set label = 'En attente' %}
+                                                {% set badge_class = 'bg-warning text-dark' %}
+                                                {% if contract.status == 'collection_sent' %}
+                                                    {% set label = 'Collecte envoyee' %}
+                                                    {% set badge_class = 'bg-secondary' %}
+                                                {% elseif contract.status == 'filled_by_company' %}
+                                                    {% set label = 'Validation etudiant' %}
+                                                    {% set badge_class = 'bg-info text-dark' %}
+                                                {% elseif contract.status == 'validated_by_prof' %}
+                                                    {% set label = 'Validation DDF' %}
+                                                    {% set badge_class = 'bg-primary' %}
+                                                {% elseif contract.status == 'validated_by_ddf' %}
+                                                    {% set label = 'Pret pour signature' %}
+                                                    {% set badge_class = 'bg-primary' %}
+                                                {% elseif contract.status == 'signature_requested' %}
+                                                    {% set label = 'Signature en cours' %}
+                                                    {% set badge_class = 'bg-dark' %}
                                                 {% endif %}
-                                                <span class="badge bg-{{ badge_color }} fw-bold py-2">{{ contract.status|upper }}</span>
+                                                <span class="badge {{ badge_class }} fw-bold py-2">{{ label }}</span>
                                             </td>
                                             <td class="px-3">
-                                                <a href="#" class="btn btn-sm btn-outline-secondary">Détails/Rappel</a>
+                                                <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn btn-sm btn-outline-secondary">Voir</a>
                                             </td>
                                         </tr>
                                     {% endfor %}

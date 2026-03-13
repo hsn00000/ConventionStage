@@ -57,7 +57,12 @@
                         {# --- MODIFICATION ICI : Bouton Admin --- #}
                         {% if is_granted('ROLE_ADMIN') %}
                             <li class="nav-item me-2 mb-2 mb-lg-0">
-                                <a href="{{ path('app_admin_level_index') }}" class="btn btn-dark">
+                                <a href="{{ path('app_ddf_contract_index') }}" class="btn btn-dark">
+                                    <i class="fas fa-file-signature me-1"></i> DDF
+                                </a>
+                            </li>
+                            <li class="nav-item me-2 mb-2 mb-lg-0">
+                                <a href="{{ path('app_admin_level_index') }}" class="btn btn-outline-dark">
                                     <i class="fas fa-cog me-1"></i> Admin
                                 </a>
                             </li>

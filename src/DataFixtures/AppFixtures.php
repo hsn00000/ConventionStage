@@ -97,7 +97,7 @@ class AppFixtures extends Fixture
 
         // --- 7. CONTRAT ---
         $contract = new Contract();
-        $contract->setStatus('En attente');
+        $contract->setStatus(Contract::STATUS_COLLECTION_SENT);
         $contract->setDeplacement(false);
         $contract->setTransportFreeTaken(true);
         $contract->setLunchTaken(false);

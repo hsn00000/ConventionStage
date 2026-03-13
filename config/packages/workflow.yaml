@@ -9,10 +9,10 @@ framework:
                 property: 'status'
             supports:
                 - App\Entity\Contract
-            initial_marking: Brouillon
+            initial_marking: collection_sent
 
             places:
-                - Brouillon
+                - collection_sent
                 - filled_by_company
                 - validated_by_student
                 - validated_by_prof
@@ -23,7 +23,7 @@ framework:
 
             transitions:
                 fill_by_company:
-                    from: Brouillon
+                    from: collection_sent
                     to: filled_by_company
 
                 validate_by_student:
