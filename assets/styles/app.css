@@ -1,3 +1,31 @@
 body {
     background-color: white;
 }
+
+/* ===== RESPONSIVE IMPROVEMENTS ===== */
+
+/* Schedule table: compact on mobile */
+@media (max-width: 767.98px) {
+    #schedule-table input {
+        min-width: 70px;
+        font-size: 0.75rem;
+        padding: 0.15rem 0.2rem;
+    }
+    #schedule-table th,
+    #schedule-table td {
+        font-size: 0.75rem;
+        padding: 0.25rem !important;
+    }
+
+    /* Dashboard headers: stack on mobile */
+    .dashboard-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.75rem;
+    }
+
+    /* Auth forms: remove right border on mobile (image column hidden) */
+    .auth-form-col {
+        border-right: none !important;
+    }
+}

@@ -14,16 +14,14 @@
     {% endblock %}
 
     {% block stylesheets %}
-        {# Ajout de Font Awesome pour les icônes (détecté via contract/new.html.twig) #}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1y6w3t9V8J5uH3p3O5E6T4+r7L7IqU5F2Yx+m4J1eR/1g+K1I/3w5E3+qF8D6O5L3t3v6W5U7r9X7L7/8g7T7r4w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        {# Vous pouvez ajouter ici votre CSS personnalisé si besoin #}
+        <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
     {% endblock %}
 </head>
 <body>
-{% block body %}
 
     {# --------------------------------------------------------------------- #}
-    {# NAVIGATION BAR BOOTSTRAP 5 (Non fixée et avec marges latérales) #}
+    {# NAVIGATION BAR - Toujours affichée sur toutes les pages #}
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
         <div class="container">
             {# LOGO / MARQUE #}
@@ -54,7 +52,6 @@
                         </li>
                     {% else %}
 
-                        {# --- MODIFICATION ICI : Bouton Admin --- #}
                         {% if is_granted('ROLE_ADMIN') %}
                             <li class="nav-item me-2 mb-2 mb-lg-0">
                                 <a href="{{ path('app_admin_level_index') }}" class="btn btn-dark">
@@ -62,11 +59,8 @@
                                 </a>
                             </li>
                         {% endif %}
-                        {# --------------------------------------- #}
 
-                        {# --- Éléments du Dashboard pour Utilisateur Connecté --- #}
-
-                        {# 1. Bouton Profil pour Professeur #}
+                        {# Bouton Profil pour Professeur #}
                         {% if is_granted('ROLE_PROFESSOR') and app.user.id is defined %}
                             <li class="nav-item me-2 mb-2 mb-lg-0">
                                 <a href="{{ path('app_professor_show', {'id': app.user.id}) }}" class="btn btn-secondary">
@@ -75,7 +69,7 @@
                             </li>
                         {% endif %}
 
-                        {# 2. Bouton Profil pour Étudiant #}
+                        {# Bouton Profil pour Étudiant #}
                         {% if is_granted('ROLE_STUDENT') and app.user.id is defined %}
                             <li class="nav-item me-2 mb-2 mb-lg-0">
                                 <a href="{{ path('app_student_show', {'id': app.user.id}) }}" class="btn btn-secondary">
@@ -94,6 +88,11 @@
         </div>
     </nav>
     {# --------------------------------------------------------------------- #}
+
+    {# Bouton retour - affiché si une page le demande #}
+    {% block back_button %}{% endblock %}
+
+{% block body %}
 
     {# --------------------------------------------------------------------- #}
     {# BLOC CONTENT : Ce contenu sera affiché par défaut ou remplacé par les pages enfants #}
