@@ -11,10 +11,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
@@ -59,14 +61,25 @@ class ResetPasswordController extends AbstractController
     #[Route('/check-email', name: 'app_check_email')]
     public function checkEmail(): Response
     {
+        $hasRealResetRequest = (bool) $this->get('request_stack')->getSession()->get('app_reset_password_has_real_request', false);
+
         // Generate a fake token if the user does not exist or someone hit this page directly.
         // This prevents exposing whether or not a user was found with the given email address or not
         if (null === ($resetToken = $this->getTokenObjectFromSession())) {
             $resetToken = $this->resetPasswordHelper->generateFakeResetToken();
+            $hasRealResetRequest = false;
+        }
+
+        $directResetUrl = null;
+        if ('dev' === $this->getParameter('kernel.environment') && $hasRealResetRequest) {
+            $directResetUrl = $this->generateUrl('app_reset_password', [
+                'token' => $resetToken->getToken(),
+            ], UrlGeneratorInterface::ABSOLUTE_URL);
         }
 
         return $this->render('reset_password/check_email.html.twig', [
             'resetToken' => $resetToken,
+            'directResetUrl' => $directResetUrl,
         ]);
     }
 
@@ -166,10 +179,15 @@ class ResetPasswordController extends AbstractController
             ])
         ;
 
-        $mailer->send($email);
-
         // Store the token object in session for retrieval in check-email route.
+        $this->get('request_stack')->getSession()->set('app_reset_password_has_real_request', true);
         $this->setTokenObjectInSession($resetToken);
+
+        try {
+            $mailer->send($email);
+        } catch (TransportExceptionInterface) {
+            // In dev, the direct reset link can still be shown on the confirmation page.
+        }
 
         return $this->redirectToRoute('app_check_email');
     }

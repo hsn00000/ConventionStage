@@ -51,6 +51,9 @@ class Contract
     #[ORM\Column(type: Types::TEXT)]
     private ?string $plannedActivities = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $professorRejectionReason = null;
+
     #[ORM\Column(length: 255)]
     private ?string $sharingToken = null;
 
@@ -229,6 +232,18 @@ class Contract
     public function setPlannedActivities(string $plannedActivities): static
     {
         $this->plannedActivities = $plannedActivities;
+
+        return $this;
+    }
+
+    public function getProfessorRejectionReason(): ?string
+    {
+        return $this->professorRejectionReason;
+    }
+
+    public function setProfessorRejectionReason(?string $professorRejectionReason): static
+    {
+        $this->professorRejectionReason = $professorRejectionReason;
 
         return $this;
     }

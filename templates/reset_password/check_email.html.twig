@@ -20,6 +20,15 @@
                     <a href="{{ path('app_forgot_password_request') }}">réessayez</a>.
                 </p>
 
+                {% if directResetUrl %}
+                    <div class="alert alert-warning text-start mt-4" role="alert">
+                        <strong>Mode développement :</strong> aucun SMTP local n'est requis pour tester.
+                        Utilisez directement ce lien de réinitialisation :
+                        <br>
+                        <a href="{{ directResetUrl }}">{{ directResetUrl }}</a>
+                    </div>
+                {% endif %}
+
             </div>
         </div>
     </div>

@@ -85,6 +85,11 @@ final class StudentController extends AbstractController
             $endDate = $contract->getTokenExpDate();   // UTILISER LA VRAIE DATE DE FIN
             $status = $contract->getStatus();
 
+            if ($activeContract === null && $status === Contract::STATUS_REFUSED) {
+                $currentStatus = 'Collecte rejetee par le professeur';
+                continue;
+            }
+
             // 1. Conventions passées (terminées ou date de fin dans le passé)
             if ($status === 'completed' || ($endDate instanceof \DateTimeInterface && $endDate < $now)) {
                 $pastContractsCount++;
@@ -124,6 +129,8 @@ final class StudentController extends AbstractController
                     $currentStatus = 'Signature en cours';
                 } elseif ($status === Contract::STATUS_SIGNED) {
                     $currentStatus = 'Convention signee';
+                } elseif ($status === Contract::STATUS_REFUSED) {
+                    $currentStatus = 'Collecte rejetee par le professeur';
                 } else {
                     $currentStatus = 'Convention en préparation ou en attente';
                 }

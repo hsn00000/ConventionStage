@@ -33,6 +33,7 @@
                                 <th>Etudiant</th>
                                 <th>Entreprise</th>
                                 <th>Professeur</th>
+                                <th>PDF</th>
                                 <th>Action</th>
                             </tr>
                             </thead>
@@ -43,6 +44,13 @@
                                     <td>{{ contract.student.firstname }} {{ contract.student.lastname }}</td>
                                     <td>{{ contract.organisation.name }}</td>
                                     <td>{{ contract.coordinator.firstname }} {{ contract.coordinator.lastname }}</td>
+                                    <td>
+                                        {% if contract.pdfUnsigned %}
+                                            <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn btn-outline-secondary btn-sm">Ouvrir le PDF</a>
+                                        {% else %}
+                                            <span class="text-muted small">Genere a la validation</span>
+                                        {% endif %}
+                                    </td>
                                     <td>
                                         <form method="post" action="{{ path('app_ddf_contract_validate', {'id': contract.id}) }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token('ddf_validate_contract' ~ contract.id) }}">
@@ -73,6 +81,7 @@
                                 <th>#</th>
                                 <th>Etudiant</th>
                                 <th>Entreprise</th>
+                                <th>PDF</th>
                                 <th>Signature request</th>
                                 <th>Document</th>
                                 <th>Action</th>
@@ -84,6 +93,13 @@
                                     <td>{{ contract.id }}</td>
                                     <td>{{ contract.student.firstname }} {{ contract.student.lastname }}</td>
                                     <td>{{ contract.organisation.name }}</td>
+                                    <td>
+                                        {% if contract.pdfUnsigned %}
+                                            <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn btn-outline-secondary btn-sm">Voir le PDF</a>
+                                        {% else %}
+                                            <span class="text-muted small">N/A</span>
+                                        {% endif %}
+                                    </td>
                                     <td><code>{{ contract.yousignSignatureRequestId ?: 'N/A' }}</code></td>
                                     <td><code>{{ contract.yousignDocumentId ?: 'N/A' }}</code></td>
                                     <td>
@@ -92,6 +108,50 @@
                                             <button class="btn btn-outline-secondary btn-sm" type="submit">Synchroniser</button>
                                         </form>
                                     </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="card shadow-sm mt-4">
+            <div class="card-header bg-white">
+                <h2 class="h5 mb-0">Signatures finalisees</h2>
+            </div>
+            <div class="card-body p-0">
+                {% if signed_contracts is empty %}
+                    <div class="p-4 text-muted">Aucune convention signee pour le moment.</div>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table mb-0 align-middle">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Etudiant</th>
+                                <th>Entreprise</th>
+                                <th>PDF signe</th>
+                                <th>Signature request</th>
+                                <th>Document</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for contract in signed_contracts %}
+                                <tr>
+                                    <td>{{ contract.id }}</td>
+                                    <td>{{ contract.student.firstname }} {{ contract.student.lastname }}</td>
+                                    <td>{{ contract.organisation.name }}</td>
+                                    <td>
+                                        {% if contract.pdfSigned or contract.pdfUnsigned %}
+                                            <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn btn-outline-success btn-sm">Voir le PDF signe</a>
+                                        {% else %}
+                                            <span class="text-muted small">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><code>{{ contract.yousignSignatureRequestId ?: 'N/A' }}</code></td>
+                                    <td><code>{{ contract.yousignDocumentId ?: 'N/A' }}</code></td>
                                 </tr>
                             {% endfor %}
                             </tbody>

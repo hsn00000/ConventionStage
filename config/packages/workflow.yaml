@@ -50,6 +50,4 @@ framework:
                     from:
                         - filled_by_company
                         - validated_by_student
-                        - validated_by_prof
-                        - validated_by_ddf
                     to: refused

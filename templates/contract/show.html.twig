@@ -76,6 +76,8 @@
                         <i class="fas fa-shield-alt"></i>
                         {% if contract.status == 'filled_by_company' %}
                             Verification requise
+                        {% elseif contract.status == 'refused' %}
+                            Collecte rejetee
                         {% else %}
                             {{ contract.statusLabel }}
                         {% endif %}
@@ -92,6 +94,19 @@
                 <div class="alert alert-{{ label == 'error' ? 'danger' : label }} mb-3">{{ message }}</div>
             {% endfor %}
         {% endfor %}
+
+        {% if contract.status == 'refused' %}
+            <div class="alert alert-danger mb-4">
+                <h2 class="h5 mb-2">Collecte rejetee par le professeur referent</h2>
+                <p class="mb-0">
+                    {% if contract.professorRejectionReason %}
+                        {{ contract.professorRejectionReason|nl2br }}
+                    {% else %}
+                        Votre professeur referent a refuse cette collecte. Verifiez les informations saisies avant de relancer la procedure.
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
 
         <div class="row g-4">
             <div class="col-lg-6">

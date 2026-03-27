@@ -64,6 +64,14 @@ final class ProfessorController extends AbstractController
 
         $allCoordinatedContracts = $professor->getContracts();
         $contractsToValidate = $contractRepository->findPendingProfessorValidation($professor);
+        $validatedCollections = $allCoordinatedContracts->filter(function (Contract $contract) {
+            return in_array($contract->getStatus(), [
+                Contract::STATUS_VALIDATED_BY_PROF,
+                Contract::STATUS_VALIDATED_BY_DDF,
+                Contract::STATUS_SIGNATURE_REQUESTED,
+                Contract::STATUS_SIGNED,
+            ], true);
+        });
         $activeContracts = $allCoordinatedContracts->filter(function (Contract $contract) {
             return in_array($contract->getStatus(), [
                 Contract::STATUS_VALIDATED_BY_PROF,
@@ -80,11 +88,13 @@ final class ProfessorController extends AbstractController
 
         return $this->render('professor/show.html.twig', [
             'professor' => $professor,
-            'students_count' => count($students),
-            'pending_validation_count' => $contractsToValidate->count(),
+            'students_count' => is_countable($students) ? count($students) : 0,
+            'pending_validation_count' => count($contractsToValidate),
+            'validated_collections_count' => $validatedCollections->count(),
             'active_contracts_count' => $activeContracts->count(),
             'past_contracts_count' => $pastContracts->count(),
             'contracts_to_validate' => $contractsToValidate,
+            'validated_collections' => $validatedCollections,
             'all_coordinated_contracts' => $allCoordinatedContracts,
         ]);
     }
@@ -118,14 +128,17 @@ final class ProfessorController extends AbstractController
             }
 
             $action = $request->request->get('action');
+            $rejectionReason = trim((string) $request->request->get('rejection_reason', ''));
 
             try {
                 if ($action === 'validate' && $workflow->can($contract, 'validate_by_prof')) {
+                    $contract->setProfessorRejectionReason(null);
                     $workflow->apply($contract, 'validate_by_prof');
                     $this->addFlash('success', 'La convention a été validée pédagogiquement avec succès ! Elle part à la DDF.');
                 } elseif ($action === 'refuse' && $workflow->can($contract, 'refuse_subject')) {
+                    $contract->setProfessorRejectionReason($rejectionReason !== '' ? $rejectionReason : 'Le professeur référent a refusé la collecte. Merci de vérifier les informations saisies.');
                     $workflow->apply($contract, 'refuse_subject');
-                    $this->addFlash('warning', 'La convention a été refusée.');
+                    $this->addFlash('warning', 'La collecte a été refusée. L\'étudiant verra le rejet et le motif sur sa convention.');
                 } else {
                     $this->addFlash('danger', 'Action impossible pour le statut actuel (' . $contract->getStatus() . ').');
                 }
@@ -147,6 +160,8 @@ final class ProfessorController extends AbstractController
         // Si c'est un GET, on affiche la page de confirmation (template: professor/validate.html.twig)
         return $this->render('professor/validate.html.twig', [
             'contract' => $contract,
+            'can_validate' => $workflow->can($contract, 'validate_by_prof'),
+            'can_refuse' => $workflow->can($contract, 'refuse_subject'),
         ]);
     }
 

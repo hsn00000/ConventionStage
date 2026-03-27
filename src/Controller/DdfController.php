@@ -5,9 +5,11 @@ namespace App\Controller;
 use App\Entity\Contract;
 use App\Repository\ContractRepository;
 use App\Service\ContractSignatureService;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -21,6 +23,7 @@ class DdfController extends AbstractController
         return $this->render('ddf/index.html.twig', [
             'contracts_to_validate' => $contractRepository->findPendingDdfValidation(),
             'signature_in_progress' => $contractRepository->findSignatureInProgress(),
+            'signed_contracts' => $contractRepository->findSignedContracts(),
         ]);
     }
 
@@ -69,5 +72,18 @@ class DdfController extends AbstractController
         }
 
         return $this->redirectToRoute('app_ddf_contract_index');
+    }
+
+    #[Route('/{id}/pdf', name: 'app_ddf_contract_pdf', methods: ['GET'])]
+    public function viewPdf(Contract $contract): Response
+    {
+        $pdfPath = $contract->getPdfSigned() ?: $contract->getPdfUnsigned();
+
+        if (!$pdfPath || !is_file($pdfPath)) {
+            throw $this->createNotFoundException('Le PDF de cette convention n a pas encore ete genere.');
+        }
+
+        return (new BinaryFileResponse($pdfPath))
+            ->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE, basename($pdfPath));
     }
 }

@@ -58,6 +58,19 @@ class ContractRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @return Contract[]
+     */
+    public function findSignedContracts(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.status = :status')
+            ->setParameter('status', Contract::STATUS_SIGNED)
+            ->orderBy('c.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findOneBySignatureRequestId(string $signatureRequestId): ?Contract
     {
         return $this->createQueryBuilder('c')

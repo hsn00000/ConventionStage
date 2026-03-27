@@ -180,7 +180,7 @@
                                     <div class="d-flex align-items-center student-contract-actions flex-column flex-md-row">
                                         {# Style de badge mis à jour #}
                                         <span class="badge rounded-pill contract-status-chip me-md-3
-                                            {% if contract.status == 'filled_by_company' %}bg-warning text-dark{% elseif contract.status == 'validated_by_student' %}bg-primary{% elseif contract.status == 'validated_by_prof' %}bg-info text-dark{% elseif contract.status == 'signature_requested' %}bg-dark{% elseif contract.status == 'signed' %}bg-success{% else %}bg-secondary{% endif %}">
+                                            {% if contract.status == 'filled_by_company' %}bg-warning text-dark{% elseif contract.status == 'validated_by_student' %}bg-primary{% elseif contract.status == 'validated_by_prof' %}bg-info text-dark{% elseif contract.status == 'signature_requested' %}bg-dark{% elseif contract.status == 'signed' %}bg-success{% elseif contract.status == 'refused' %}bg-danger{% else %}bg-secondary{% endif %}">
                                             {{ contract.statusLabel }}
                                         </span>
                                         {% if contract.status == 'filled_by_company' %}
@@ -194,6 +194,14 @@
                                         {% endif %}
                                     </div>
                                     </div>
+                                    {% if contract.status == 'refused' %}
+                                        <div class="alert alert-danger mt-3 mb-0">
+                                            <strong>Collecte rejetee par le professeur referent.</strong>
+                                            {% if contract.professorRejectionReason %}
+                                                <div class="mt-2">{{ contract.professorRejectionReason|nl2br }}</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
                                 </li>
                             {% endfor %}
                         {% endif %}
