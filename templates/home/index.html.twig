@@ -136,8 +136,35 @@
 
         /* ---- CTA finale ---- */
         .cta-section {
-            background: linear-gradient(135deg, #0d6efd 0%, #0749c4 100%);
+            background: linear-gradient(120deg, #0a58ca 0%, #0d6efd 55%, #6ea8fe 100%);
             border-radius: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+        }
+        .cta-watermark {
+            position: absolute;
+            right: -2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13rem;
+            color: rgba(255, 255, 255, 0.06);
+            pointer-events: none;
+            line-height: 1;
+        }
+        .cta-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.55);
         }
     </style>
 {% endblock %}
@@ -159,7 +186,8 @@
                     </div>
 
                     <h1 class="display-4 fw-bold text-dark mb-4 lh-sm">
-                        Vos <span class="text-primary">conventions de stage</span>,<br class="d-none d-lg-block">
+                        Vos <span class="text-primary">conventions</span><br>
+                        <span class="text-primary">de stage,</span><br>
                         sans la paperasse.
                     </h1>
 
@@ -376,19 +404,31 @@
     {# ================================================================ #}
     {% if not is_granted('IS_AUTHENTICATED_FULLY') %}
         <section class="container pb-5 mb-3" style="max-width: 1180px;">
-            <div class="cta-section text-center py-5 px-3 px-md-5">
-                <h2 class="fw-bold text-white mb-3">Prêt à simplifier vos stages ?</h2>
-                <p class="text-white opacity-75 lead mb-4">
-                    Créez votre compte gratuitement et démarrez en quelques minutes.
-                </p>
-                <div class="d-flex flex-wrap gap-3 justify-content-center">
-                    <a href="{{ path('app_register_student') }}" class="btn btn-light btn-lg px-4 fw-bold text-primary shadow">
-                        <i class="fas fa-user-graduate me-2"></i>Inscription Étudiant
-                    </a>
-                    <a href="{{ path('app_login') }}" class="btn btn-outline-light btn-lg px-4">
-                        Se connecter
-                    </a>
+            <div class="cta-section py-5 px-4 px-md-5">
+
+                {# Icône watermark décorative #}
+                <div class="cta-watermark">
+                    <i class="fas fa-file-contract"></i>
                 </div>
+
+                <div class="text-center position-relative" style="z-index: 1;">
+                    <p class="cta-label mb-3">✦ &nbsp;Conventio&nbsp; ✦</p>
+                    <h2 class="h3 fw-bold text-white mb-3">
+                        Prêt à simplifier vos stages ?
+                    </h2>
+                    <p class="text-white mb-4" style="opacity: 0.7; max-width: 380px; margin-inline: auto; font-size: 0.95rem;">
+                        Créez votre première convention en moins de 5 minutes, gratuitement.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 justify-content-center">
+                        <a href="{{ path('app_register_student') }}" class="btn btn-light fw-bold text-primary px-4">
+                            <i class="fas fa-user-graduate me-2"></i>Je suis Étudiant
+                        </a>
+                        <a href="{{ path('app_register_professor') }}" class="btn btn-outline-light px-4">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>Je suis Professeur
+                        </a>
+                    </div>
+                </div>
+
             </div>
         </section>
     {% endif %}

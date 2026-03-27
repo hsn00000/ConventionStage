@@ -1,14 +1,62 @@
-<h1>Bonjour !</h1>
+{% extends 'emails/layout.html.twig' %}
 
-<p>Une demande de réinitialisation de mot de passe a été effectuée pour votre compte sur la plateforme <strong>Convention Stage - Lycée Faure</strong>.</p>
+{% block title %}Réinitialisation de mot de passe – Conventio{% endblock %}
 
-<p>Pour définir un nouveau mot de passe, veuillez cliquer sur le lien ci-dessous :</p>
+{% block badge %}Sécurité du compte{% endblock %}
 
-<a href="{{ url('app_reset_password', {token: resetToken.token}) }}">Réinitialiser mon mot de passe</a>
+{% block heading %}
+    Réinitialisez votre<br>mot de passe
+{% endblock %}
 
-<p>Ce lien est valide pendant {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.</p>
+{% block body %}
+    <p style="margin:0 0 16px;font-size:15px;color:#495057;line-height:1.7;">Bonjour,</p>
 
-<p>Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email.</p>
+    <p style="margin:0 0 20px;font-size:15px;color:#495057;line-height:1.7;">
+        Nous avons reçu une demande de réinitialisation du mot de passe associé à votre compte sur la plateforme
+        <strong style="color:#0d6efd;">Conventio</strong>.
+    </p>
 
-<p>Cordialement,<br>
-    L'équipe administrative du Lycée Faure</p>
+    <p style="margin:0 0 8px;font-size:15px;color:#495057;line-height:1.7;">
+        Cliquez sur le bouton ci-dessous pour définir un nouveau mot de passe :
+    </p>
+{% endblock %}
+
+{% block cta %}
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td align="center" style="padding:28px 40px 16px;">
+                <a href="{{ url('app_reset_password', {token: resetToken.token}) }}"
+                   style="display:inline-block;background:linear-gradient(135deg,#0d6efd,#6ea8fe);color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:14px 32px;border-radius:50px;letter-spacing:0.02em;box-shadow:0 6px 18px rgba(13,110,253,0.35);">
+                    Réinitialiser mon mot de passe &rarr;
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:0 40px 8px;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        <td style="background:#fff8e1;border-left:4px solid #ffc107;border-radius:0 8px 8px 0;padding:12px 16px;">
+                            <p style="margin:0;font-size:13px;color:#856404;line-height:1.6;">
+                                ⏱ Ce lien est valide pendant
+                                <strong>{{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}</strong>.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:0 40px 16px;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        <td style="background:#fef2f2;border-left:4px solid #ef4444;border-radius:0 8px 8px 0;padding:12px 16px;">
+                            <p style="margin:0;font-size:13px;color:#991b1b;line-height:1.6;">
+                                🔒 Si vous n'êtes pas à l'origine de cette demande, ignorez cet email. Votre mot de passe ne sera pas modifié.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+{% endblock %}

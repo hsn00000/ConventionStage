@@ -1,40 +1,57 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Demande de Convention</title>
-</head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-<div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-    <h2 style="color: #0d6efd;">Demande de Convention de Stage</h2>
+{% extends 'emails/layout.html.twig' %}
 
-    <p>Bonjour,</p>
+{% block title %}Demande de Convention de Stage – Conventio{% endblock %}
 
-    <p>L'étudiant(e) <strong>{{ student.firstname }} {{ student.lastname }}</strong> du Lycée Gabriel Fauré souhaite effectuer un stage au sein de votre entreprise.</p>
+{% block badge %}Demande de Convention{% endblock %}
 
-    <p>Pour établir la convention de stage officielle, nous avons besoin de collecter certaines informations administratives et logistiques.</p>
+{% block heading %}
+    Une convention de stage<br>vous attend
+{% endblock %}
 
-    <p>Merci de bien vouloir cliquer sur le bouton ci-dessous pour accéder à notre formulaire sécurisé :</p>
+{% block body %}
+    <p style="margin:0 0 16px;font-size:15px;color:#495057;line-height:1.7;">Bonjour,</p>
 
-    <div style="text-align: center; margin: 30px 0;">
-        {# --- CORRECTION IMPORTANTE --- #}
-        <a href="{{ url('app_company_fill', {'token': token}) }}"
-           style="background-color: #0d6efd; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
-            Fournir les informations du stage
-        </a>
-    </div>
-
-    <p style="font-size: 0.9em; color: #666;">
-        Si le bouton ne fonctionne pas, vous pouvez copier ce lien dans votre navigateur :<br>
-        {{ url('app_company_fill', {'token': token}) }}
+    <p style="margin:0 0 20px;font-size:15px;color:#495057;line-height:1.7;">
+        L'étudiant(e) <strong style="color:#1a1a2e;">{{ student.firstname }} {{ student.lastname }}</strong>
+        du <strong style="color:#1a1a2e;">Lycée Gabriel Fauré</strong> souhaite effectuer un stage au sein de votre entreprise.
     </p>
 
-    <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+    {# Bloc encadré avec les infos de l'étudiant #}
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
+        <tr>
+            <td style="background:#f8f9ff;border-left:4px solid #0d6efd;border-radius:0 10px 10px 0;padding:16px 20px;">
+                <p style="margin:0 0 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#6ea8fe;">Étudiant concerné</p>
+                <p style="margin:0;font-size:15px;font-weight:600;color:#1a1a2e;">{{ student.firstname }} {{ student.lastname }}</p>
+            </td>
+        </tr>
+    </table>
 
-    <p style="font-size: 0.8em; color: #888;">
-        Cordialement,<br>
-        Le secrétariat du Lycée Gabriel Fauré.
+    <p style="margin:0 0 20px;font-size:15px;color:#495057;line-height:1.7;">
+        Pour établir la convention de stage officielle, nous avons besoin de collecter quelques informations administratives et logistiques auprès de votre entreprise.
     </p>
-</div>
-</body>
-</html>
+
+    <p style="margin:0 0 8px;font-size:15px;color:#495057;line-height:1.7;">
+        Cela ne prend que quelques minutes. Cliquez sur le bouton ci-dessous pour accéder au formulaire sécurisé :
+    </p>
+{% endblock %}
+
+{% block cta %}
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td align="center" style="padding:28px 40px;">
+                <a href="{{ url('app_company_fill', {'token': token}) }}"
+                   style="display:inline-block;background:linear-gradient(135deg,#0d6efd,#6ea8fe);color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:14px 32px;border-radius:50px;letter-spacing:0.02em;box-shadow:0 6px 18px rgba(13,110,253,0.35);">
+                    Remplir le formulaire de stage &rarr;
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td align="center" style="padding:0 40px 8px;">
+                <p style="margin:0;font-size:12px;color:#9ca3af;">
+                    Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br>
+                    <span style="color:#0d6efd;word-break:break-all;">{{ url('app_company_fill', {'token': token}) }}</span>
+                </p>
+            </td>
+        </tr>
+    </table>
+{% endblock %}

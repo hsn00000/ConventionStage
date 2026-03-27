@@ -1,26 +1,152 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Email de réinitialisation envoyé{% endblock %}
+{% block title %}Email de réinitialisation envoyé – Conventio{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .check-email-section {
+            background: linear-gradient(145deg, #eef2ff 0%, #ffffff 55%, #f0f6ff 100%);
+            min-height: calc(100vh - 70px);
+            display: flex;
+            align-items: center;
+        }
+        .check-email-card {
+            border-radius: 1.5rem;
+            border: none;
+            box-shadow: 0 8px 40px rgba(13, 110, 253, 0.10);
+            overflow: hidden;
+        }
+        .check-email-card .top-bar {
+            height: 6px;
+            background: linear-gradient(90deg, #0a58ca 0%, #0d6efd 55%, #6ea8fe 100%);
+        }
+        .icon-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(13, 110, 253, 0.08);
+            border: 2px solid rgba(13, 110, 253, 0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 1.8rem;
+            color: #0d6efd;
+        }
+        .badge-section {
+            display: inline-block;
+            background: rgba(13, 110, 253, 0.08);
+            color: #0d6efd;
+            border: 1px solid rgba(13, 110, 253, 0.2);
+            border-radius: 50px;
+            padding: 0.3rem 1rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .info-box {
+            background: #f8f9ff;
+            border-left: 4px solid #0d6efd;
+            border-radius: 0 10px 10px 0;
+            padding: 14px 18px;
+        }
+        .btn-back {
+            background: transparent;
+            border: 1.5px solid rgba(13, 110, 253, 0.35);
+            border-radius: 50px;
+            padding: 0.5rem 1.4rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #0d6efd;
+            transition: background 0.2s ease, border-color 0.2s ease;
+            text-decoration: none;
+        }
+        .btn-back:hover {
+            background: rgba(13, 110, 253, 0.07);
+            border-color: #0d6efd;
+            color: #0d6efd;
+        }
+        .btn-retry {
+            background: linear-gradient(135deg, #0d6efd, #6ea8fe);
+            border: none;
+            border-radius: 50px;
+            padding: 0.55rem 1.6rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(13, 110, 253, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
+        }
+        .btn-retry:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(13, 110, 253, 0.42);
+            color: #fff;
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
-    <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-        <div class="card shadow-lg" style="width: 500px;">
-            <div class="card-body text-center">
+<section class="check-email-section py-5">
+    <div class="container" style="max-width: 520px;">
 
-                <h1 class="h4 mb-4">Email de réinitialisation envoyé</h1>
+        <div class="check-email-card bg-white">
 
-                <p>
-                    Si un compte correspondant à votre adresse email existe, un email vient de vous être envoyé contenant un lien pour réinitialiser votre mot de passe.
-                    Ce lien expirera dans <strong>{{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}</strong>.
-                    <!--  -->
+            {# Bande de couleur #}
+            <div class="top-bar"></div>
+
+            <div class="p-4 p-md-5 text-center">
+
+                {# Icône #}
+                <div class="icon-circle">
+                    <i class="fas fa-envelope-open-text"></i>
+                </div>
+
+                {# Badge #}
+                <div class="badge-section">Réinitialisation du mot de passe</div>
+
+                <h1 class="h4 fw-bold text-dark mb-3">Vérifiez vos emails</h1>
+
+                <p class="text-muted mb-4" style="line-height:1.7;font-size:0.95rem;">
+                    Si un compte correspond à votre adresse email, un lien de réinitialisation
+                    vient de vous être envoyé.
                 </p>
 
-                <p>
-                    Si vous ne recevez pas l'email, vérifiez votre dossier spam ou
-                    <a href="{{ path('app_forgot_password_request') }}">réessayez</a>.
+                {# Bloc d'info expiration #}
+                <div class="info-box text-start mb-4">
+                    <p class="mb-0" style="font-size:0.88rem;color:#495057;line-height:1.6;">
+                        <i class="fas fa-clock text-primary me-2"></i>
+                        Ce lien expirera dans
+                        <strong class="text-dark">{{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}</strong>.
+                    </p>
+                </div>
+
+                <p class="text-muted mb-4" style="font-size:0.88rem;line-height:1.6;">
+                    Vous ne recevez rien ? Pensez à vérifier votre dossier <strong>spam</strong> ou indésirables.
                 </p>
+
+                {# Actions #}
+                <div class="d-flex flex-wrap gap-3 justify-content-center">
+                    <a href="{{ path('app_home') }}" class="btn-back">
+                        <i class="fas fa-arrow-left me-2"></i>Retour à l'accueil
+                    </a>
+                    <a href="{{ path('app_forgot_password_request') }}" class="btn-retry">
+                        <i class="fas fa-redo me-2"></i>Réessayer
+                    </a>
+                </div>
 
             </div>
         </div>
+
+        {# Note de sécurité #}
+        <p class="text-center mt-4" style="font-size:0.78rem;color:#9ca3af;">
+            <i class="fas fa-shield-alt me-1"></i>
+            Pour votre sécurité, ce lien est à usage unique et ne sera valable qu'une seule fois.
+        </p>
+
     </div>
+</section>
 {% endblock %}
