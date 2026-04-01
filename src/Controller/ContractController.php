@@ -57,6 +57,7 @@ class ContractController extends AbstractController
 
         return $this->render('contract/new.html.twig', [
             'form' => $form,
+            'contract' => $contract,
         ]);
     }
 

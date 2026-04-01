@@ -259,9 +259,9 @@
                             </div>
                             <div class="contract-dates">
                                 <i class="ph ph-calendar-blank"></i>
-                                {{ contract.startDate is defined and contract.startDate is not null ? contract.startDate|date('d/m/Y') : 'N/A' }}
+                                {{ contract.stageStartDate ? contract.stageStartDate|date('d/m/Y') : 'N/A' }}
                                 <i class="ph ph-arrow-right" style="font-size:0.65rem;"></i>
-                                {{ contract.endDate is defined and contract.endDate is not null ? contract.endDate|date('d/m/Y') : 'N/A' }}
+                                {{ contract.stageEndDate ? contract.stageEndDate|date('d/m/Y') : 'N/A' }}
                             </div>
                         </div>
 

@@ -2,6 +2,8 @@
 
 namespace App\Form;
 
+use App\Entity\Session;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -14,6 +16,24 @@ class InitiateContractType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('campaign', EntityType::class, [
+                'class' => Session::class,
+                'choices' => $options['campaign_choices'],
+                'choice_label' => static function (Session $campaign): string {
+                    $levelName = $campaign->getLevel()?->getLevelName() ?? 'Classe non renseignée';
+                    $periods = $campaign->getPeriodsLabel();
+
+                    if ($periods === '') {
+                        return sprintf('%s - %s', $campaign->getName(), $levelName);
+                    }
+
+                    return sprintf('%s - %s (%s)', $campaign->getName(), $levelName, $periods);
+                },
+                'label' => 'Campagne de stage',
+                'placeholder' => 'Choisissez une campagne',
+                'help' => 'La période de stage est définie par la DDF pour votre classe.',
+                'constraints' => [new NotBlank(['message' => 'Veuillez sélectionner une campagne de stage.'])],
+            ])
             ->add('companyName', TextType::class, [
                 'label' => 'Nom de l\'entreprise (pour référence)',
                 'attr' => ['placeholder' => 'Ex: Capgemini, Mairie de...'],
@@ -30,6 +50,9 @@ class InitiateContractType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults([]);
+        $resolver->setDefaults([
+            'campaign_choices' => [],
+        ]);
+        $resolver->setAllowedTypes('campaign_choices', 'array');
     }
 }

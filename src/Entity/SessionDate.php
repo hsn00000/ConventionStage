@@ -7,6 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SessionDateRepository::class)]
+#[ORM\Table(name: 'stage_campaign_period')]
 class SessionDate
 {
     #[ORM\Id]
@@ -21,7 +22,7 @@ class SessionDate
     private ?\DateTime $endDate = null;
 
     #[ORM\ManyToOne(inversedBy: 'sessionDates')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: 'campaign_id', referencedColumnName: 'id', nullable: false)]
     private ?Session $session = null;
 
     public function getId(): ?int

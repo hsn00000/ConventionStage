@@ -121,7 +121,10 @@
             <h1 class="mb-1"><i class="ph-bold ph-file-signature me-2"></i>Validation DDF</h1>
             <p>Validation administrative, génération du PDF et envoi à la signature électronique.</p>
         </div>
-        <div class="d-flex gap-3 flex-wrap">
+        <div class="d-flex gap-3 flex-wrap align-items-center">
+            <a href="{{ path('app_ddf_campaign_index') }}" class="btn btn-light btn-sm">
+                <i class="ph ph-calendar-plus me-1"></i> Gérer les campagnes
+            </a>
             <div class="text-center">
                 <div style="font-size:2rem;font-weight:800;">{{ contracts_to_validate|length }}</div>
                 <div style="font-size:0.75rem;opacity:0.8;">À valider</div>

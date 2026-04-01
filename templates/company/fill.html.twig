@@ -209,6 +209,28 @@
 
                 <div class="row g-4">
 
+                    <div class="col-12">
+                        <div class="section-card">
+                            <div class="section-header">
+                                <h4><i class="fas fa-calendar-alt"></i> Période de stage imposée par l'établissement</h4>
+                            </div>
+                            <div class="section-body">
+                                <p class="text-muted mb-3">Cette période est définie par la DDF pour la classe {{ contract.student.level ? contract.student.level.levelName : 'de l etudiant' }}. Elle sera reprise dans la convention finale.</p>
+                                {% if contract.contractDates is empty %}
+                                    <div class="alert alert-warning mb-0">Aucune période n'est associée à cette convention pour le moment.</div>
+                                {% else %}
+                                    <div class="d-flex flex-wrap gap-2">
+                                        {% for period in contract.contractDates %}
+                                            <span class="badge rounded-pill text-bg-primary px-3 py-2">
+                                                {{ period.startDate|date('d/m/Y') }} → {{ period.endDate|date('d/m/Y') }}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
                     {# --- GAUCHE : ADMINISTRATIF --- #}
                     <div class="col-lg-6">
                         <div class="section-card h-100">

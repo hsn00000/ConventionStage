@@ -91,6 +91,10 @@ class Contract
     #[ORM\JoinColumn(nullable: false)]
     private ?Professor $coordinator = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'stage_campaign_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?Session $session = null;
+
     /**
      * @var Collection<int, ContractDate>
      */
@@ -440,6 +444,48 @@ class Contract
         }
 
         return $this;
+    }
+
+    public function getSession(): ?Session
+    {
+        return $this->session;
+    }
+
+    public function setSession(?Session $session): static
+    {
+        $this->session = $session;
+
+        return $this;
+    }
+
+    public function getStageStartDate(): ?\DateTimeInterface
+    {
+        $startDate = null;
+
+        foreach ($this->contractDates as $contractDate) {
+            $currentStartDate = $contractDate->getStartDate();
+
+            if ($currentStartDate && ($startDate === null || $currentStartDate < $startDate)) {
+                $startDate = $currentStartDate;
+            }
+        }
+
+        return $startDate;
+    }
+
+    public function getStageEndDate(): ?\DateTimeInterface
+    {
+        $endDate = null;
+
+        foreach ($this->contractDates as $contractDate) {
+            $currentEndDate = $contractDate->getEndDate();
+
+            if ($currentEndDate && ($endDate === null || $currentEndDate > $endDate)) {
+                $endDate = $currentEndDate;
+            }
+        }
+
+        return $endDate;
     }
 
     public function removeContractDate(ContractDate $contractDate): static
