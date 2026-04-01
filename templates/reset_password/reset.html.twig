@@ -1,46 +1,202 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Réinitialiser le mot de passe{% endblock %}
+{% block title %}Réinitialiser le mot de passe – Conventio{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .reset-section {
+            background: linear-gradient(145deg, #eef2ff 0%, #ffffff 55%, #f0f6ff 100%);
+            min-height: calc(100vh - 70px);
+            display: flex;
+            align-items: center;
+        }
+        .reset-card {
+            border-radius: 1.5rem;
+            border: none;
+            box-shadow: 0 8px 40px rgba(13, 110, 253, 0.10);
+            overflow: hidden;
+        }
+        .reset-card .top-bar {
+            height: 6px;
+            background: linear-gradient(90deg, #0a58ca 0%, #0d6efd 55%, #6ea8fe 100%);
+        }
+        .icon-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(13, 110, 253, 0.08);
+            border: 2px solid rgba(13, 110, 253, 0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 1.8rem;
+            color: #0d6efd;
+        }
+        .badge-section {
+            display: inline-block;
+            background: rgba(13, 110, 253, 0.08);
+            color: #0d6efd;
+            border: 1px solid rgba(13, 110, 253, 0.2);
+            border-radius: 50px;
+            padding: 0.3rem 1rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .reset-card .form-control {
+            border-radius: 10px;
+            border: 1.5px solid #e2e8f0;
+            padding: 0.65rem 1rem;
+            font-size: 0.92rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .reset-card .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+        }
+        .reset-card label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.4rem;
+        }
+        .btn-submit {
+            background: linear-gradient(135deg, #0d6efd, #6ea8fe);
+            border: none;
+            border-radius: 50px;
+            padding: 0.65rem 1.6rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(13, 110, 253, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+        }
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(13, 110, 253, 0.42);
+            color: #fff;
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
-    <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-        <div class="card shadow-lg" style="width: 400px;">
-            <div class="card-body">
+<section class="reset-section py-5">
+    <div class="container" style="max-width: 480px;">
 
-                <h1 class="h4 text-center mb-4">Réinitialiser le mot de passe</h1>
+        <div class="reset-card bg-white">
+
+            <div class="top-bar"></div>
+
+            <div class="p-4 p-md-5">
+
+                {# Icône + badge + titre #}
+                <div class="text-center mb-4">
+                    <div class="icon-circle">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="badge-section">Sécurité du compte</div>
+                    <h1 class="h4 fw-bold text-dark mb-1">Nouveau mot de passe</h1>
+                    <p class="text-muted" style="font-size:0.88rem;">Choisissez un mot de passe sécurisé pour votre compte.</p>
+                </div>
 
                 {{ form_start(resetForm) }}
 
-                {# Champ 1 : Nouveau mot de passe #}
+                {# Nouveau mot de passe #}
                 <div class="mb-3">
-                    {# CORRECTION ICI : on utilise .plainPassword #}
                     {{ form_label(resetForm.plainPassword.first, 'Nouveau mot de passe') }}
-                    {{ form_widget(resetForm.plainPassword.first, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le nouveau mot de passe'}}) }}
-                    <div class="text-danger small">
-                        {{ form_errors(resetForm.plainPassword.first) }}
+                    <div class="input-group">
+                        <span class="input-group-text" style="border-radius:10px 0 0 10px;border:1.5px solid #e2e8f0;border-right:none;background:#f8f9ff;">
+                            <i class="fas fa-key text-primary" style="font-size:0.85rem;"></i>
+                        </span>
+                        {{ form_widget(resetForm.plainPassword.first, {
+                            'attr': {
+                                'class': 'form-control',
+                                'id': 'password_first',
+                                'placeholder': 'Entrez le nouveau mot de passe',
+                                'style': 'border-radius:0;border-right:none;'
+                            }
+                        }) }}
+                        <button type="button" class="input-group-text toggle-password" data-target="password_first"
+                                style="border-radius:0 10px 10px 0;border:1.5px solid #e2e8f0;border-left:none;background:#f8f9ff;cursor:pointer;">
+                            <i class="fas fa-eye text-muted" style="font-size:0.85rem;"></i>
+                        </button>
                     </div>
+                    {% if form_errors(resetForm.plainPassword.first) %}
+                        <div class="text-danger small mt-1">
+                            {{ form_errors(resetForm.plainPassword.first) }}
+                        </div>
+                    {% endif %}
                 </div>
 
-                {# Champ 2 : Confirmation #}
-                <div class="mb-3">
-                    {# CORRECTION ICI : on utilise .plainPassword #}
+                {# Confirmation #}
+                <div class="mb-4">
                     {{ form_label(resetForm.plainPassword.second, 'Confirmer le mot de passe') }}
-                    {{ form_widget(resetForm.plainPassword.second, {'attr': {'class': 'form-control', 'placeholder': 'Répétez le mot de passe'}}) }}
-                    <div class="text-danger small">
-                        {{ form_errors(resetForm.plainPassword.second) }}
+                    <div class="input-group">
+                        <span class="input-group-text" style="border-radius:10px 0 0 10px;border:1.5px solid #e2e8f0;border-right:none;background:#f8f9ff;">
+                            <i class="fas fa-check-circle text-primary" style="font-size:0.85rem;"></i>
+                        </span>
+                        {{ form_widget(resetForm.plainPassword.second, {
+                            'attr': {
+                                'class': 'form-control',
+                                'id': 'password_second',
+                                'placeholder': 'Répétez le mot de passe',
+                                'style': 'border-radius:0;border-right:none;'
+                            }
+                        }) }}
+                        <button type="button" class="input-group-text toggle-password" data-target="password_second"
+                                style="border-radius:0 10px 10px 0;border:1.5px solid #e2e8f0;border-left:none;background:#f8f9ff;cursor:pointer;">
+                            <i class="fas fa-eye text-muted" style="font-size:0.85rem;"></i>
+                        </button>
                     </div>
+                    {% if form_errors(resetForm.plainPassword.second) %}
+                        <div class="text-danger small mt-1">
+                            {{ form_errors(resetForm.plainPassword.second) }}
+                        </div>
+                    {% endif %}
                 </div>
 
-                {# Erreurs globales du champ plainPassword #}
-                <div class="text-danger mb-3">
-                    {{ form_errors(resetForm.plainPassword) }}
-                </div>
+                {# Erreurs globales #}
+                {% if form_errors(resetForm.plainPassword) %}
+                    <div class="alert alert-danger rounded-3 mb-3 py-2 px-3" style="font-size:0.88rem;">
+                        <i class="fas fa-exclamation-circle me-2"></i>{{ form_errors(resetForm.plainPassword) }}
+                    </div>
+                {% endif %}
 
-                <button class="btn btn-primary w-100" type="submit">Réinitialiser</button>
+                <button class="btn-submit" type="submit">
+                    <i class="fas fa-shield-alt me-2"></i>Réinitialiser le mot de passe
+                </button>
 
                 {{ form_end(resetForm) }}
 
             </div>
         </div>
+
+        <p class="text-center mt-4" style="font-size:0.78rem;color:#9ca3af;">
+            <i class="fas fa-shield-alt me-1"></i>
+            Votre mot de passe est chiffré et stocké de manière sécurisée.
+        </p>
+
     </div>
+</section>
+
+<script>
+document.querySelectorAll('.toggle-password').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var input = document.getElementById(this.dataset.target);
+        var icon = this.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    });
+});
+</script>
 {% endblock %}

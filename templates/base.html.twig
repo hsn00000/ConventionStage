@@ -14,91 +14,233 @@
     {% endblock %}
 
     {% block stylesheets %}
-        {# Ajout de Font Awesome pour les icônes (détecté via contract/new.html.twig) #}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1y6w3t9V8J5uH3p3O5E6T4+r7L7IqU5F2Yx+m4J1eR/1g+K1I/3w5E3+qF8D6O5L3t3v6W5U7r9X7L7/8g7T7r4w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        {# Vous pouvez ajouter ici votre CSS personnalisé si besoin #}
+        <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+        <style>
+            /* === NAVBAR === */
+            .navbar-glass {
+                position: sticky;
+                top: 0;
+                z-index: 1030;
+                background: rgba(255, 255, 255, 0.82) !important;
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+            }
+
+            /* Logo */
+            .navbar-brand-text {
+                font-size: 1.2rem;
+                font-weight: 800;
+                letter-spacing: -0.04em;
+                background: linear-gradient(135deg, #0d6efd 0%, #6ea8fe 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            .navbar-brand-dot {
+                width: 9px;
+                height: 9px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #0d6efd, #6ea8fe);
+                display: inline-block;
+                margin-right: 5px;
+                margin-bottom: 3px;
+                vertical-align: middle;
+                box-shadow: 0 2px 8px rgba(13, 110, 253, 0.45);
+            }
+
+            /* Liens de nav */
+            .nav-link-custom {
+                position: relative;
+                font-weight: 500;
+                font-size: 0.9rem;
+                color: #555 !important;
+                padding-bottom: 3px !important;
+                transition: color 0.2s ease;
+            }
+            .nav-link-custom::after {
+                content: '';
+                position: absolute;
+                bottom: -2px;
+                left: 0;
+                width: 0;
+                height: 2px;
+                background: linear-gradient(90deg, #0d6efd, #6ea8fe);
+                border-radius: 2px;
+                transition: width 0.25s ease;
+            }
+            .nav-link-custom:hover {
+                color: #0d6efd !important;
+            }
+            .nav-link-custom:hover::after {
+                width: 100%;
+            }
+
+            /* Bouton primaire navbar */
+            .navbar-btn-primary {
+                background: linear-gradient(135deg, #0d6efd, #3d8bfd);
+                border: none;
+                border-radius: 50px;
+                padding: 0.45rem 1.3rem;
+                font-weight: 600;
+                font-size: 0.875rem;
+                color: #fff !important;
+                box-shadow: 0 4px 14px rgba(13, 110, 253, 0.35);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                text-decoration: none;
+                display: inline-block;
+            }
+            .navbar-btn-primary:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 18px rgba(13, 110, 253, 0.45);
+                color: #fff !important;
+            }
+
+            /* Bouton outline navbar */
+            .navbar-btn-outline {
+                background: transparent;
+                border: 1.5px solid rgba(13, 110, 253, 0.35);
+                border-radius: 50px;
+                padding: 0.42rem 1.2rem;
+                font-weight: 500;
+                font-size: 0.875rem;
+                color: #0d6efd !important;
+                transition: background 0.2s ease, border-color 0.2s ease;
+                text-decoration: none;
+                display: inline-block;
+            }
+            .navbar-btn-outline:hover {
+                background: rgba(13, 110, 253, 0.07);
+                border-color: #0d6efd;
+            }
+
+            /* Bouton danger navbar */
+            .navbar-btn-danger {
+                background: transparent;
+                border: 1.5px solid rgba(220, 53, 69, 0.35);
+                border-radius: 50px;
+                padding: 0.42rem 1.2rem;
+                font-weight: 500;
+                font-size: 0.875rem;
+                color: #dc3545 !important;
+                transition: background 0.2s ease, border-color 0.2s ease;
+                text-decoration: none;
+                display: inline-block;
+            }
+            .navbar-btn-danger:hover {
+                background: rgba(220, 53, 69, 0.07);
+                border-color: #dc3545;
+            }
+
+            /* Bouton dark (admin) */
+            .navbar-btn-dark {
+                background: #1a1a2e;
+                border: none;
+                border-radius: 50px;
+                padding: 0.42rem 1.2rem;
+                font-weight: 500;
+                font-size: 0.875rem;
+                color: #fff !important;
+                transition: opacity 0.2s ease;
+                text-decoration: none;
+                display: inline-block;
+            }
+            .navbar-btn-dark:hover {
+                opacity: 0.85;
+                color: #fff !important;
+            }
+
+            /* Séparateur vertical entre items connectés */
+            .navbar-sep {
+                width: 1px;
+                height: 20px;
+                background: rgba(0,0,0,0.12);
+                margin: 0 0.5rem;
+            }
+        </style>
     {% endblock %}
 </head>
 <body>
-{% block body %}
 
-    {# --------------------------------------------------------------------- #}
-    {# NAVIGATION BAR BOOTSTRAP 5 (Non fixée et avec marges latérales) #}
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
+    {# NAVIGATION BAR #}
+    <nav class="navbar navbar-expand-lg navbar-glass py-3">
         <div class="container">
-            {# LOGO / MARQUE #}
-            <a href="{{ path('app_home') }}" class="navbar-brand">
-                <span class="fw-bold text-dark">Conventio</span>
+
+            {# LOGO #}
+            <a href="{{ path('app_home') }}" class="navbar-brand d-flex align-items-center">
+                <span class="navbar-brand-dot"></span>
+                <span class="navbar-brand-text">Conventio</span>
             </a>
 
-            {# BOUTON POUR MOBILE (Hamburger) #}
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavActions" aria-controls="navbarNavActions" aria-expanded="false" aria-label="Toggle navigation">
+            {# HAMBURGER MOBILE #}
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavActions" aria-controls="navbarNavActions" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            {# ÉLÉMENTS DE NAVIGATION ET BOUTONS À DROITE #}
+            {# ITEMS DE NAVIGATION #}
             <div class="collapse navbar-collapse justify-content-end" id="navbarNavActions">
-                <ul class="navbar-nav align-items-center">
+                <ul class="navbar-nav align-items-center gap-2">
 
                     {% if not is_logged_in %}
-                        {# Liens d'Inscription #}
-                        <li class="nav-item me-3 mb-2 mb-lg-0">
-                            <a href="{{ path('app_register_student') }}" class="nav-link text-muted">Étudiant</a>
-                        </li>
-                        <li class="nav-item me-3 mb-2 mb-lg-0">
-                            <a href="{{ path('app_register_professor') }}" class="nav-link text-muted">Professeur</a>
-                        </li>
-                        {# Bouton Se connecter #}
                         <li class="nav-item">
-                            <a href="{{ path('app_login') }}" class="btn btn-primary shadow-sm">Se connecter</a>
+                            <a href="{{ path('app_register_student') }}" class="nav-link nav-link-custom">Étudiant</a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ path('app_register_professor') }}" class="nav-link nav-link-custom">Professeur</a>
+                        </li>
+                        <li class="nav-item ms-2">
+                            <a href="{{ path('app_login') }}" class="navbar-btn-primary">Se connecter</a>
+                        </li>
+
                     {% else %}
 
-                        {# --- MODIFICATION ICI : Bouton Admin --- #}
                         {% if is_granted('ROLE_ADMIN') %}
-                            <li class="nav-item me-2 mb-2 mb-lg-0">
-                                <a href="{{ path('app_ddf_contract_index') }}" class="btn btn-dark">
+                            <li class="nav-item">
+                                <a href="{{ path('app_ddf_contract_index') }}" class="navbar-btn-dark">
                                     <i class="fas fa-file-signature me-1"></i> DDF
                                 </a>
                             </li>
-                            <li class="nav-item me-2 mb-2 mb-lg-0">
-                                <a href="{{ path('app_admin_level_index') }}" class="btn btn-outline-dark">
+                            <li class="nav-item">
+                                <a href="{{ path('app_admin_level_index') }}" class="navbar-btn-dark">
                                     <i class="fas fa-cog me-1"></i> Admin
                                 </a>
                             </li>
+                            <li><div class="navbar-sep d-none d-lg-block"></div></li>
                         {% endif %}
-                        {# --------------------------------------- #}
 
-                        {# --- Éléments du Dashboard pour Utilisateur Connecté --- #}
-
-                        {# 1. Bouton Profil pour Professeur #}
                         {% if is_granted('ROLE_PROFESSOR') and app.user.id is defined %}
-                            <li class="nav-item me-2 mb-2 mb-lg-0">
-                                <a href="{{ path('app_professor_show', {'id': app.user.id}) }}" class="btn btn-secondary">
-                                    <i class="fas fa-user-circle me-1"></i> Profil
+                            <li class="nav-item">
+                                <a href="{{ path('app_professor_show', {'id': app.user.id}) }}" class="navbar-btn-outline">
+                                    <i class="fas fa-user-circle me-1"></i> Mon profil
                                 </a>
                             </li>
                         {% endif %}
 
-                        {# 2. Bouton Profil pour Étudiant #}
                         {% if is_granted('ROLE_STUDENT') and app.user.id is defined %}
-                            <li class="nav-item me-2 mb-2 mb-lg-0">
-                                <a href="{{ path('app_student_show', {'id': app.user.id}) }}" class="btn btn-secondary">
-                                    <i class="fas fa-user-circle me-1"></i> Profil
+                            <li class="nav-item">
+                                <a href="{{ path('app_student_show', {'id': app.user.id}) }}" class="navbar-btn-outline">
+                                    <i class="fas fa-user-circle me-1"></i> Mon profil
                                 </a>
                             </li>
                         {% endif %}
 
-                        {# Bouton Se déconnecter #}
                         <li class="nav-item">
-                            <a href="{{ path('app_logout') }}" class="btn btn-outline-danger">Se déconnecter</a>
+                            <a href="{{ path('app_logout') }}" class="navbar-btn-danger">
+                                <i class="fas fa-sign-out-alt me-1"></i> Déconnexion
+                            </a>
                         </li>
+
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
-    {# --------------------------------------------------------------------- #}
+
+    {# Bouton retour - affiché si une page le demande #}
+    {% block back_button %}{% endblock %}
+
+{% block body %}
 
     {# --------------------------------------------------------------------- #}
     {# BLOC CONTENT : Ce contenu sera affiché par défaut ou remplacé par les pages enfants #}

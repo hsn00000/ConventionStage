@@ -47,6 +47,38 @@ class CompanyController extends AbstractController
             ]);
         }
 
+        // Nettoyer les valeurs placeholder avant d'afficher le formulaire
+        $placeholders = ['A compléter', 'A compléter par l\'entreprise'];
+        $numericPlaceholders = ['00000', '0000000000'];
+
+        $org = $contract->getOrganisation();
+        if ($org) {
+            foreach (['AddressHq', 'PostalCodeHq', 'CityHq', 'AddressInternship', 'PostalCodeInternship', 'CityInternship', 'RespName', 'RespFunction', 'RespPhone', 'InsuranceName', 'InsuranceContract'] as $field) {
+                $getter = 'get' . $field;
+                $setter = 'set' . $field;
+                $value = $org->$getter();
+                if (in_array($value, $placeholders) || in_array($value, $numericPlaceholders)) {
+                    $org->$setter('');
+                }
+            }
+        }
+
+        $tutor = $contract->getTutor();
+        if ($tutor) {
+            foreach (['Lastname', 'Firstname'] as $field) {
+                $getter = 'get' . $field;
+                $setter = 'set' . $field;
+                $value = $tutor->$getter();
+                if (in_array($value, $placeholders)) {
+                    $tutor->$setter('');
+                }
+            }
+        }
+
+        if (in_array($contract->getPlannedActivities(), $placeholders)) {
+            $contract->setPlannedActivities('');
+        }
+
         $form = $this->createForm(CompanyFillContractType::class, $contract);
         $form->handleRequest($request);
 

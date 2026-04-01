@@ -53,8 +53,8 @@ class StudentContractController extends AbstractController
             } else {
                 $tutor = new Tutor();
                 $tutor->setEmail($tutorEmail);
-                $tutor->setLastname('A compléter');
-                $tutor->setFirstname('A compléter');
+                $tutor->setLastname('');
+                $tutor->setFirstname('');
                 $tutor->setRoles(['ROLE_TUTOR']);
                 $randomPassword = bin2hex(random_bytes(10));
                 $tutor->setPassword($passwordHasher->hashPassword($tutor, $randomPassword));
@@ -64,18 +64,18 @@ class StudentContractController extends AbstractController
             // --- 2. Organisation ---
             $org = new Organisation();
             $org->setName($data['companyName']);
-            $org->setAddressHq('A compléter');
-            $org->setPostalCodeHq('00000');
-            $org->setCityHq('A compléter');
-            $org->setAddressInternship('A compléter');
-            $org->setPostalCodeInternship('00000');
-            $org->setCityInternship('A compléter');
-            $org->setRespName('A compléter');
-            $org->setRespFunction('A compléter');
+            $org->setAddressHq('');
+            $org->setPostalCodeHq('');
+            $org->setCityHq('');
+            $org->setAddressInternship('');
+            $org->setPostalCodeInternship('');
+            $org->setCityInternship('');
+            $org->setRespName('');
+            $org->setRespFunction('');
             $org->setRespEmail($tutorEmail);
-            $org->setRespPhone('0000000000');
-            $org->setInsuranceName('A compléter');
-            $org->setInsuranceContract('A compléter');
+            $org->setRespPhone('');
+            $org->setInsuranceName('');
+            $org->setInsuranceContract('');
             $em->persist($org);
 
             // --- 3. Contrat ---
@@ -90,7 +90,7 @@ class StudentContractController extends AbstractController
             $contract->setLunchTaken(false);
             $contract->setHostTaken(false);
             $contract->setBonus(false);
-            $contract->setPlannedActivities('A compléter par l\'entreprise');
+            $contract->setPlannedActivities('');
             $contract->setWorkHours([]);
             $contract->setPdfUnsigned('');
             $contract->setPdfSigned('');

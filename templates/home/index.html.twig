@@ -1,122 +1,436 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Accueil Conventio - Simplifiez vos Conventions de Stage{% endblock %}
+{% block title %}Conventio - Simplifiez vos Conventions de Stage{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* ---- Hero ---- */
+        .hero-section {
+            background: linear-gradient(145deg, #eef2ff 0%, #ffffff 55%, #f0f6ff 100%);
+            min-height: 88vh;
+            display: flex;
+            align-items: center;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(13, 110, 253, 0.08);
+            color: #0d6efd;
+            border: 1px solid rgba(13, 110, 253, 0.2);
+            border-radius: 50px;
+            padding: 0.35rem 1rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
+        }
+        .hero-image-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle, rgba(13, 110, 253, 0.13) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        /* ---- Stats ---- */
+        .stat-item {
+            border-left: 3px solid rgba(13, 110, 253, 0.3);
+            padding-left: 1rem;
+        }
+
+        /* ---- Feature cards ---- */
+        .feature-card {
+            border-radius: 1.25rem !important;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 1.25rem 2.5rem rgba(13, 110, 253, 0.1) !important;
+        }
+        .icon-wrapper {
+            width: 68px;
+            height: 68px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin: 0 auto 1.25rem;
+        }
+
+        /* ---- Steps ---- */
+        .steps-section {
+            background: linear-gradient(180deg, #f8f9ff 0%, #ffffff 100%);
+        }
+
+        /* Timeline desktop : flex horizontal */
+        .steps-timeline {
+            align-items: flex-start;
+        }
+        .step-item {
+            flex: 1;
+        }
+        /* Connecteur horizontal entre les bulles */
+        .step-connector {
+            flex: 1;
+            height: 2px;
+            background: repeating-linear-gradient(
+                90deg,
+                #6ea8fe 0px,
+                #6ea8fe 24px,
+                transparent 24px,
+                transparent 52px
+            );
+        }
+
+        /* Bulle numérotée */
+        .step-bubble {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0d6efd, #6ea8fe);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            box-shadow: 0 6px 18px rgba(13, 110, 253, 0.3);
+            z-index: 1;
+        }
+        /* Bulle sur mobile : centrée avec marge basse */
+        .step-bubble-mobile {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0d6efd, #6ea8fe);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 6px 18px rgba(13, 110, 253, 0.3);
+            margin: 0 auto 1rem;
+        }
+
+        /* Connecteur vertical — mobile */
+        .step-connector-v {
+            width: 2px;
+            height: 3rem;
+            background: repeating-linear-gradient(
+                180deg,
+                #6ea8fe 0px,
+                #6ea8fe 24px,
+                transparent 24px,
+                transparent 52px
+            );
+            margin: 0.25rem auto;
+        }
+
+        /* ---- CTA finale ---- */
+        .cta-section {
+            background: linear-gradient(120deg, #0a58ca 0%, #0d6efd 55%, #6ea8fe 100%);
+            border-radius: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+        }
+        .cta-watermark {
+            position: absolute;
+            right: -2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13rem;
+            color: rgba(255, 255, 255, 0.06);
+            pointer-events: none;
+            line-height: 1;
+        }
+        .cta-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.55);
+        }
+    </style>
+{% endblock %}
 
 {% block content %}
-    {# HERO SECTION - Style SaaS moderne, centré verticalement #}
-    <div class="bg-light-subtle py-5" style="min-height: 90vh; display: flex; align-items: center;">
-        <div class="container-fluid" style="max-width: 1200px;">
-            <div class="row align-items-center justify-content-center">
 
-                {# Contenu Textuel et CTA (Gauche) #}
-                <div class="col-12 col-lg-6 text-center text-lg-start p-4 p-lg-5">
+    {# ================================================================ #}
+    {# 1. HERO                                                          #}
+    {# ================================================================ #}
+    <section class="hero-section py-5">
+        <div class="container" style="max-width: 1180px;">
+            <div class="row align-items-center g-5">
 
-                    {# Badge de bienvenue subtil #}
-                    <span class="badge rounded-pill bg-primary-subtle text-primary mb-3 text-uppercase fw-bold">
-                        Plateforme de Gestion de Stages
-                    </span>
+                {# --- Texte & CTA --- #}
+                <div class="col-12 col-lg-6 text-center text-lg-start">
 
-                    {# Titre principal accrocheur (Héro) #}
-                    <h1 class="display-4 fw-bold text-dark mb-4">
-                        Gérez vos <span class="text-primary">Conventions de Stage</span> simplement.
+                    <div class="hero-badge">
+                        <i class="fas fa-graduation-cap me-1"></i> Gestion de Conventions de Stage
+                    </div>
+
+                    <h1 class="display-4 fw-bold text-dark mb-4 lh-sm">
+                        Vos <span class="text-primary">conventions</span><br>
+                        <span class="text-primary">de stage,</span><br>
+                        sans la paperasse.
                     </h1>
 
-                    {# Sous-titre/Description #}
-                    <p class="lead text-muted mb-5">
-                        Notre plateforme centralise le processus de création, signature et suivi de toutes vos conventions. Conçu pour les étudiants, professeurs et entreprises.
+                    <p class="lead text-muted mb-5" style="max-width: 500px; margin-inline: auto;">
+                        Conventio centralise la création, le suivi et la validation de toutes vos conventions. Rapide, sécurisé et accessible pour chaque acteur.
                     </p>
 
-                    {# Boutons CTA (Logique conditionnelle mise à jour) #}
-                    <div class="d-grid gap-3 d-sm-flex justify-content-center justify-content-lg-start">
-
-                        {# 1. Utilisateur NON CONNECTÉ : Affiche tous les liens d'inscription #}
+                    {# Boutons CTA selon le rôle #}
+                    <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start mb-5">
                         {% if not is_granted('IS_AUTHENTICATED_FULLY') %}
-                            {# CTA Primaire : Inscription Étudiant #}
-                            <a href="{{ path('app_student_contract_init') }}" class="btn btn-primary btn-lg px-4 me-sm-3 fw-bold shadow-lg">
-                                Commencer ma Convention
+                            <a href="{{ path('app_register_student') }}" class="btn btn-primary btn-lg px-4 fw-bold shadow">
+                                <i class="fas fa-user-graduate me-2"></i>Je suis Étudiant
                             </a>
-                            {# CTA Secondaire : Inscription Professeur #}
-                            <a href="{{ path('app_register_professor') }}" class="btn btn-outline-secondary btn-lg px-4 shadow-sm">
-                                Espace Professeur
+                            <a href="{{ path('app_register_professor') }}" class="btn btn-outline-primary btn-lg px-4">
+                                <i class="fas fa-chalkboard-teacher me-2"></i>Je suis Professeur
                             </a>
-
-                            {# 2. Utilisateur CONNECTÉ EN TANT QU'ÉTUDIANT : Affiche seulement le bouton Convention #}
                         {% elseif is_granted('ROLE_STUDENT') %}
-                            {# CTA Primaire : Commencer / Continuer Convention #}
-                            <a href="{{ path('app_student_contract_init') }}" class="btn btn-primary btn-lg px-4 me-sm-3 fw-bold shadow-lg">
-                                Commencer ma Collecte
+                            <a href="{{ path('app_student_contract_init') }}" class="btn btn-primary btn-lg px-4 fw-bold shadow">
+                                <i class="fas fa-plus me-2"></i>Nouvelle Convention
                             </a>
-
-                            {# 3. Utilisateur CONNECTÉ EN TANT QUE PROFESSEUR : Affiche seulement le bouton Espace Professeur (Dashboard) #}
+                            <a href="{{ path('app_student_show', {'id': app.user.id}) }}" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="fas fa-tachometer-alt me-2"></i>Mon Dashboard
+                            </a>
                         {% elseif is_granted('ROLE_PROFESSOR') %}
-                            {# CTA Primaire : Espace Professeur (Dashboard) #}
-                            {# Attention : J'utilise ici la route que nous allons créer à l'étape suivante : app_professor_dashboard #}
-                            <a href="{{ path('app_professor_show', {'id': app.user.id}) }}" class="btn btn-primary btn-lg px-4 me-sm-3 fw-bold shadow-lg">
-                                Accéder au Dashboard Professeur
+                            <a href="{{ path('app_professor_show', {'id': app.user.id}) }}" class="btn btn-primary btn-lg px-4 fw-bold shadow">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard Professeur
                             </a>
-
                         {% endif %}
                     </div>
 
+                    {# Stats de crédibilité (non connecté uniquement) #}
+                    {% if not is_granted('IS_AUTHENTICATED_FULLY') %}
+                        <div class="d-flex flex-wrap gap-4 justify-content-center justify-content-lg-start">
+                            <div class="stat-item">
+                                <div class="fw-bold text-dark fs-5">100%</div>
+                                <div class="text-muted small">Dématérialisé</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="fw-bold text-dark fs-5">&lt;&nbsp;5 min</div>
+                                <div class="text-muted small">Pour créer une convention</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="fw-bold text-dark fs-5">RGPD</div>
+                                <div class="text-muted small">Données sécurisées</div>
+                            </div>
+                        </div>
+                    {% endif %}
+
                 </div>
 
-                {# Illustration (Droite) #}
-                <div class="col-12 col-lg-6 text-center p-4 p-lg-5 d-none d-lg-block">
-                    <img
-                        src="{{ asset('img/Conventio.png') }}"
-                        alt="Illustration de Convention Stage"
-                        class="img-fluid shadow-lg rounded-4"
-                        style="max-height: 450px; border: 1px solid rgba(0, 123, 255, 0.2);"
-                    >
+                {# --- Illustration --- #}
+                <div class="col-12 col-lg-6 text-center d-none d-lg-flex align-items-center justify-content-center">
+                    <div class="position-relative" style="width: 100%; max-width: 480px;">
+                        <div class="hero-image-glow"></div>
+                        <img
+                            src="{{ asset('img/Conventio.png') }}"
+                            alt="Illustration Conventio"
+                            class="img-fluid position-relative"
+                            style="max-height: 420px; z-index: 1; filter: drop-shadow(0 24px 48px rgba(13, 110, 253, 0.18));"
+                        >
+                    </div>
                 </div>
 
             </div>
         </div>
-    </div>
+    </section>
 
-    {# SECTION "AVANTAGES" - Révérifié avec des Cartes Bootstrap 5 #}
-    <section class="container py-5 my-5" style="max-width: 1200px;">
-        <h2 class="text-center mb-2 text-dark fw-bold">🎯 Une solution complète pour tous</h2>
-        <p class="text-center text-muted mb-5 lead">Travaillez ensemble, plus vite, sans papier.</p>
+    {# ================================================================ #}
+    {# 2. COMMENT ÇA MARCHE (déplacé avant les features)                #}
+    {# ================================================================ #}
+    <section class="steps-section py-5 my-2">
+        <div class="container" style="max-width: 1180px;">
 
-        <div class="row text-center g-4">
-
-            <div class="col-md-4">
-                <div class="card h-100 shadow-lg border-0 p-3">
-                    <div class="card-body">
-                        <div class="mb-3 mx-auto text-primary" style="font-size: 3rem;">
-                            ⏱️
-                        </div>
-                        <h3 class="card-title h5 fw-bold text-dark mb-3">Gain de Temps</h3>
-                        <p class="card-text text-muted">Créez et envoyez une convention en moins de 5 minutes grâce au pré-remplissage des informations.</p>
-                    </div>
-                </div>
+            <div class="text-center mb-5">
+                <h2 class="fw-bold text-dark mb-2">Comment ça marche ?</h2>
+                <p class="text-muted lead mb-0">4 étapes simples, de l'initiation à la validation finale.</p>
             </div>
 
-            <div class="col-md-4">
-                <div class="card h-100 shadow-lg border-0 p-3">
-                    <div class="card-body">
-                        <div class="mb-3 mx-auto text-primary" style="font-size: 3rem;">
-                            🔒
-                        </div>
-                        <h3 class="card-title h5 fw-bold text-dark mb-3">Sécurité & Légalité</h3>
-                        <p class="card-text text-muted">Stockage sécurisé, signature électronique (futur) et conformité totale avec le RGPD.</p>
+            {# Desktop : timeline horizontale avec connecteurs entre les bulles #}
+            <div class="d-none d-lg-flex steps-timeline">
+
+                <div class="step-item text-center">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="step-connector invisible"></div>
+                        <div class="step-bubble">1</div>
+                        <div class="step-connector"></div>
                     </div>
+                    <h5 class="fw-bold mb-2">L'étudiant initie</h5>
+                    <p class="text-muted small mb-0 px-3">Il renseigne le nom de l'entreprise et l'email de son tuteur depuis son espace.</p>
                 </div>
+
+                <div class="step-item text-center">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="step-connector"></div>
+                        <div class="step-bubble">2</div>
+                        <div class="step-connector"></div>
+                    </div>
+                    <h5 class="fw-bold mb-2">Le tuteur complète</h5>
+                    <p class="text-muted small mb-0 px-3">Il reçoit un lien sécurisé par email et remplit les données administratives.</p>
+                </div>
+
+                <div class="step-item text-center">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="step-connector"></div>
+                        <div class="step-bubble">3</div>
+                        <div class="step-connector"></div>
+                    </div>
+                    <h5 class="fw-bold mb-2">Le professeur valide</h5>
+                    <p class="text-muted small mb-0 px-3">Le référent est notifié et valide la convention depuis son tableau de bord.</p>
+                </div>
+
+                <div class="step-item text-center">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="step-connector"></div>
+                        <div class="step-bubble">4</div>
+                        <div class="step-connector invisible"></div>
+                    </div>
+                    <h5 class="fw-bold mb-2">Convention finalisée</h5>
+                    <p class="text-muted small mb-0 px-3">La convention est prête. Tous les acteurs peuvent la consulter et la télécharger.</p>
+                </div>
+
             </div>
 
-            <div class="col-md-4">
-                <div class="card h-100 shadow-lg border-0 p-3">
-                    <div class="card-body">
-                        <div class="mb-3 mx-auto text-primary" style="font-size: 3rem;">
-                            🤝
-                        </div>
-                        <h3 class="card-title h5 fw-bold text-dark mb-3">Simplicité d'Accès</h3>
-                        <p class="card-text text-muted">Chaque partie prenante (étudiant, tuteur, coordinateur) dispose d'un espace dédié.</p>
-                    </div>
+            {# Mobile : timeline verticale #}
+            <div class="d-lg-none d-flex flex-column align-items-center">
+
+                <div class="text-center" style="max-width: 300px;">
+                    <div class="step-bubble-mobile">1</div>
+                    <h5 class="fw-bold mb-2">L'étudiant initie</h5>
+                    <p class="text-muted small mb-0">Il renseigne le nom de l'entreprise et l'email de son tuteur depuis son espace.</p>
                 </div>
+                <div class="step-connector-v"></div>
+
+                <div class="text-center" style="max-width: 300px;">
+                    <div class="step-bubble-mobile">2</div>
+                    <h5 class="fw-bold mb-2">Le tuteur complète</h5>
+                    <p class="text-muted small mb-0">Il reçoit un lien sécurisé par email et remplit les données administratives.</p>
+                </div>
+                <div class="step-connector-v"></div>
+
+                <div class="text-center" style="max-width: 300px;">
+                    <div class="step-bubble-mobile">3</div>
+                    <h5 class="fw-bold mb-2">Le professeur valide</h5>
+                    <p class="text-muted small mb-0">Le référent est notifié et valide la convention depuis son tableau de bord.</p>
+                </div>
+                <div class="step-connector-v"></div>
+
+                <div class="text-center" style="max-width: 300px;">
+                    <div class="step-bubble-mobile">4</div>
+                    <h5 class="fw-bold mb-2">Convention finalisée</h5>
+                    <p class="text-muted small mb-0">La convention est prête. Tous les acteurs peuvent la consulter et la télécharger.</p>
+                </div>
+
             </div>
 
         </div>
     </section>
+
+    {# ================================================================ #}
+    {# 3. FEATURES                                                       #}
+    {# ================================================================ #}
+    <section class="py-5 bg-white">
+        <div class="container" style="max-width: 1180px;">
+
+            <div class="text-center mb-5">
+                <h2 class="fw-bold text-dark mb-2">Une solution pensée pour tous</h2>
+                <p class="text-muted lead mb-0">Chaque acteur dispose des bons outils au bon moment.</p>
+            </div>
+
+            <div class="row g-4">
+
+                <div class="col-12 col-md-4">
+                    <div class="card feature-card border-0 shadow-sm h-100">
+                        <div class="card-body text-center p-4 p-xl-5">
+                            <div class="icon-wrapper bg-primary-subtle text-primary">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <h3 class="h5 fw-bold mb-3">Gain de Temps</h3>
+                            <p class="text-muted mb-0">Créez et envoyez une convention en moins de 5 minutes grâce au pré-remplissage intelligent des informations.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="card feature-card border-0 shadow-sm h-100">
+                        <div class="card-body text-center p-4 p-xl-5">
+                            <div class="icon-wrapper bg-success-subtle text-success">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3 class="h5 fw-bold mb-3">Sécurité & Conformité</h3>
+                            <p class="text-muted mb-0">Stockage sécurisé, accès contrôlé par rôle, et conformité totale avec le RGPD pour protéger toutes les données.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="card feature-card border-0 shadow-sm h-100">
+                        <div class="card-body text-center p-4 p-xl-5">
+                            <div class="icon-wrapper bg-warning-subtle text-warning">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h3 class="h5 fw-bold mb-3">Collaboration Simplifiée</h3>
+                            <p class="text-muted mb-0">Étudiant, tuteur et professeur avancent ensemble, chacun informé à chaque étape via notifications automatiques.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    {# ================================================================ #}
+    {# 4. CTA FINALE (non connecté uniquement)                          #}
+    {# ================================================================ #}
+    {% if not is_granted('IS_AUTHENTICATED_FULLY') %}
+        <section class="container pb-5 mb-3" style="max-width: 1180px;">
+            <div class="cta-section py-5 px-4 px-md-5">
+
+                {# Icône watermark décorative #}
+                <div class="cta-watermark">
+                    <i class="fas fa-file-contract"></i>
+                </div>
+
+                <div class="text-center position-relative" style="z-index: 1;">
+                    <p class="cta-label mb-3">✦ &nbsp;Conventio&nbsp; ✦</p>
+                    <h2 class="h3 fw-bold text-white mb-3">
+                        Prêt à simplifier vos stages ?
+                    </h2>
+                    <p class="text-white mb-4" style="opacity: 0.7; max-width: 380px; margin-inline: auto; font-size: 0.95rem;">
+                        Créez votre première convention en moins de 5 minutes, gratuitement.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 justify-content-center">
+                        <a href="{{ path('app_register_student') }}" class="btn btn-light fw-bold text-primary px-4">
+                            <i class="fas fa-user-graduate me-2"></i>Je suis Étudiant
+                        </a>
+                        <a href="{{ path('app_register_professor') }}" class="btn btn-outline-light px-4">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>Je suis Professeur
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    {% endif %}
+
 {% endblock %}
