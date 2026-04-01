@@ -104,9 +104,9 @@ final class StudentController extends AbstractController
         $startDate = null;
         $endDate = null;
 
-        foreach ($contract->getContractDates() as $contractDate) {
-            $currentStartDate = $contractDate->getStartDate();
-            $currentEndDate = $contractDate->getEndDate();
+        foreach ($contract->getInternshipDates() as $internshipDate) {
+            $currentStartDate = $internshipDate->getStartDate();
+            $currentEndDate = $internshipDate->getEndDate();
 
             if ($currentStartDate && ($startDate === null || $currentStartDate < $startDate)) {
                 $startDate = $currentStartDate;

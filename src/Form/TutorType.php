@@ -2,9 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\Session;
 use App\Entity\Tutor;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -21,11 +19,6 @@ class TutorType extends AbstractType
             ->add('firstname', null, ['label' => 'Prénom'])
             ->add('telMobile')
             ->add('telOther')
-            ->add('sessions', EntityType::class, [
-                'class' => Session::class,
-                'choice_label' => 'id',
-                'multiple' => true,
-            ])
         ;
     }
 

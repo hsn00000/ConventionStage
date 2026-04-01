@@ -8,8 +8,7 @@ use App\Entity\Student;
 use App\Entity\Tutor;
 use App\Entity\User;
 use App\Form\InitiateContractType;
-use App\Repository\SessionRepository;
-use App\Service\SessionService;
+use App\Repository\InternshipScheduleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,8 +29,7 @@ class StudentContractController extends AbstractController
         EntityManagerInterface $em,
         MailerInterface $mailer,
         UserPasswordHasherInterface $passwordHasher,
-        SessionRepository $sessionRepository,
-        SessionService $sessionService,
+        InternshipScheduleRepository $internshipScheduleRepository,
     ): Response
     {
         /** @var Student $student */
@@ -39,27 +37,27 @@ class StudentContractController extends AbstractController
         $level = $student?->getLevel();
 
         if (!$level) {
-            $this->addFlash('error', 'Aucune classe n est rattachee a votre compte. Impossible de vous proposer une campagne.');
+            $this->addFlash('error', 'Aucune classe n est rattachee a votre compte. Impossible de vous proposer un planning.');
 
             return $this->redirectToRoute('app_student_show', ['id' => $student->getId()]);
         }
 
-        $campaigns = $sessionRepository->findActiveForLevel($level);
+        $internshipSchedules = $internshipScheduleRepository->findActiveForLevel($level);
 
-        if ($campaigns === []) {
-            $this->addFlash('error', 'Aucune campagne de stage active n est ouverte pour votre classe. Veuillez contacter la DDF.');
+        if ($internshipSchedules === []) {
+            $this->addFlash('error', 'Aucun planning de stage actif n est ouvert pour votre classe. Veuillez contacter la DDF.');
 
             return $this->redirectToRoute('app_student_show', ['id' => $student->getId()]);
         }
 
         $form = $this->createForm(InitiateContractType::class, null, [
-            'campaign_choices' => $campaigns,
+            'internship_schedule_choices' => $internshipSchedules,
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            $campaign = $data['campaign'];
+            $internshipSchedule = $data['internshipSchedule'];
 
             // --- 1. Gestion du Tuteur ---
             $tutorEmail = $data['tutorEmail'];
@@ -107,7 +105,7 @@ class StudentContractController extends AbstractController
             $contract->setTutor($tutor);
             $contract->setOrganisation($org);
             $contract->setStatus(Contract::STATUS_COLLECTION_SENT);
-            $contract->setSession($campaign);
+            $contract->setInternshipSchedule($internshipSchedule);
 
             $contract->setDeplacement(false);
             $contract->setTransportFreeTaken(false);
@@ -144,8 +142,6 @@ class StudentContractController extends AbstractController
             $contract->setCoordinator($coordinator);
             // -------------------------------------------------------------
 
-            $sessionService->applySessionToContract($campaign, $contract);
-
             $em->persist($contract);
             $em->flush();
 
@@ -169,7 +165,6 @@ class StudentContractController extends AbstractController
 
         return $this->render('student_contract/init.html.twig', [
             'form' => $form->createView(),
-            'campaigns' => $campaigns,
         ]);
     }
 

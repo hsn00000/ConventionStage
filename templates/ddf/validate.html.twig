@@ -20,6 +20,13 @@
                     La DDF relit ici la convention avant de valider les informations. Une fois validée, la convention pourra être générée puis envoyée à la signature.
                 </div>
 
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                    <a href="{{ path('app_ddf_contract_preview_pdf', {'id': contract.id}) }}" target="_blank" class="btn btn-outline-primary rounded-pill px-4">
+                        <i class="ph ph-file-pdf me-1"></i>Prévisualiser le PDF
+                    </a>
+                    <span class="text-muted small align-self-center">Cet aperçu n'effectue aucune validation.</span>
+                </div>
+
                 <div class="row g-4 mb-4">
                     <div class="col-lg-6">
                         <div class="border rounded-4 p-4 h-100 bg-light">
@@ -81,11 +88,11 @@
 
                 <div class="border rounded-4 p-4 mb-4">
                     <h2 class="h6 text-uppercase text-muted mb-3">Periodes de stage</h2>
-                    {% if contract.contractDates is empty %}
+                    {% if contract.internshipDates is empty %}
                         <p class="mb-0 text-muted">Aucune periode renseignee.</p>
                     {% else %}
                         <div class="row g-3">
-                            {% for period in contract.contractDates %}
+                            {% for period in contract.internshipDates %}
                                 <div class="col-md-6 col-xl-4">
                                     <div class="bg-light rounded-3 p-3 h-100">
                                         <p class="mb-1 fw-semibold">Periode {{ loop.index }}</p>

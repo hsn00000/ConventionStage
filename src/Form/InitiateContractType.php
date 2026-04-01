@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\Session;
+use App\Entity\InternshipSchedule;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -16,23 +16,23 @@ class InitiateContractType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('campaign', EntityType::class, [
-                'class' => Session::class,
-                'choices' => $options['campaign_choices'],
-                'choice_label' => static function (Session $campaign): string {
-                    $levelName = $campaign->getLevel()?->getLevelName() ?? 'Classe non renseignée';
-                    $periods = $campaign->getPeriodsLabel();
+            ->add('internshipSchedule', EntityType::class, [
+                'class' => InternshipSchedule::class,
+                'choices' => $options['internship_schedule_choices'],
+                'choice_label' => static function (InternshipSchedule $internshipSchedule): string {
+                    $levelName = $internshipSchedule->getLevel()?->getLevelName() ?? 'Classe non renseignée';
+                    $periods = $internshipSchedule->getPeriodsLabel();
 
                     if ($periods === '') {
-                        return sprintf('%s - %s', $campaign->getName(), $levelName);
+                        return sprintf('%s - %s', $internshipSchedule->getName(), $levelName);
                     }
 
-                    return sprintf('%s - %s (%s)', $campaign->getName(), $levelName, $periods);
+                    return sprintf('%s - %s (%s)', $internshipSchedule->getName(), $levelName, $periods);
                 },
-                'label' => 'Campagne de stage',
-                'placeholder' => 'Choisissez une campagne',
-                'help' => 'La période de stage est définie par la DDF pour votre classe.',
-                'constraints' => [new NotBlank(['message' => 'Veuillez sélectionner une campagne de stage.'])],
+                'label' => 'Planning de stage',
+                'placeholder' => 'Choisissez un planning',
+                'help' => 'Les périodes sont définies par la DDF pour votre classe.',
+                'constraints' => [new NotBlank(['message' => 'Veuillez sélectionner un planning de stage.'])],
             ])
             ->add('companyName', TextType::class, [
                 'label' => 'Nom de l\'entreprise (pour référence)',
@@ -51,8 +51,8 @@ class InitiateContractType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'campaign_choices' => [],
+            'internship_schedule_choices' => [],
         ]);
-        $resolver->setAllowedTypes('campaign_choices', 'array');
+        $resolver->setAllowedTypes('internship_schedule_choices', 'array');
     }
 }

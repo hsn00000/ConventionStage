@@ -93,18 +93,10 @@ class Contract
 
     #[ORM\ManyToOne(inversedBy: 'contracts')]
     #[ORM\JoinColumn(name: 'stage_campaign_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
-    private ?Session $session = null;
-
-    /**
-     * @var Collection<int, ContractDate>
-     */
-    #[ORM\OneToMany(targetEntity: ContractDate::class, mappedBy: 'contract')]
-    private Collection $contractDates;
+    private ?InternshipSchedule $internshipSchedule = null;
 
     public function __construct()
     {
-        $this->contractDates = new ArrayCollection();
-
         // --- INITIALISATION DU TABLEAU D'HORAIRES ---
         // Cela permet d'avoir la structure prête pour le formulaire
         $this->workHours = [
@@ -428,42 +420,36 @@ class Contract
         return $this;
     }
 
-    /**
-     * @return Collection<int, ContractDate>
-     */
-    public function getContractDates(): Collection
+    public function getInternshipSchedule(): ?InternshipSchedule
     {
-        return $this->contractDates;
+        return $this->internshipSchedule;
     }
 
-    public function addContractDate(ContractDate $contractDate): static
+    public function setInternshipSchedule(?InternshipSchedule $internshipSchedule): static
     {
-        if (!$this->contractDates->contains($contractDate)) {
-            $this->contractDates->add($contractDate);
-            $contractDate->setContract($this);
+        $this->internshipSchedule = $internshipSchedule;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, InternshipDate>
+     */
+    public function getInternshipDates(): Collection
+    {
+        if ($this->internshipSchedule instanceof InternshipSchedule) {
+            return $this->internshipSchedule->getInternshipDates();
         }
 
-        return $this;
-    }
-
-    public function getSession(): ?Session
-    {
-        return $this->session;
-    }
-
-    public function setSession(?Session $session): static
-    {
-        $this->session = $session;
-
-        return $this;
+        return new ArrayCollection();
     }
 
     public function getStageStartDate(): ?\DateTimeInterface
     {
         $startDate = null;
 
-        foreach ($this->contractDates as $contractDate) {
-            $currentStartDate = $contractDate->getStartDate();
+        foreach ($this->getInternshipDates() as $internshipDate) {
+            $currentStartDate = $internshipDate->getStartDate();
 
             if ($currentStartDate && ($startDate === null || $currentStartDate < $startDate)) {
                 $startDate = $currentStartDate;
@@ -477,8 +463,8 @@ class Contract
     {
         $endDate = null;
 
-        foreach ($this->contractDates as $contractDate) {
-            $currentEndDate = $contractDate->getEndDate();
+        foreach ($this->getInternshipDates() as $internshipDate) {
+            $currentEndDate = $internshipDate->getEndDate();
 
             if ($currentEndDate && ($endDate === null || $currentEndDate > $endDate)) {
                 $endDate = $currentEndDate;
@@ -486,18 +472,6 @@ class Contract
         }
 
         return $endDate;
-    }
-
-    public function removeContractDate(ContractDate $contractDate): static
-    {
-        if ($this->contractDates->removeElement($contractDate)) {
-            // set the owning side to null (unless already changed)
-            if ($contractDate->getContract() === $this) {
-                $contractDate->setContract(null);
-            }
-        }
-
-        return $this;
     }
 
     public function getBonusAmount(): ?float

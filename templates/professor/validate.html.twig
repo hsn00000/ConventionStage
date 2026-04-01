@@ -306,11 +306,11 @@
                     <h2>Périodes de stage</h2>
                 </div>
                 <div class="info-card-body">
-                    {% if contract.contractDates is empty %}
+                    {% if contract.internshipDates is empty %}
                         <p class="text-muted" style="font-size:0.875rem;margin:0;">Aucune période renseignée.</p>
                     {% else %}
                         <div class="row g-3">
-                            {% for period in contract.contractDates %}
+                            {% for period in contract.internshipDates %}
                                 <div class="col-md-4 col-sm-6">
                                     <div class="period-chip">
                                         <div class="p-label">Période {{ loop.index }}</div>

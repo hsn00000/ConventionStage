@@ -2,13 +2,13 @@
 
 namespace App\Form;
 
-use App\Entity\SessionDate;
+use App\Entity\InternshipDate;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class SessionDateType extends AbstractType
+class InternshipDateType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -26,7 +26,7 @@ class SessionDateType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => SessionDate::class,
+            'data_class' => InternshipDate::class,
         ]);
     }
 }

@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\SessionDateRepository;
+use App\Repository\InternshipDateRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: SessionDateRepository::class)]
+#[ORM\Entity(repositoryClass: InternshipDateRepository::class)]
 #[ORM\Table(name: 'stage_campaign_period')]
-class SessionDate
+class InternshipDate
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -21,9 +21,9 @@ class SessionDate
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTime $endDate = null;
 
-    #[ORM\ManyToOne(inversedBy: 'sessionDates')]
+    #[ORM\ManyToOne(inversedBy: 'internshipDates')]
     #[ORM\JoinColumn(name: 'campaign_id', referencedColumnName: 'id', nullable: false)]
-    private ?Session $session = null;
+    private ?InternshipSchedule $internshipSchedule = null;
 
     public function getId(): ?int
     {
@@ -54,14 +54,14 @@ class SessionDate
         return $this;
     }
 
-    public function getSession(): ?Session
+    public function getInternshipSchedule(): ?InternshipSchedule
     {
-        return $this->session;
+        return $this->internshipSchedule;
     }
 
-    public function setSession(?Session $session): static
+    public function setInternshipSchedule(?InternshipSchedule $internshipSchedule): static
     {
-        $this->session = $session;
+        $this->internshipSchedule = $internshipSchedule;
 
         return $this;
     }

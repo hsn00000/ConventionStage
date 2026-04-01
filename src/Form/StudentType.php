@@ -4,7 +4,6 @@ namespace App\Form;
 
 use App\Entity\Level;
 use App\Entity\Professor;
-use App\Entity\Session;
 use App\Entity\Student;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -40,14 +39,6 @@ class StudentType extends AbstractType
             ->add('profReferent', EntityType::class, [
                 'class' => Professor::class,
                 'placeholder' => 'Choisir un professeur référent',
-            ])
-            ->add('sessions', EntityType::class, [
-                'required' => false,
-                'class' => Session::class,
-                'choice_label' => 'name',
-                'multiple' => true,
-                'expanded' => false,
-                'by_reference' => false,
             ])
         ;
     }

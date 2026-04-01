@@ -178,11 +178,11 @@
             <div class="col-md-7">
                 <div class="init-form-panel">
                     <h1><i class="ph ph-buildings me-2" style="color:#0d6efd;"></i>Nouvelle convention</h1>
-                    <p class="subtitle">Choisissez votre campagne de stage, puis indiquez l'entreprise et le mail du tuteur.</p>
+                    <p class="subtitle">Choisissez votre planning de stage, puis indiquez l'entreprise et le mail du tuteur.</p>
 
                     <div class="info-box">
                         <i class="ph ph-info"></i>
-                        <span>La période de stage est pilotée par la DDF pour votre classe. Vous ne choisissez ici que la campagne ouverte qui vous concerne.</span>
+                        <span>La DDF définit les dates par classe. Vous choisissez ici le planning actif qui vous concerne.</span>
                     </div>
 
                     {% if form.vars.errors|length > 0 %}
@@ -194,9 +194,9 @@
                     {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 
                     <div class="field-group">
-                        {{ form_label(form.campaign) }}
-                        {{ form_widget(form.campaign, {'attr': {'class': 'form-control'}}) }}
-                        {{ form_errors(form.campaign) }}
+                        {{ form_label(form.internshipSchedule) }}
+                        {{ form_widget(form.internshipSchedule, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.internshipSchedule) }}
                     </div>
 
                     <div class="field-group">

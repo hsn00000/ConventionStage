@@ -1,281 +1,17 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ campaign.id ? 'Modifier la campagne' : 'Nouvelle campagne' }}{% endblock %}
+{% block title %}{{ campaign.id ? 'Modifier le planning' : 'Nouveau planning' }}{% endblock %}
 
 {% block content %}
 <style>
-    .campaign-form-shell {
-        max-width: 980px;
-        margin: 0 auto;
-    }
-    .campaign-form-card {
-        background: #fff;
-        border: 1px solid rgba(0,0,0,0.06);
-        border-radius: 16px;
-        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
-        overflow: hidden;
-    }
-    .campaign-form-hero {
-        background: linear-gradient(135deg, #14532d 0%, #22c55e 100%);
-        color: #fff;
-        padding: 2rem 2.25rem;
-        position: relative;
-        overflow: hidden;
-    }
-    .campaign-form-hero::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background-image: radial-gradient(rgba(255,255,255,0.16) 1px, transparent 1px);
-        background-size: 20px 20px;
-        pointer-events: none;
-    }
-    .campaign-form-hero > * {
-        position: relative;
-        z-index: 1;
-    }
-    .campaign-form-hero h1 {
-        font-weight: 800;
-        letter-spacing: -0.03em;
-    }
-    .campaign-form-body {
-        padding: 2rem 2.25rem 2.25rem;
-        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    }
-    .campaign-section {
-        background: #fff;
-        border: 1px solid rgba(0,0,0,0.06);
-        border-radius: 16px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-    .campaign-section-title {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-    .campaign-section-title h2 {
-        font-size: 1rem;
-        font-weight: 700;
-        margin: 0;
-        color: #1f2937;
-    }
-    .campaign-section-title p {
-        margin: 0.35rem 0 0;
-        color: #6b7280;
-        font-size: 0.88rem;
-    }
-    .section-heading {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    .section-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #22c55e;
-        flex-shrink: 0;
-        box-shadow: 0 0 0 6px rgba(34,197,94,0.14);
-    }
-    .field-card {
-        height: 100%;
-        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-        border: 1px solid rgba(15,23,42,0.08);
-        border-radius: 16px;
-        padding: 1rem 1rem 0.9rem;
-        box-shadow: 0 8px 24px rgba(15,23,42,0.04);
-    }
-    .field-label {
-        display: flex;
-        align-items: center;
-        gap: 0.55rem;
-        margin-bottom: 0.65rem;
-        font-size: 0.92rem;
-        font-weight: 700;
-        color: #1f2937;
-    }
-    .field-label i {
-        width: 32px;
-        height: 32px;
-        border-radius: 10px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(13,110,253,0.10);
-        color: #0d6efd;
-        font-size: 1rem;
-    }
-    .field-help {
-        margin-top: 0.55rem;
-        font-size: 0.8rem;
-        color: #6b7280;
-    }
-    .toggle-card {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        padding: 1rem 1.1rem;
-    }
-    .toggle-copy strong {
-        display: block;
-        color: #1f2937;
-        font-size: 0.95rem;
-    }
-    .toggle-copy span {
-        display: block;
-        margin-top: 0.2rem;
-        font-size: 0.82rem;
-        color: #6b7280;
-    }
-    .toggle-card .form-check {
-        margin: 0;
-        min-height: auto;
-        background: transparent;
-        border: none;
-        padding: 0;
-    }
-    .toggle-card .form-check-input {
-        width: 3rem;
-        height: 1.6rem;
-        cursor: pointer;
-    }
-    .period-row {
-        border: 1px solid rgba(13,110,253,0.12);
-        border-radius: 14px;
-        padding: 1rem;
-        margin-bottom: 0.85rem;
-        background: #fff;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
-    }
-    .period-row:last-child {
-        margin-bottom: 0;
-    }
-    .period-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 110px;
-        gap: 1rem;
-        align-items: end;
-    }
-    .period-meta {
-        display: flex;
-        align-items: center;
-        gap: 0.45rem;
-        margin-bottom: 0.8rem;
-        font-size: 0.82rem;
-        font-weight: 700;
-        color: #0d6efd;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-    }
-    .period-meta i {
-        font-size: 1rem;
-    }
-    .campaign-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-        margin-top: 1.5rem;
-    }
-    .btn-hero-link {
-        background: rgba(255,255,255,0.16);
-        color: #fff;
-        border: 1px solid rgba(255,255,255,0.24);
-        border-radius: 999px;
-        padding: 0.55rem 1rem;
-        font-size: 0.85rem;
-        font-weight: 700;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        backdrop-filter: blur(6px);
-    }
-    .btn-hero-link:hover {
-        color: #fff;
-        background: rgba(255,255,255,0.22);
-    }
-    .btn-soft {
-        border-radius: 999px;
-        padding: 0.55rem 1rem;
-        font-size: 0.85rem;
-        font-weight: 700;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-    }
-    .btn-soft.btn-outline-primary {
-        border-color: rgba(13,110,253,0.25);
-        color: #0d6efd;
-        background: #fff;
-    }
-    .btn-soft.btn-outline-primary:hover {
-        background: rgba(13,110,253,0.06);
-        color: #0b5ed7;
-    }
-    .btn-soft.btn-primary {
-        border: none;
-        background: linear-gradient(135deg, #14532d 0%, #22c55e 100%);
-        box-shadow: 0 10px 24px rgba(34,197,94,0.22);
-    }
-    .btn-soft.btn-primary:hover {
-        background: linear-gradient(135deg, #166534 0%, #16a34a 100%);
-    }
-    .campaign-form-body .form-label {
-        font-weight: 600;
-        color: #374151;
-    }
-    .campaign-form-body .form-control,
-    .campaign-form-body .form-select {
-        border-radius: 12px;
-        border: 1px solid rgba(148,163,184,0.35);
-        background: #fff;
-        min-height: 50px;
-        padding: 0.8rem 0.95rem;
-        font-size: 0.95rem;
-        box-shadow: none;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-    }
-    .campaign-form-body .form-control:focus,
-    .campaign-form-body .form-select:focus {
-        border-color: rgba(13,110,253,0.45);
-        box-shadow: 0 0 0 0.2rem rgba(13,110,253,0.12);
-        transform: translateY(-1px);
-    }
-    .campaign-form-body .form-check {
-        background: #f8fafc;
-        border: 1px solid rgba(0,0,0,0.06);
-        border-radius: 14px;
-        padding: 0.9rem 1rem 0.9rem 2.5rem;
-    }
-    .campaign-form-body .invalid-feedback {
-        display: block;
-        margin-top: 0.45rem;
-        font-size: 0.8rem;
-    }
-    .campaign-form-body .form-errors {
-        margin-top: 0.8rem;
-        color: #b02a37;
-        font-size: 0.82rem;
-        font-weight: 600;
-    }
-    @media (max-width: 767px) {
-        .campaign-form-hero,
-        .campaign-form-body {
-            padding: 1.5rem;
-        }
-        .campaign-section {
-            padding: 1.1rem;
-        }
-        .period-grid {
-            grid-template-columns: 1fr;
-        }
-    }
+    .campaign-form-shell { max-width: 980px; margin: 0 auto; }
+    .campaign-form-card { background: #fff; border: 1px solid rgba(0,0,0,0.06); border-radius: 16px; box-shadow: 0 2px 16px rgba(0,0,0,0.06); overflow: hidden; }
+    .campaign-form-hero { background: linear-gradient(135deg, #14532d 0%, #22c55e 100%); color: #fff; padding: 2rem 2.25rem; position: relative; overflow: hidden; }
+    .campaign-form-hero::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,0.16) 1px, transparent 1px); background-size: 20px 20px; pointer-events: none; }
+    .campaign-form-hero > * { position: relative; z-index: 1; }
+    .campaign-form-body { padding: 2rem 2.25rem 2.25rem; background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); }
+    .campaign-section { background: #fff; border: 1px solid rgba(0,0,0,0.06); border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); padding: 1.5rem; margin-bottom: 1.5rem; }
+    .period-row { border: 1px solid rgba(13,110,253,0.12); border-radius: 14px; padding: 1rem; margin-bottom: 0.85rem; background: #fff; }
 </style>
 
 <main class="container py-5">
@@ -283,164 +19,39 @@
         <div class="campaign-form-card">
             <div class="campaign-form-hero d-flex justify-content-between align-items-start gap-3 flex-wrap">
                 <div>
-                    <h1 class="h3 mb-2"><i class="ph-bold ph-calendar-plus me-2"></i>{{ campaign.id ? 'Modifier la campagne' : 'Créer une campagne de stage' }}</h1>
-                    <p class="mb-0" style="opacity:0.85;">Définissez la classe concernée et une ou plusieurs périodes de stage.</p>
+                    <h1 class="h3 mb-2"><i class="ph-bold ph-calendar-plus me-2"></i>{{ campaign.id ? 'Modifier le planning' : 'Créer un planning de stage' }}</h1>
+                    <p class="mb-0" style="opacity:0.85;">Définissez la classe concernée et une ou plusieurs périodes de convention.</p>
                 </div>
-                <a href="{{ path('app_ddf_campaign_index') }}" class="btn-hero-link">
-                    <i class="ph ph-arrow-left"></i>Retour
-                </a>
+                <a href="{{ path('app_ddf_campaign_index') }}" class="btn btn-light btn-sm">Retour</a>
             </div>
 
             <div class="campaign-form-body">
                 {{ form_start(form) }}
 
                 <div class="campaign-section">
-                    <div class="campaign-section-title">
-                        <div class="section-heading">
-                            <span class="section-dot"></span>
-                            <div>
-                                <h2>Informations générales</h2>
-                                <p>Nom de campagne, classe concernée et statut d’activation.</p>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="row g-4">
-                        <div class="col-md-6">
-                            <div class="field-card">
-                                <label class="field-label" for="{{ form.name.vars.id }}">
-                                    <i class="ph ph-tag"></i>
-                                    <span>Nom de la campagne</span>
-                                </label>
-                                {{ form_widget(form.name, {
-                                    attr: {
-                                        class: 'form-control',
-                                        placeholder: 'Ex. PFMP Automne 2026'
-                                    }
-                                }) }}
-                                {{ form_errors(form.name) }}
-                                <div class="field-help">Utilisez un intitulé clair pour que la campagne soit identifiable partout dans l’administration.</div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="field-card">
-                                <label class="field-label" for="{{ form.level.vars.id }}">
-                                    <i class="ph ph-graduation-cap"></i>
-                                    <span>Classe concernée</span>
-                                </label>
-                                {{ form_widget(form.level, {
-                                    attr: {
-                                        class: 'form-select'
-                                    }
-                                }) }}
-                                {{ form_errors(form.level) }}
-                                <div class="field-help">Choisissez la classe à laquelle cette campagne de stage s’applique.</div>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="field-card toggle-card">
-                                <div class="toggle-copy">
-                                    <strong>Campagne active</strong>
-                                    <span>Une campagne active peut être proposée lors de l’initiation d’une convention.</span>
-                                </div>
-                                {{ form_widget(form.isActive, {
-                                    attr: {
-                                        class: 'form-check-input'
-                                    }
-                                }) }}
-                            </div>
-                            {{ form_errors(form.isActive) }}
-                        </div>
+                        <div class="col-md-6">{{ form_row(form.name) }}</div>
+                        <div class="col-md-6">{{ form_row(form.level) }}</div>
+                        <div class="col-12">{{ form_row(form.isActive) }}</div>
                     </div>
                 </div>
 
                 <div class="campaign-section">
-                    <div class="campaign-section-title">
-                        <div class="section-heading">
-                            <span class="section-dot" style="background:#0d6efd; box-shadow: 0 0 0 6px rgba(13,110,253,0.14);"></span>
-                            <div>
-                                <h2>Périodes de stage</h2>
-                                <p>Ajoutez plusieurs segments si le stage est interrompu par des vacances scolaires.</p>
-                            </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h2 class="h5 mb-1">Périodes de stage</h2>
+                            <p class="text-muted mb-0">Ajoutez plusieurs segments si le stage est interrompu.</p>
                         </div>
-                        <button type="button" class="btn btn-outline-primary btn-sm btn-soft" id="add-period">
-                            <i class="ph ph-plus"></i>Ajouter une période
-                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="add-period">Ajouter une période</button>
                     </div>
 
-                    {% set periodPrototype %}
-                        <div class="period-meta">
-                            <i class="ph ph-calendar-blank"></i>
-                            <span>Période</span>
-                        </div>
-                        <div class="period-grid">
-                            <div>
-                                <label class="field-label" for="{{ form.sessionDates.vars.prototype.startDate.vars.id }}">
-                                    <i class="ph ph-calendar-check"></i>
-                                    <span>Début</span>
-                                </label>
-                                {{ form_widget(form.sessionDates.vars.prototype.startDate, {
-                                    attr: {
-                                        class: 'form-control'
-                                    }
-                                }) }}
-                                {{ form_errors(form.sessionDates.vars.prototype.startDate) }}
-                            </div>
-                            <div>
-                                <label class="field-label" for="{{ form.sessionDates.vars.prototype.endDate.vars.id }}">
-                                    <i class="ph ph-calendar-x"></i>
-                                    <span>Fin</span>
-                                </label>
-                                {{ form_widget(form.sessionDates.vars.prototype.endDate, {
-                                    attr: {
-                                        class: 'form-control'
-                                    }
-                                }) }}
-                                {{ form_errors(form.sessionDates.vars.prototype.endDate) }}
-                            </div>
-                            <div>
-                                <button type="button" class="btn btn-outline-danger btn-sm w-100 remove-period">Supprimer</button>
-                            </div>
-                        </div>
-                    {% endset %}
-
-                    <div
-                        id="campaign-periods"
-                        data-prototype="{{ periodPrototype|e('html_attr') }}"
-                        data-index="{{ form.sessionDates|length }}"
-                    >
-                        {% for periodForm in form.sessionDates %}
+                    <div id="campaign-periods" data-prototype="{{ form_widget(form.internshipDates.vars.prototype)|e('html_attr') }}" data-index="{{ form.internshipDates|length }}">
+                        {% for periodForm in form.internshipDates %}
                             <div class="period-row">
-                                <div class="period-meta">
-                                    <i class="ph ph-calendar-blank"></i>
-                                    <span>Période {{ loop.index }}</span>
-                                </div>
-                                <div class="period-grid">
-                                    <div>
-                                        <label class="field-label" for="{{ periodForm.startDate.vars.id }}">
-                                            <i class="ph ph-calendar-check"></i>
-                                            <span>Début</span>
-                                        </label>
-                                        {{ form_widget(periodForm.startDate, {
-                                            attr: {
-                                                class: 'form-control'
-                                            }
-                                        }) }}
-                                        {{ form_errors(periodForm.startDate) }}
-                                    </div>
-                                    <div>
-                                        <label class="field-label" for="{{ periodForm.endDate.vars.id }}">
-                                            <i class="ph ph-calendar-x"></i>
-                                            <span>Fin</span>
-                                        </label>
-                                        {{ form_widget(periodForm.endDate, {
-                                            attr: {
-                                                class: 'form-control'
-                                            }
-                                        }) }}
-                                        {{ form_errors(periodForm.endDate) }}
-                                    </div>
-                                    <div>
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-5">{{ form_row(periodForm.startDate) }}</div>
+                                    <div class="col-md-5">{{ form_row(periodForm.endDate) }}</div>
+                                    <div class="col-md-2">
                                         <button type="button" class="btn btn-outline-danger btn-sm w-100 remove-period">Supprimer</button>
                                     </div>
                                 </div>
@@ -448,14 +59,12 @@
                         {% endfor %}
                     </div>
 
-                    <div class="form-errors">{{ form_errors(form.sessionDates) }}</div>
+                    {{ form_errors(form.internshipDates) }}
                 </div>
 
-                <div class="campaign-actions">
-                    <a href="{{ path('app_ddf_campaign_index') }}" class="btn btn-outline-secondary btn-soft">Annuler</a>
-                    <button type="submit" class="btn btn-primary btn-soft">
-                        <i class="ph ph-check-circle"></i>{{ campaign.id ? 'Enregistrer' : 'Créer la campagne' }}
-                    </button>
+                <div class="mt-4 d-flex justify-content-end gap-2">
+                    <a href="{{ path('app_ddf_campaign_index') }}" class="btn btn-outline-secondary">Annuler</a>
+                    <button type="submit" class="btn btn-primary">{{ campaign.id ? 'Enregistrer' : 'Créer le planning' }}</button>
                 </div>
 
                 {{ form_end(form) }}
@@ -489,8 +98,7 @@
             const row = document.createElement('div');
             row.className = 'row g-3 align-items-end';
 
-            const children = Array.from(wrapper.children);
-            children.forEach((child) => {
+            Array.from(wrapper.children).forEach((child) => {
                 const column = document.createElement('div');
                 column.className = 'col-md-5';
                 column.appendChild(child);

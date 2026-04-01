@@ -73,6 +73,23 @@ class DdfController extends AbstractController
         return $this->redirectToRoute('app_ddf_contract_index');
     }
 
+    #[Route('/{id}/preview-pdf', name: 'app_ddf_contract_preview_pdf', methods: ['GET'])]
+    public function previewPdf(
+        Contract $contract,
+        ContractPdfService $contractPdfService,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        try {
+            $pdfPath = $contractPdfService->generateUnsignedPdf($contract);
+            $contract->setPdfUnsigned($pdfPath);
+            $entityManager->flush();
+        } catch (\Throwable $exception) {
+            throw $this->createNotFoundException('Impossible de generer le PDF de previsualisation : ' . $exception->getMessage());
+        }
+
+        return $this->buildInlinePdfResponse($pdfPath);
+    }
+
     #[Route('/{id}/validate', name: 'app_ddf_contract_validate', methods: ['GET', 'POST'])]
     public function validate(
         Contract $contract,
@@ -157,6 +174,11 @@ class DdfController extends AbstractController
             throw $this->createNotFoundException('Le PDF de cette convention n a pas encore ete genere.');
         }
 
+        return $this->buildInlinePdfResponse($pdfPath);
+    }
+
+    private function buildInlinePdfResponse(string $pdfPath): BinaryFileResponse
+    {
         return (new BinaryFileResponse($pdfPath))
             ->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE, basename($pdfPath));
     }

@@ -234,27 +234,27 @@
                     <div class="ch-icon" style="background:rgba(13,110,253,0.1);color:#0d6efd;">
                         <i class="ph ph-calendar-blank"></i>
                     </div>
-                    <h2>Campagne et périodes de stage</h2>
+                    <h2>Périodes de stage</h2>
                 </div>
                 <div class="cv-card-body">
                     <div class="info-grid">
-                        {% if contract.session %}
+                        {% if contract.internshipSchedule %}
                             <div class="info-item">
-                                <div class="info-label">Campagne</div>
-                                <div class="info-value">{{ contract.session.name }}</div>
+                                <div class="info-label">Planning</div>
+                                <div class="info-value">{{ contract.internshipSchedule.name }}</div>
                             </div>
                             <div class="info-item">
                                 <div class="info-label">Classe</div>
-                                <div class="info-value muted">{{ contract.session.level ? contract.session.level.levelName : 'Non renseignée' }}</div>
+                                <div class="info-value muted">{{ contract.internshipSchedule.level ? contract.internshipSchedule.level.levelName : 'Non renseignée' }}</div>
                             </div>
                         {% endif %}
                         <div class="info-item" style="grid-column:1/-1;">
                             <div class="info-label">Périodes retenues</div>
                             <div class="info-value muted">
-                                {% if contract.contractDates is empty %}
+                                {% if contract.internshipDates is empty %}
                                     Aucune période de stage n'est rattachée à cette convention.
                                 {% else %}
-                                    {% for period in contract.contractDates %}
+                                    {% for period in contract.internshipDates %}
                                         Du {{ period.startDate|date('d/m/Y') }} au {{ period.endDate|date('d/m/Y') }}{% if not loop.last %} ; {% endif %}
                                     {% endfor %}
                                 {% endif %}

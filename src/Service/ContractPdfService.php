@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Contract;
-use App\Entity\ContractDate;
+use App\Entity\InternshipDate;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Mime\Part\DataPart;
@@ -230,15 +230,15 @@ class ContractPdfService
     {
         $parts = [];
 
-        foreach ($contract->getContractDates()->toArray() as $contractDate) {
-            if (!$contractDate instanceof ContractDate || !$contractDate->getStartDate() || !$contractDate->getEndDate()) {
+        foreach ($contract->getInternshipDates()->toArray() as $internshipDate) {
+            if (!$internshipDate instanceof InternshipDate || !$internshipDate->getStartDate() || !$internshipDate->getEndDate()) {
                 continue;
             }
 
             $parts[] = sprintf(
                 'du %s au %s',
-                $contractDate->getStartDate()->format('d/m/Y'),
-                $contractDate->getEndDate()->format('d/m/Y')
+                $internshipDate->getStartDate()->format('d/m/Y'),
+                $internshipDate->getEndDate()->format('d/m/Y')
             );
         }
 
@@ -269,12 +269,12 @@ class ContractPdfService
     {
         $days = 0;
 
-        foreach ($contract->getContractDates()->toArray() as $contractDate) {
-            if (!$contractDate instanceof ContractDate || !$contractDate->getStartDate() || !$contractDate->getEndDate()) {
+        foreach ($contract->getInternshipDates()->toArray() as $internshipDate) {
+            if (!$internshipDate instanceof InternshipDate || !$internshipDate->getStartDate() || !$internshipDate->getEndDate()) {
                 continue;
             }
 
-            $interval = $contractDate->getStartDate()->diff($contractDate->getEndDate());
+            $interval = $internshipDate->getStartDate()->diff($internshipDate->getEndDate());
             $days += $interval->days + 1;
         }
 

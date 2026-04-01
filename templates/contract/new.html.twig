@@ -27,17 +27,6 @@
                             {% endif %}
                         </p>
 
-                        {% if contract is defined and contract.session %}
-                            <div class="alert alert-info border-0 rounded-4 mb-4">
-                                <strong>Campagne :</strong> {{ contract.session.name }}<br>
-                                <strong>Classe :</strong> {{ contract.session.level ? contract.session.level.levelName : 'Non renseignée' }}<br>
-                                <strong>Périodes définies par la DDF :</strong>
-                                {% for period in contract.contractDates %}
-                                    {{ period.startDate|date('d/m/Y') }} au {{ period.endDate|date('d/m/Y') }}{% if not loop.last %} ; {% endif %}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-
                         {{ form_start(form) }}
 
                         {# --- SECTION 1 : ENTREPRISE --- #}
@@ -55,6 +44,22 @@
                         <h5 class="text-secondary border-bottom pb-2 mb-3">🎓 Le Stage</h5>
                         <div class="mb-3">
                             {{ form_row(form.plannedActivities, {'attr': {'class': 'form-control', 'rows': 3}}) }}
+                        </div>
+
+                        <h5 class="text-secondary border-bottom pb-2 mb-3">🗓️ Périodes de stage</h5>
+                        <div class="alert alert-info border-0 rounded-4 mb-4">
+                            {% if contract.internshipSchedule %}
+                                <strong>Planning :</strong> {{ contract.internshipSchedule.name }}<br>
+                                <strong>Classe :</strong> {{ contract.internshipSchedule.level ? contract.internshipSchedule.level.levelName : 'Non renseignée' }}<br>
+                            {% endif %}
+                            <strong>Périodes définies par la DDF :</strong>
+                            {% if contract.internshipDates is empty %}
+                                Aucune période définie.
+                            {% else %}
+                                {% for period in contract.internshipDates %}
+                                    {{ period.startDate|date('d/m/Y') }} au {{ period.endDate|date('d/m/Y') }}{% if not loop.last %} ; {% endif %}
+                                {% endfor %}
+                            {% endif %}
                         </div>
 
                         {# --- SECTION 3 : HORAIRES (TABLEAU) --- #}

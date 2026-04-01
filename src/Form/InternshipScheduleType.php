@@ -2,8 +2,8 @@
 
 namespace App\Form;
 
+use App\Entity\InternshipSchedule;
 use App\Entity\Level;
-use App\Entity\Session;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -12,13 +12,13 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class SessionType extends AbstractType
+class InternshipScheduleType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('name', TextType::class, [
-                'label' => 'Nom de la campagne',
+                'label' => 'Nom du planning',
             ])
             ->add('level', EntityType::class, [
                 'class' => Level::class,
@@ -28,11 +28,11 @@ class SessionType extends AbstractType
                 'required' => false,
             ])
             ->add('isActive', CheckboxType::class, [
-                'label' => 'Campagne active',
+                'label' => 'Planning actif',
                 'required' => false,
             ])
-            ->add('sessionDates', CollectionType::class, [
-                'entry_type' => SessionDateType::class,
+            ->add('internshipDates', CollectionType::class, [
+                'entry_type' => InternshipDateType::class,
                 'label' => false,
                 'allow_add' => true,
                 'allow_delete' => true,
@@ -45,7 +45,7 @@ class SessionType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Session::class,
+            'data_class' => InternshipSchedule::class,
         ]);
     }
 }

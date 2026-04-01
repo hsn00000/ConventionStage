@@ -2,15 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\SessionRepository;
+use App\Repository\InternshipScheduleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity(repositoryClass: SessionRepository::class)]
+#[ORM\Entity(repositoryClass: InternshipScheduleRepository::class)]
 #[ORM\Table(name: 'stage_campaign')]
-class Session
+class InternshipSchedule
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -28,29 +28,21 @@ class Session
     private ?Level $level = null;
 
     /**
-     * @var Collection<int, User>
+     * @var Collection<int, InternshipDate>
      */
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'sessions')]
-    #[ORM\JoinTable(name: 'session_user')]
-    private Collection $users;
-
-    /**
-     * @var Collection<int, SessionDate>
-     */
-    #[Assert\Count(min: 1, minMessage: 'Ajoutez au moins une période à la session.')]
-    #[ORM\OneToMany(targetEntity: SessionDate::class, mappedBy: 'session', cascade: ['persist'], orphanRemoval: true)]
-    private Collection $sessionDates;
+    #[Assert\Count(min: 1, minMessage: 'Ajoutez au moins une période au planning.')]
+    #[ORM\OneToMany(targetEntity: InternshipDate::class, mappedBy: 'internshipSchedule', cascade: ['persist'], orphanRemoval: true)]
+    private Collection $internshipDates;
 
     /**
      * @var Collection<int, Contract>
      */
-    #[ORM\OneToMany(targetEntity: Contract::class, mappedBy: 'session')]
+    #[ORM\OneToMany(targetEntity: Contract::class, mappedBy: 'internshipSchedule')]
     private Collection $contracts;
 
     public function __construct()
     {
-        $this->users = new ArrayCollection();
-        $this->sessionDates = new ArrayCollection();
+        $this->internshipDates = new ArrayCollection();
         $this->contracts = new ArrayCollection();
     }
 
@@ -96,53 +88,28 @@ class Session
     }
 
     /**
-     * @return Collection<int, User>
+     * @return Collection<int, InternshipDate>
      */
-    public function getUsers(): Collection
+    public function getInternshipDates(): Collection
     {
-        return $this->users;
+        return $this->internshipDates;
     }
 
-    public function addUser(User $user): static
+    public function addInternshipDate(InternshipDate $internshipDate): static
     {
-        if (!$this->users->contains($user)) {
-            $this->users->add($user);
+        if (!$this->internshipDates->contains($internshipDate)) {
+            $this->internshipDates->add($internshipDate);
+            $internshipDate->setInternshipSchedule($this);
         }
 
         return $this;
     }
 
-    public function removeUser(User $user): static
+    public function removeInternshipDate(InternshipDate $internshipDate): static
     {
-        $this->users->removeElement($user);
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, SessionDate>
-     */
-    public function getSessionDates(): Collection
-    {
-        return $this->sessionDates;
-    }
-
-    public function addSessionDate(SessionDate $sessionDate): static
-    {
-        if (!$this->sessionDates->contains($sessionDate)) {
-            $this->sessionDates->add($sessionDate);
-            $sessionDate->setSession($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSessionDate(SessionDate $sessionDate): static
-    {
-        if ($this->sessionDates->removeElement($sessionDate)) {
-            // set the owning side to null (unless already changed)
-            if ($sessionDate->getSession() === $this) {
-                $sessionDate->setSession(null);
+        if ($this->internshipDates->removeElement($internshipDate)) {
+            if ($internshipDate->getInternshipSchedule() === $this) {
+                $internshipDate->setInternshipSchedule(null);
             }
         }
 
@@ -153,15 +120,15 @@ class Session
     {
         $labels = [];
 
-        foreach ($this->sessionDates as $sessionDate) {
-            if (!$sessionDate->getStartDate() || !$sessionDate->getEndDate()) {
+        foreach ($this->internshipDates as $internshipDate) {
+            if (!$internshipDate->getStartDate() || !$internshipDate->getEndDate()) {
                 continue;
             }
 
             $labels[] = sprintf(
                 '%s au %s',
-                $sessionDate->getStartDate()->format('d/m/Y'),
-                $sessionDate->getEndDate()->format('d/m/Y')
+                $internshipDate->getStartDate()->format('d/m/Y'),
+                $internshipDate->getEndDate()->format('d/m/Y')
             );
         }
 
@@ -180,7 +147,7 @@ class Session
     {
         if (!$this->contracts->contains($contract)) {
             $this->contracts->add($contract);
-            $contract->setSession($this);
+            $contract->setInternshipSchedule($this);
         }
 
         return $this;
@@ -189,8 +156,8 @@ class Session
     public function removeContract(Contract $contract): static
     {
         if ($this->contracts->removeElement($contract)) {
-            if ($contract->getSession() === $this) {
-                $contract->setSession(null);
+            if ($contract->getInternshipSchedule() === $this) {
+                $contract->setInternshipSchedule(null);
             }
         }
 
@@ -202,7 +169,7 @@ class Session
         $levelName = $this->level?->getLevelName();
 
         if ($levelName) {
-            return sprintf('%s - %s', $this->name ?? 'Session', $levelName);
+            return sprintf('%s - %s', $this->name ?? 'Planning', $levelName);
         }
 
         return (string) $this->name;
