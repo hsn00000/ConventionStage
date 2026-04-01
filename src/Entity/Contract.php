@@ -212,14 +212,94 @@ class Contract
 
     public function getWorkHours(): array
     {
-        return $this->workHours;
+        $normalizedWorkHours = [];
+
+        foreach ($this->workHours as $day => $schedule) {
+            if (!is_array($schedule)) {
+                $normalizedWorkHours[$day] = [
+                    'm_start' => null,
+                    'm_end' => null,
+                    'am_start' => null,
+                    'am_end' => null,
+                ];
+
+                continue;
+            }
+
+            $normalizedWorkHours[$day] = [
+                'm_start' => $this->normalizeWorkHourValue($schedule['m_start'] ?? null),
+                'm_end' => $this->normalizeWorkHourValue($schedule['m_end'] ?? null),
+                'am_start' => $this->normalizeWorkHourValue($schedule['am_start'] ?? null),
+                'am_end' => $this->normalizeWorkHourValue($schedule['am_end'] ?? null),
+            ];
+        }
+
+        return $normalizedWorkHours;
     }
 
     public function setWorkHours(array $workHours): static
     {
-        $this->workHours = $workHours;
+        $normalizedWorkHours = [];
+
+        foreach ($workHours as $day => $schedule) {
+            if (!is_array($schedule)) {
+                continue;
+            }
+
+            $normalizedWorkHours[$day] = [
+                'm_start' => $this->normalizeWorkHourValue($schedule['m_start'] ?? null),
+                'm_end' => $this->normalizeWorkHourValue($schedule['m_end'] ?? null),
+                'am_start' => $this->normalizeWorkHourValue($schedule['am_start'] ?? null),
+                'am_end' => $this->normalizeWorkHourValue($schedule['am_end'] ?? null),
+            ];
+        }
+
+        $this->workHours = $normalizedWorkHours;
 
         return $this;
+    }
+
+    private function normalizeWorkHourValue(mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('H:i');
+        }
+
+        if (is_array($value)) {
+            $dateValue = $value['date'] ?? null;
+            if (!is_string($dateValue) || trim($dateValue) === '') {
+                return null;
+            }
+
+            try {
+                return (new \DateTimeImmutable($dateValue))->format('H:i');
+            } catch (\Throwable) {
+                return null;
+            }
+        }
+
+        if (is_string($value)) {
+            $trimmedValue = trim($value);
+            if ($trimmedValue === '') {
+                return null;
+            }
+
+            if (preg_match('/^\d{2}:\d{2}$/', $trimmedValue) === 1) {
+                return $trimmedValue;
+            }
+
+            try {
+                return (new \DateTimeImmutable($trimmedValue))->format('H:i');
+            } catch (\Throwable) {
+                return $trimmedValue;
+            }
+        }
+
+        return null;
     }
 
     // -----------------------------------------------------

@@ -46,9 +46,18 @@
                                     <td>{{ contract.coordinator.firstname }} {{ contract.coordinator.lastname }}</td>
                                     <td>
                                         {% if contract.pdfUnsigned %}
-                                            <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn btn-outline-secondary btn-sm">Ouvrir le PDF</a>
+                                            <div class="d-flex gap-2 flex-wrap">
+                                                <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn btn-outline-secondary btn-sm">Voir le PDF</a>
+                                                <form method="post" action="{{ path('app_ddf_contract_generate_pdf', {'id': contract.id}) }}">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('ddf_generate_pdf_contract' ~ contract.id) }}">
+                                                    <button class="btn btn-outline-secondary btn-sm" type="submit">Regenerer</button>
+                                                </form>
+                                            </div>
                                         {% else %}
-                                            <span class="text-muted small">Genere a la validation</span>
+                                            <form method="post" action="{{ path('app_ddf_contract_generate_pdf', {'id': contract.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('ddf_generate_pdf_contract' ~ contract.id) }}">
+                                                <button class="btn btn-outline-secondary btn-sm" type="submit">Generer le PDF</button>
+                                            </form>
                                         {% endif %}
                                     </td>
                                     <td>
@@ -82,6 +91,8 @@
                                 <th>Etudiant</th>
                                 <th>Entreprise</th>
                                 <th>PDF</th>
+                                <th>Statut signature</th>
+                                <th>Il manque</th>
                                 <th>Signature request</th>
                                 <th>Document</th>
                                 <th>Action</th>
@@ -89,15 +100,55 @@
                             </thead>
                             <tbody>
                             {% for contract in signature_in_progress %}
+                                {% set signature_status = signature_statuses[contract.id] ?? null %}
                                 <tr>
                                     <td>{{ contract.id }}</td>
                                     <td>{{ contract.student.firstname }} {{ contract.student.lastname }}</td>
                                     <td>{{ contract.organisation.name }}</td>
                                     <td>
-                                        {% if contract.pdfUnsigned %}
-                                            <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn btn-outline-secondary btn-sm">Voir le PDF</a>
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            {% if contract.pdfUnsigned %}
+                                                <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn btn-outline-secondary btn-sm">Voir le PDF</a>
+                                            {% endif %}
+                                            <form method="post" action="{{ path('app_ddf_contract_generate_pdf', {'id': contract.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('ddf_generate_pdf_contract' ~ contract.id) }}">
+                                                <button class="btn btn-outline-secondary btn-sm" type="submit">
+                                                    {{ contract.pdfUnsigned ? 'Regenerer' : 'Generer le PDF' }}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if signature_status and signature_status.error is not defined %}
+                                            <div class="small mb-2">
+                                                <span class="fw-semibold">Demande :</span> {{ signature_status.request_status_label }}
+                                            </div>
+                                            <div class="small">
+                                                {% for signer in signature_status.signers %}
+                                                    <div class="mb-1">
+                                                        <span class="fw-semibold">{{ signer.role }} :</span>
+                                                        {{ signer.name ? signer.name : (signer.email ? signer.email : 'Inconnu') }}
+                                                        <span class="badge {{ signer.is_complete ? 'text-bg-success' : 'text-bg-warning' }}">{{ signer.status_label }}</span>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% elseif signature_status and signature_status.error is defined %}
+                                            <span class="text-danger small">{{ signature_status.error }}</span>
                                         {% else %}
-                                            <span class="text-muted small">N/A</span>
+                                            <span class="text-muted small">Indisponible</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if signature_status and signature_status.error is not defined %}
+                                            {% if signature_status.missing_signers is empty %}
+                                                <span class="text-success small">Personne</span>
+                                            {% else %}
+                                                <span class="text-warning small">{{ signature_status.missing_signers|join(', ') }}</span>
+                                            {% endif %}
+                                        {% elseif signature_status and signature_status.error is defined %}
+                                            <span class="text-muted small">Indetermine</span>
+                                        {% else %}
+                                            <span class="text-muted small">Indisponible</span>
                                         {% endif %}
                                     </td>
                                     <td><code>{{ contract.yousignSignatureRequestId ?: 'N/A' }}</code></td>

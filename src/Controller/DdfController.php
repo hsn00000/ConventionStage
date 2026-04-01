@@ -4,7 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Contract;
 use App\Repository\ContractRepository;
+use App\Service\ContractPdfService;
 use App\Service\ContractSignatureService;
+use App\Service\YouSignService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,13 +21,55 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class DdfController extends AbstractController
 {
     #[Route('', name: 'app_ddf_contract_index', methods: ['GET'])]
-    public function index(ContractRepository $contractRepository): Response
+    public function index(ContractRepository $contractRepository, YouSignService $youSignService): Response
     {
+        $signatureInProgress = $contractRepository->findSignatureInProgress();
+        $signatureStatuses = [];
+
+        foreach ($signatureInProgress as $contract) {
+            try {
+                $signatureStatuses[$contract->getId()] = $youSignService->buildSignatureStatusSummary($contract);
+            } catch (\Throwable $exception) {
+                $signatureStatuses[$contract->getId()] = [
+                    'request_status' => null,
+                    'request_status_label' => 'Indisponible',
+                    'signers' => [],
+                    'missing_signers' => [],
+                    'error' => $exception->getMessage(),
+                ];
+            }
+        }
+
         return $this->render('ddf/index.html.twig', [
             'contracts_to_validate' => $contractRepository->findPendingDdfValidation(),
-            'signature_in_progress' => $contractRepository->findSignatureInProgress(),
+            'signature_in_progress' => $signatureInProgress,
+            'signature_statuses' => $signatureStatuses,
             'signed_contracts' => $contractRepository->findSignedContracts(),
         ]);
+    }
+
+    #[Route('/{id}/generate-pdf', name: 'app_ddf_contract_generate_pdf', methods: ['POST'])]
+    public function generatePdf(
+        Contract $contract,
+        Request $request,
+        ContractPdfService $contractPdfService,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        if (!$this->isCsrfTokenValid('ddf_generate_pdf_contract' . $contract->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton CSRF invalide.');
+
+            return $this->redirectToRoute('app_ddf_contract_index');
+        }
+
+        try {
+            $contract->setPdfUnsigned($contractPdfService->generateUnsignedPdf($contract));
+            $entityManager->flush();
+            $this->addFlash('success', 'Le PDF de la convention a ete genere.');
+        } catch (\Throwable $exception) {
+            $this->addFlash('error', 'Impossible de generer le PDF : ' . $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_ddf_contract_index');
     }
 
     #[Route('/{id}/validate', name: 'app_ddf_contract_validate', methods: ['POST'])]

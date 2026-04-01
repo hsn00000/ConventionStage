@@ -28,11 +28,6 @@ class YouSignService
      */
     public function initiateSignatureRequest(Contract $contract, string $pdfPath): array
     {
-        $coordinator = $contract->getCoordinator();
-        if (!$coordinator?->getEmail()) {
-            throw new \RuntimeException('Le professeur referent doit avoir un email avant l envoi en signature.');
-        }
-
         $parameters = $this->parametersRepository->findCurrent();
         if (!$parameters?->getProvisorEmail() || !$parameters->getProvisorName()) {
             throw new \RuntimeException('Le proviseur doit etre renseigne dans les parametres avant l envoi en signature.');
@@ -51,12 +46,6 @@ class YouSignService
             'first_name' => $contract->getTutor()->getFirstname(),
             'last_name' => $contract->getTutor()->getLastname(),
             'email' => $contract->getTutor()->getEmail(),
-        ]);
-
-        $this->addSigner($signatureRequestId, [
-            'first_name' => $coordinator->getFirstname(),
-            'last_name' => $coordinator->getLastname(),
-            'email' => $coordinator->getEmail(),
         ]);
 
         [$provisorLastName, $provisorFirstName] = $this->splitFullName($parameters->getProvisorName());
@@ -90,6 +79,116 @@ class YouSignService
             $this->logger->error('YouSign Fetch Signature Request Error: ' . $e->getMessage());
             throw $e;
         }
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function listSignatureRequestSigners(string $signatureRequestId): array
+    {
+        try {
+            $response = $this->httpClient->request('GET', self::YOUSIGN_API_URL . '/signature_requests/' . $signatureRequestId . '/signers', [
+                'headers' => $this->jsonHeaders(),
+            ]);
+
+            if ($response->getStatusCode() !== 200) {
+                throw new \RuntimeException('Erreur YouSign lors de la recuperation des signataires : ' . $response->getContent(false));
+            }
+
+            $payload = $response->toArray();
+
+            return $this->extractCollection($payload);
+        } catch (\Throwable $e) {
+            $this->logger->error('YouSign List Signers Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * @return array{
+     *     request_status: ?string,
+     *     request_status_label: string,
+     *     signers: array<int, array{
+     *         role: string,
+     *         name: string,
+     *         email: ?string,
+     *         status: ?string,
+     *         status_label: string,
+     *         is_complete: bool
+     *     }>,
+     *     missing_signers: array<int, string>
+     * }
+     */
+    public function buildSignatureStatusSummary(Contract $contract): array
+    {
+        $requestStatus = null;
+        if ($contract->getYousignSignatureRequestId()) {
+            $requestStatus = $this->fetchSignatureRequest($contract->getYousignSignatureRequestId())['status'] ?? null;
+        }
+
+        $signers = [];
+        if ($contract->getYousignSignatureRequestId()) {
+            $signers = $this->listSignatureRequestSigners($contract->getYousignSignatureRequestId());
+        }
+
+        $indexedSigners = [];
+        foreach ($signers as $signer) {
+            $email = $this->normalizeEmail($signer['info']['email'] ?? null);
+            if ($email) {
+                $indexedSigners[$email] = $signer;
+            }
+        }
+
+        $expectedSigners = [
+            [
+                'role' => 'Etudiant',
+                'name' => trim(($contract->getStudent()?->getFirstname() ?? '') . ' ' . ($contract->getStudent()?->getLastname() ?? '')),
+                'email' => $contract->getStudent()?->getEmail(),
+            ],
+            [
+                'role' => 'Organisme',
+                'name' => trim(($contract->getTutor()?->getFirstname() ?? '') . ' ' . ($contract->getTutor()?->getLastname() ?? '')),
+                'email' => $contract->getTutor()?->getEmail(),
+            ],
+        ];
+
+        $parameters = $this->parametersRepository->findCurrent();
+        if ($parameters?->getProvisorName() || $parameters?->getProvisorEmail()) {
+            $expectedSigners[] = [
+                'role' => 'Proviseur',
+                'name' => (string) ($parameters?->getProvisorName() ?? ''),
+                'email' => $parameters?->getProvisorEmail(),
+            ];
+        }
+
+        $resolvedSigners = [];
+        $missingSigners = [];
+
+        foreach ($expectedSigners as $expectedSigner) {
+            $matchedSigner = $indexedSigners[$this->normalizeEmail($expectedSigner['email']) ?? ''] ?? null;
+            $status = is_array($matchedSigner) ? ($matchedSigner['status'] ?? null) : null;
+            $isComplete = $this->isSignerStatusComplete($status);
+
+            $resolvedSigners[] = [
+                'role' => $expectedSigner['role'],
+                'name' => $expectedSigner['name'],
+                'email' => $expectedSigner['email'],
+                'status' => $status,
+                'status_label' => $this->mapSignerStatusLabel($status),
+                'is_complete' => $isComplete,
+            ];
+
+            if (!$isComplete) {
+                $missingSigners[] = $expectedSigner['role'];
+            }
+        }
+
+        return [
+            'request_status' => $requestStatus,
+            'request_status_label' => $this->mapRequestStatusLabel($requestStatus),
+            'signers' => $resolvedSigners,
+            'missing_signers' => $missingSigners,
+        ];
     }
 
     public function downloadSignedDocument(string $signatureRequestId, string $documentId): string
@@ -242,6 +341,68 @@ class YouSignService
             'accept' => 'application/json',
             'content-type' => 'application/json',
         ]);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return array<int, array<string, mixed>>
+     */
+    private function extractCollection(array $payload): array
+    {
+        foreach (['data', 'items', 'results'] as $key) {
+            if (isset($payload[$key]) && is_array($payload[$key])) {
+                return array_values(array_filter($payload[$key], 'is_array'));
+            }
+        }
+
+        if (array_is_list($payload)) {
+            return array_values(array_filter($payload, 'is_array'));
+        }
+
+        return [];
+    }
+
+    private function normalizeEmail(?string $email): ?string
+    {
+        if (!$email) {
+            return null;
+        }
+
+        return mb_strtolower(trim($email));
+    }
+
+    private function isSignerStatusComplete(?string $status): bool
+    {
+        return in_array($status, ['done', 'signed', 'approved'], true);
+    }
+
+    private function mapSignerStatusLabel(?string $status): string
+    {
+        return match ($status) {
+            'done', 'signed', 'approved' => 'Signe',
+            'declined' => 'Refuse',
+            'expired' => 'Expire',
+            'error', 'blocked' => 'Bloque',
+            'notified' => 'Notifie',
+            'initiated' => 'En attente',
+            null => 'Non envoye',
+            default => ucfirst(str_replace('_', ' ', $status)),
+        };
+    }
+
+    private function mapRequestStatusLabel(?string $status): string
+    {
+        return match ($status) {
+            'done' => 'Finalisee',
+            'approval' => 'En validation',
+            'ongoing' => 'En cours',
+            'expired' => 'Expiree',
+            'declined' => 'Refusee',
+            'draft' => 'Brouillon',
+            'deleted' => 'Supprimee',
+            null => 'Indisponible',
+            default => ucfirst(str_replace('_', ' ', $status)),
+        };
     }
 
     /**
