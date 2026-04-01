@@ -42,6 +42,7 @@ class DdfController extends AbstractController
 
         return $this->render('ddf/index.html.twig', [
             'contracts_to_validate' => $contractRepository->findPendingDdfValidation(),
+            'validated_contracts' => $contractRepository->findValidatedByDdf(),
             'signature_in_progress' => $signatureInProgress,
             'signature_statuses' => $signatureStatuses,
             'signed_contracts' => $contractRepository->findSignedContracts(),
@@ -85,8 +86,30 @@ class DdfController extends AbstractController
         }
 
         try {
-            $contractSignatureService->validateByDdfAndRequestSignature($contract);
-            $this->addFlash('success', 'Convention validee par la DDF, PDF genere et demande de signature envoyee.');
+            $contractSignatureService->validateByDdf($contract);
+            $this->addFlash('success', 'Les informations de la convention ont ete validees par la DDF.');
+        } catch (\Throwable $exception) {
+            $this->addFlash('error', 'Echec de la validation DDF : ' . $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_ddf_contract_index');
+    }
+
+    #[Route('/{id}/generate-and-send', name: 'app_ddf_contract_generate_and_send', methods: ['POST'])]
+    public function generateAndSend(
+        Contract $contract,
+        Request $request,
+        ContractSignatureService $contractSignatureService,
+    ): Response {
+        if (!$this->isCsrfTokenValid('ddf_generate_and_send_contract' . $contract->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton CSRF invalide.');
+
+            return $this->redirectToRoute('app_ddf_contract_index');
+        }
+
+        try {
+            $contractSignatureService->generatePdfAndRequestSignature($contract);
+            $this->addFlash('success', 'Convention generee puis envoyee a la signature. Le mail part d abord a l etudiant, puis a l organisme, puis a la proviseure.');
         } catch (\Throwable $exception) {
             $this->addFlash('error', 'Echec du traitement DDF: ' . $exception->getMessage());
         }

@@ -24,6 +24,12 @@ class ContractSignatureService
 
     public function validateByDdfAndRequestSignature(Contract $contract): void
     {
+        $this->validateByDdf($contract);
+        $this->generatePdfAndRequestSignature($contract);
+    }
+
+    public function validateByDdf(Contract $contract): void
+    {
         $workflow = $this->workflowRegistry->get($contract);
 
         if (!$workflow->can($contract, 'validate_by_ddf')) {
@@ -31,6 +37,16 @@ class ContractSignatureService
         }
 
         $workflow->apply($contract, 'validate_by_ddf');
+        $this->entityManager->flush();
+    }
+
+    public function generatePdfAndRequestSignature(Contract $contract): void
+    {
+        $workflow = $this->workflowRegistry->get($contract);
+
+        if ($contract->getStatus() !== Contract::STATUS_VALIDATED_BY_DDF) {
+            throw new \RuntimeException('La convention doit etre validee par la DDF avant generation et envoi en signature.');
+        }
 
         $pdfPath = $this->contractPdfService->generateUnsignedPdf($contract);
         $contract->setPdfUnsigned($pdfPath);

@@ -45,25 +45,61 @@
                                     <td>{{ contract.organisation.name }}</td>
                                     <td>{{ contract.coordinator.firstname }} {{ contract.coordinator.lastname }}</td>
                                     <td>
-                                        {% if contract.pdfUnsigned %}
-                                            <div class="d-flex gap-2 flex-wrap">
-                                                <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn btn-outline-secondary btn-sm">Voir le PDF</a>
-                                                <form method="post" action="{{ path('app_ddf_contract_generate_pdf', {'id': contract.id}) }}">
-                                                    <input type="hidden" name="_token" value="{{ csrf_token('ddf_generate_pdf_contract' ~ contract.id) }}">
-                                                    <button class="btn btn-outline-secondary btn-sm" type="submit">Regenerer</button>
-                                                </form>
-                                            </div>
-                                        {% else %}
-                                            <form method="post" action="{{ path('app_ddf_contract_generate_pdf', {'id': contract.id}) }}">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('ddf_generate_pdf_contract' ~ contract.id) }}">
-                                                <button class="btn btn-outline-secondary btn-sm" type="submit">Generer le PDF</button>
-                                            </form>
-                                        {% endif %}
+                                        <span class="text-muted small">Disponible apres validation DDF</span>
                                     </td>
                                     <td>
                                         <form method="post" action="{{ path('app_ddf_contract_validate', {'id': contract.id}) }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token('ddf_validate_contract' ~ contract.id) }}">
-                                            <button class="btn btn-primary btn-sm" type="submit">Valider et envoyer a signer</button>
+                                            <button class="btn btn-primary btn-sm" type="submit">Valider les informations</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h2 class="h5 mb-0">Conventions validees par la DDF</h2>
+            </div>
+            <div class="card-body p-0">
+                {% if validated_contracts is empty %}
+                    <div class="p-4 text-muted">Aucune convention validee en attente de generation.</div>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table mb-0 align-middle">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Etudiant</th>
+                                <th>Entreprise</th>
+                                <th>Professeur</th>
+                                <th>PDF</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for contract in validated_contracts %}
+                                <tr>
+                                    <td>{{ contract.id }}</td>
+                                    <td>{{ contract.student.firstname }} {{ contract.student.lastname }}</td>
+                                    <td>{{ contract.organisation.name }}</td>
+                                    <td>{{ contract.coordinator.firstname }} {{ contract.coordinator.lastname }}</td>
+                                    <td>
+                                        {% if contract.pdfUnsigned %}
+                                            <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn btn-outline-secondary btn-sm">Voir le PDF</a>
+                                        {% else %}
+                                            <span class="text-muted small">A generer</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="post" action="{{ path('app_ddf_contract_generate_and_send', {'id': contract.id}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('ddf_generate_and_send_contract' ~ contract.id) }}">
+                                            <button class="btn btn-primary btn-sm" type="submit">Generer et envoyer a signer</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -106,17 +142,11 @@
                                     <td>{{ contract.student.firstname }} {{ contract.student.lastname }}</td>
                                     <td>{{ contract.organisation.name }}</td>
                                     <td>
-                                        <div class="d-flex gap-2 flex-wrap">
-                                            {% if contract.pdfUnsigned %}
-                                                <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn btn-outline-secondary btn-sm">Voir le PDF</a>
-                                            {% endif %}
-                                            <form method="post" action="{{ path('app_ddf_contract_generate_pdf', {'id': contract.id}) }}">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('ddf_generate_pdf_contract' ~ contract.id) }}">
-                                                <button class="btn btn-outline-secondary btn-sm" type="submit">
-                                                    {{ contract.pdfUnsigned ? 'Regenerer' : 'Generer le PDF' }}
-                                                </button>
-                                            </form>
-                                        </div>
+                                        {% if contract.pdfUnsigned %}
+                                            <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn btn-outline-secondary btn-sm">Voir le PDF</a>
+                                        {% else %}
+                                            <span class="text-muted small">N/A</span>
+                                        {% endif %}
                                     </td>
                                     <td>
                                         {% if signature_status and signature_status.error is not defined %}

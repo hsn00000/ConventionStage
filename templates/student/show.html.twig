@@ -180,9 +180,15 @@
                                             {% endif %}
                                         </span>
                                         <div class="text-muted small">
-                                            {# ATTENTION : Les méthodes getStartDate et getEndDate doivent exister sur l'objet contract #}
-                                            Du {{ contract.startDate is defined and contract.startDate is not null ? contract.startDate|date('d/m/Y') : 'Date N/A' }}
-                                            au {{ contract.endDate is defined and contract.endDate is not null ? contract.endDate|date('d/m/Y') : 'Date N/A' }}
+                                            {% set contract_dates = contract.contractDates|default([]) %}
+                                            {% if contract_dates is not empty %}
+                                                {% set first_date = contract_dates|first %}
+                                                {% set last_date = contract_dates|last %}
+                                                Du {{ first_date.startDate ? first_date.startDate|date('d/m/Y') : 'Date N/A' }}
+                                                au {{ last_date.endDate ? last_date.endDate|date('d/m/Y') : 'Date N/A' }}
+                                            {% else %}
+                                                Dates de stage non renseignees
+                                            {% endif %}
                                         </div>
                                     </div>
                                     <div class="d-flex align-items-center student-contract-actions flex-column flex-md-row">

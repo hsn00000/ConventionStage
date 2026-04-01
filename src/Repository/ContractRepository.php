@@ -61,6 +61,19 @@ class ContractRepository extends ServiceEntityRepository
     /**
      * @return Contract[]
      */
+    public function findValidatedByDdf(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.status = :status')
+            ->setParameter('status', Contract::STATUS_VALIDATED_BY_DDF)
+            ->orderBy('c.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return Contract[]
+     */
     public function findSignedContracts(): array
     {
         return $this->createQueryBuilder('c')

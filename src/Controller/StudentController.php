@@ -60,93 +60,32 @@ final class StudentController extends AbstractController
         }
 
         // --- LOGIQUE DU DASHBOARD ÉTUDIANT ---
-        $contracts = $student->getContracts(); // Récupère la collection de contrats
+        $contracts = $student->getContracts()->toArray();
+        usort($contracts, static fn (Contract $left, Contract $right): int => $right->getId() <=> $left->getId());
 
-        $activeContract = null;
         $totalDaysRemaining = 0;
         $pastContractsCount = 0;
-        $currentStatus = 'Aucune convention trouvée';
-
-        $now = new \DateTimeImmutable();
+        $currentStatus = 'Aucun stage actif ni en préparation';
+        $latestContract = $contracts[0] ?? null;
+        $now = new \DateTimeImmutable('today');
 
         foreach ($contracts as $contract) {
-            /** @var Contract $contract */
+            [$startDate, $endDate] = $this->getContractPeriod($contract);
 
-            // On suppose que l'entité Contract a les méthodes getStartDate, getEndDate et getStatus
-            // NOTE : Il manque les relations de Contract avec les dates dans les entités fournies.
-            // J'ai besoin de savoir comment vous stockez les dates de stage (StartDate/EndDate)
-            // pour calculer le nombre de jours restants. Si c'est dans ContractDate,
-            // il faudrait itérer sur $contract->getContractDates() pour trouver les dates.
-            // Pour l'instant, j'utilise les hypothèses pour que la logique puisse fonctionner
-            // si les dates sont dans l'entité Contract elle-même.
-
-            // Hypothèses de méthodes sur l'entité Contract
-            $startDate = $contract->getTokenExpDate(); // UTILISER LA VRAIE DATE DE DEBUT
-            $endDate = $contract->getTokenExpDate();   // UTILISER LA VRAIE DATE DE FIN
-            $status = $contract->getStatus();
-
-            if ($activeContract === null && $status === Contract::STATUS_REFUSED) {
-                $currentStatus = 'Collecte rejetee par le professeur';
-                continue;
-            }
-
-            // 1. Conventions passées (terminées ou date de fin dans le passé)
-            if ($status === 'completed' || ($endDate instanceof \DateTimeInterface && $endDate < $now)) {
-                $pastContractsCount++;
-            }
-
-            // 2. Convention active (en cours : date de début passée/actuelle ET date de fin future/actuelle)
-            if ($startDate instanceof \DateTimeInterface && $endDate instanceof \DateTimeInterface) {
-                if (($status === 'active' || $status === 'validated') && $startDate <= $now && $endDate >= $now) {
-                    $activeContract = $contract;
-
-                    // Statut : En cours
-                    $currentStatus = 'En cours (du ' . $startDate->format('d/m/Y') . ' au ' . $endDate->format('d/m/Y') . ')';
-
-                    // Calcul des jours civils restants
-                    $interval = $now->diff($endDate);
-                    if ($interval->invert === 0) {
-                        $totalDaysRemaining = $interval->days;
-                    } else {
-                        $totalDaysRemaining = 0;
-                    }
-                    // Si un contrat actif est trouvé, on priorise et on arrête le statut.
-                    break;
-                }
-            }
-
-            // 3. Statut de convention future ou en cours de validation (uniquement si pas de contrat actif trouvé)
-            if ($activeContract === null && $startDate instanceof \DateTimeInterface && $startDate > $now && $status !== 'completed' && $status !== 'cancelled') {
-                if ($status === Contract::STATUS_COLLECTION_SENT) {
-                    $currentStatus = 'Collecte envoyee a l\'entreprise';
-                } elseif ($status === Contract::STATUS_FILLED_BY_COMPANY) {
-                    $currentStatus = 'Collecte remplie, validation etudiant attendue';
-                } elseif ($status === Contract::STATUS_VALIDATED_BY_STUDENT) {
-                    $currentStatus = 'Validation professeur en attente';
-                } elseif ($status === Contract::STATUS_VALIDATED_BY_PROF) {
-                    $currentStatus = 'Validation DDF en attente';
-                } elseif ($status === Contract::STATUS_SIGNATURE_REQUESTED) {
-                    $currentStatus = 'Signature en cours';
-                } elseif ($status === Contract::STATUS_SIGNED) {
-                    $currentStatus = 'Convention signee';
-                } elseif ($status === Contract::STATUS_REFUSED) {
-                    $currentStatus = 'Collecte rejetee par le professeur';
-                } else {
-                    $currentStatus = 'Convention en préparation ou en attente';
-                }
+            if ($contract->getStatus() === Contract::STATUS_SIGNED && $endDate instanceof \DateTimeInterface && $endDate < $now) {
+                ++$pastContractsCount;
             }
         }
 
-        // Finalisation du statut si rien n'a été trouvé
-        if ($activeContract === null && $currentStatus === 'Aucune convention trouvée') {
-            $currentStatus = 'Aucun stage actif ni en préparation';
-        }
+        if ($latestContract instanceof Contract) {
+            [$startDate, $endDate] = $this->getContractPeriod($latestContract);
+            $currentStatus = $this->buildStudentDashboardStatus($latestContract, $startDate, $endDate, $now);
 
-        // Si on a compté des contrats passés, et qu'il n'y a pas de contrat actif ou en préparation, on déduit que tous sont passés.
-        if ($pastContractsCount > 0 && $currentStatus === 'Aucun stage actif ni en préparation') {
-            $currentStatus = 'Historique disponible';
+            if ($latestContract->getStatus() === Contract::STATUS_SIGNED && $endDate instanceof \DateTimeInterface && $endDate >= $now) {
+                $interval = $now->diff(\DateTimeImmutable::createFromInterface($endDate));
+                $totalDaysRemaining = $interval->invert === 0 ? $interval->days : 0;
+            }
         }
-
 
         return $this->render('student/show.html.twig', [
             'student' => $student,
@@ -155,6 +94,70 @@ final class StudentController extends AbstractController
             'past_contracts_count' => $pastContractsCount,
             'contracts' => $contracts,
         ]);
+    }
+
+    /**
+     * @return array{0: ?\DateTimeInterface, 1: ?\DateTimeInterface}
+     */
+    private function getContractPeriod(Contract $contract): array
+    {
+        $startDate = null;
+        $endDate = null;
+
+        foreach ($contract->getContractDates() as $contractDate) {
+            $currentStartDate = $contractDate->getStartDate();
+            $currentEndDate = $contractDate->getEndDate();
+
+            if ($currentStartDate && ($startDate === null || $currentStartDate < $startDate)) {
+                $startDate = $currentStartDate;
+            }
+
+            if ($currentEndDate && ($endDate === null || $currentEndDate > $endDate)) {
+                $endDate = $currentEndDate;
+            }
+        }
+
+        return [$startDate, $endDate];
+    }
+
+    private function buildStudentDashboardStatus(
+        Contract $contract,
+        ?\DateTimeInterface $startDate,
+        ?\DateTimeInterface $endDate,
+        \DateTimeImmutable $now,
+    ): string {
+        return match ($contract->getStatus()) {
+            Contract::STATUS_COLLECTION_SENT => 'Collecte envoyee a l\'entreprise',
+            Contract::STATUS_FILLED_BY_COMPANY => 'Collecte remplie, validation etudiant attendue',
+            Contract::STATUS_VALIDATED_BY_STUDENT => 'Validation professeur en attente',
+            Contract::STATUS_VALIDATED_BY_PROF => 'Validation DDF en attente',
+            Contract::STATUS_SIGNATURE_REQUESTED => 'Signature en cours',
+            Contract::STATUS_REFUSED => 'Collecte rejetee par le professeur',
+            Contract::STATUS_SIGNED => $this->buildSignedStatusLabel($startDate, $endDate, $now),
+            default => $contract->getStatusLabel(),
+        };
+    }
+
+    private function buildSignedStatusLabel(
+        ?\DateTimeInterface $startDate,
+        ?\DateTimeInterface $endDate,
+        \DateTimeImmutable $now,
+    ): string {
+        if ($startDate && $endDate) {
+            if ($startDate <= $now && $endDate >= $now) {
+                return sprintf('Stage en cours du %s au %s', $startDate->format('d/m/Y'), $endDate->format('d/m/Y'));
+            }
+
+            if ($startDate > $now) {
+                return sprintf('Convention signee pour le stage du %s au %s', $startDate->format('d/m/Y'), $endDate->format('d/m/Y'));
+            }
+
+            if ($endDate < $now) {
+                return sprintf('Stage termine le %s', $endDate->format('d/m/Y'));
+            }
+        }
+
+        return 'Convention signee';
     }
 
     #[Route('/{id}/edit', name: 'app_student_edit', methods: ['GET', 'POST'])]
