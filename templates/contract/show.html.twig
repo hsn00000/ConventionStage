@@ -1,221 +1,425 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Verification de la convention{% endblock %}
+{% block title %}Convention #{{ contract.id }}{% endblock %}
+
+{% block back_button %}
+    <div class="container pt-3">
+        <a href="{{ path('app_student_show', {'id': app.user.id}) }}"
+           class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center"
+           style="width:2rem;height:2rem;padding:0;">
+            <i class="ph ph-arrow-left" style="font-size:1.1rem;"></i>
+        </a>
+    </div>
+{% endblock %}
 
 {% block content %}
-    <style>
-        .contract-review-hero {
-            background: linear-gradient(135deg, #f6f9ff 0%, #eef4ff 100%);
-            border: 1px solid rgba(13, 110, 253, 0.12);
-            border-radius: 1.5rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 18px 45px rgba(15, 76, 129, 0.08);
-        }
+<style>
+    /* ── HERO ──────────────────────────────────────────── */
+    .cv-hero {
+        background: linear-gradient(135deg, #0d6efd 0%, #6ea8fe 100%);
+        border-radius: 18px;
+        padding: 2rem 2.5rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .cv-hero::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px);
+        background-size: 20px 20px;
+        pointer-events: none;
+    }
+    .cv-hero > * { position: relative; z-index: 1; }
+    .cv-hero h1 { font-size: 1.5rem; font-weight: 800; margin: 0 0 0.35rem; letter-spacing: -0.02em; }
+    .cv-hero p  { opacity: 0.8; margin: 0; font-size: 0.875rem; }
 
-        .contract-review-section .card-header {
-            border-bottom: 1px solid #eef2f7;
-            padding: 1rem 1.25rem;
-        }
+    .status-chip {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 0.4em 1em;
+        border-radius: 50px;
+        font-size: 0.78rem; font-weight: 700;
+        letter-spacing: 0.04em; text-transform: uppercase;
+        border: 1.5px solid rgba(255,255,255,0.4);
+        background: rgba(255,255,255,0.15);
+        color: #fff;
+    }
 
-        .contract-review-section .card-body {
-            padding: 1.25rem;
-        }
+    /* ── CARTES SECTIONS ───────────────────────────────── */
+    .cv-card {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.07);
+        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        overflow: hidden;
+        height: 100%;
+    }
+    .cv-card-header {
+        display: flex; align-items: center; gap: 0.6rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        background: #fafafa;
+    }
+    .cv-card-header .ch-icon {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1rem; flex-shrink: 0;
+    }
+    .cv-card-header h2 { font-size: 0.92rem; font-weight: 700; margin: 0; color: #1a1a2e; }
+    .cv-card-body { padding: 1.35rem 1.5rem; }
 
-        .contract-review-final {
-            background: linear-gradient(135deg, #f2fff6 0%, #ebfff2 100%);
-            border: 1px solid rgba(25, 135, 84, 0.18);
-            border-radius: 1.5rem;
-            box-shadow: 0 20px 44px rgba(25, 135, 84, 0.1);
-        }
+    /* ── CHAMPS INFO ───────────────────────────────────── */
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    @media (max-width: 576px) { .info-grid { grid-template-columns: 1fr; } }
 
-        .contract-review-final .btn {
-            border-radius: 999px;
-            padding: 0.9rem 1.4rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ff7a18 0%, #ffb347 100%);
-            border-color: #ff9a3d;
-            color: #1f2937;
-            box-shadow: 0 14px 32px rgba(255, 122, 24, 0.28);
-        }
+    .info-item {}
+    .info-label {
+        font-size: 0.7rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.07em;
+        color: #adb5bd; margin-bottom: 3px;
+    }
+    .info-value {
+        font-size: 0.875rem; font-weight: 600; color: #1a1a2e;
+    }
+    .info-value.muted { font-weight: 400; color: #6c757d; }
 
-        .contract-review-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.55rem;
-            padding: 0.65rem 1rem;
-            border-radius: 999px;
-            background: #fff3cd;
-            color: #7a5a00;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            font-size: 0.82rem;
-        }
+    /* ── BADGES OUI/NON ────────────────────────────────── */
+    .badge-yes { display:inline-flex;align-items:center;gap:4px;background:#d1e7dd;color:#0a3622;padding:0.2em 0.65em;border-radius:6px;font-size:0.75rem;font-weight:700; }
+    .badge-no  { display:inline-flex;align-items:center;gap:4px;background:#e9ecef;color:#6c757d;padding:0.2em 0.65em;border-radius:6px;font-size:0.75rem;font-weight:700; }
 
-        .contract-review-final .btn:hover,
-        .contract-review-final .btn:focus {
-            background: linear-gradient(135deg, #ff8f32 0%, #ffc36a 100%);
-            border-color: #ff9a3d;
-            color: #1f2937;
-        }
+    /* ── TABLEAU HORAIRES ──────────────────────────────── */
+    .schedule-table { width: 100%; border-collapse: collapse; }
+    .schedule-table thead th {
+        font-size: 0.72rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.05em;
+        color: #6c757d; background: #f8f9fa;
+        padding: 0.65rem 1rem;
+        text-align: center;
+        border-bottom: 2px solid #e9ecef;
+    }
+    .schedule-table thead th:first-child { text-align: left; }
+    .schedule-table tbody td {
+        padding: 0.7rem 1rem; text-align: center;
+        font-size: 0.875rem; border-bottom: 1px solid #f1f3f5;
+        color: #495057;
+    }
+    .schedule-table tbody td:first-child {
+        text-align: left; font-weight: 700; color: #1a1a2e;
+        text-transform: capitalize;
+    }
+    .schedule-table tbody tr:last-child td { border-bottom: none; }
+    .schedule-table tbody tr:hover td { background: #f8fbff; }
+    .time-val {
+        display: inline-block;
+        background: #f0f4ff;
+        color: #0d6efd;
+        padding: 2px 8px; border-radius: 6px;
+        font-size: 0.8rem; font-weight: 600;
+        font-family: monospace;
+    }
+    .time-empty { color: #ced4da; }
 
-        .contract-review-table th {
-            white-space: nowrap;
-        }
-    </style>
-    <main class="container py-5">
-        <div class="contract-review-hero">
-            <div class="d-flex justify-content-between align-items-start gap-3 flex-column flex-lg-row">
+    /* ── ACTIVITÉS ─────────────────────────────────────── */
+    .activities-block {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        font-size: 0.875rem;
+        line-height: 1.75;
+        color: #495057;
+    }
+
+    /* ── BLOC REFUS ────────────────────────────────────── */
+    .refusal-block {
+        background: #fff5f5;
+        border: 1px solid rgba(220,53,69,0.2);
+        border-radius: 14px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.75rem;
+    }
+    .refusal-block h2 { font-size: 1rem; font-weight: 700; color: #842029; margin-bottom: 0.5rem; }
+    .refusal-block p  { font-size: 0.875rem; color: #842029; margin: 0; line-height: 1.6; }
+
+    /* ── BLOC VALIDATION FINALE ────────────────────────── */
+    .cv-final {
+        background: linear-gradient(135deg, #f2fff6 0%, #e8f8ed 100%);
+        border: 1px solid rgba(25,135,84,0.18);
+        border-radius: 18px;
+        padding: 1.75rem 2rem;
+        margin-top: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+    .cv-final h2 { font-size: 1.1rem; font-weight: 800; color: #0a3622; margin: 0 0 0.35rem; }
+    .cv-final p  { font-size: 0.875rem; color: #146c43; margin: 0; }
+    .btn-validate {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 0.75rem 1.75rem;
+        border-radius: 50px;
+        background: linear-gradient(135deg, #198754, #20c997);
+        color: #fff;
+        font-size: 0.95rem; font-weight: 700;
+        border: none; cursor: pointer;
+        box-shadow: 0 8px 24px rgba(25,135,84,0.35);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        text-decoration: none;
+    }
+    .btn-validate:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(25,135,84,0.4); color: #fff; }
+</style>
+
+<main class="container py-5">
+
+    {# ── HERO ── #}
+    <div class="cv-hero">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
             <div>
-                <h1 class="h2 mb-1">Verification de la convention #{{ contract.id }}</h1>
-                <p class="text-muted mb-0">Relisez les informations saisies avant de transmettre la convention au professeur referent.</p>
+                <h1>
+                    <i class="ph-bold ph-file-text me-2"></i>
+                    Convention #{{ contract.id }}
+                    {% if contract.organisation is defined %}
+                        — {{ contract.organisation.name }}
+                    {% endif %}
+                </h1>
+                <p>Relisez les informations saisies avant de transmettre la convention à votre professeur référent.</p>
             </div>
-                <div class="d-flex flex-column align-items-lg-end gap-2">
-                    <span class="contract-review-status">
-                        <i class="fas fa-shield-alt"></i>
-                        {% if contract.status == 'filled_by_company' %}
-                            Verification requise
-                        {% elseif contract.status == 'refused' %}
-                            Collecte rejetee
-                        {% else %}
-                            {{ contract.statusLabel }}
-                        {% endif %}
-                    </span>
-                    <a href="{{ path('app_student_show', {'id': app.user.id}) }}" class="btn btn-outline-secondary">
-                        Retour au tableau de bord
-                    </a>
+            <div class="d-flex flex-column align-items-end gap-2">
+                <span class="status-chip">
+                    <i class="ph ph-shield-check"></i>
+                    {% if contract.status == 'filled_by_company' %}Vérification requise
+                    {% elseif contract.status == 'refused' %}Convention refusée
+                    {% else %}{{ contract.statusLabel }}
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    {# ── FLASH ── #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show mb-3 border-0 shadow-sm" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {# ── REFUS ── #}
+    {% if contract.status == 'refused' %}
+        <div class="refusal-block">
+            <h2><i class="ph ph-x-circle me-2"></i>Convention refusée par le professeur référent</h2>
+            <p>
+                {% if contract.professorRejectionReason %}
+                    {{ contract.professorRejectionReason|nl2br }}
+                {% else %}
+                    Votre professeur référent a refusé cette convention. Vérifiez les informations saisies avant de relancer la procédure.
+                {% endif %}
+            </p>
+        </div>
+    {% endif %}
+
+    {# ── GRILLE PRINCIPALE ── #}
+    <div class="row g-4">
+
+        {# Entreprise #}
+        <div class="col-lg-6">
+            <div class="cv-card">
+                <div class="cv-card-header">
+                    <div class="ch-icon" style="background:rgba(13,110,253,0.1);color:#0d6efd;">
+                        <i class="ph ph-buildings"></i>
+                    </div>
+                    <h2>Entreprise</h2>
+                </div>
+                <div class="cv-card-body">
+                    <div class="info-grid">
+                        <div class="info-item" style="grid-column:1/-1;">
+                            <div class="info-label">Nom</div>
+                            <div class="info-value" style="font-size:1rem;">{{ contract.organisation.name }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Adresse siège</div>
+                            <div class="info-value muted">{{ contract.organisation.addressHq }}<br>{{ contract.organisation.postalCodeHq }} {{ contract.organisation.cityHq }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Adresse stage</div>
+                            <div class="info-value muted">{{ contract.organisation.addressInternship }}<br>{{ contract.organisation.postalCodeInternship }} {{ contract.organisation.cityInternship }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Responsable</div>
+                            <div class="info-value">{{ contract.organisation.respName }}</div>
+                            <div class="info-value muted" style="font-size:0.78rem;">{{ contract.organisation.respFunction }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Contact</div>
+                            <div class="info-value muted">{{ contract.organisation.respEmail }}</div>
+                            <div class="info-value muted">{{ contract.organisation.respPhone }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        {% for label, messages in app.flashes %}
-            {% for message in messages %}
-                <div class="alert alert-{{ label == 'error' ? 'danger' : label }} mb-3">{{ message }}</div>
-            {% endfor %}
-        {% endfor %}
-
-        {% if contract.status == 'refused' %}
-            <div class="alert alert-danger mb-4">
-                <h2 class="h5 mb-2">Collecte rejetee par le professeur referent</h2>
-                <p class="mb-0">
-                    {% if contract.professorRejectionReason %}
-                        {{ contract.professorRejectionReason|nl2br }}
-                    {% else %}
-                        Votre professeur referent a refuse cette collecte. Verifiez les informations saisies avant de relancer la procedure.
-                    {% endif %}
-                </p>
-            </div>
-        {% endif %}
-
-        <div class="row g-4">
-            <div class="col-lg-6">
-                <section class="card shadow-sm h-100 contract-review-section">
-                    <div class="card-header bg-white">
-                        <h2 class="h5 mb-0">Entreprise</h2>
+        {# Tuteur & encadrement #}
+        <div class="col-lg-6">
+            <div class="cv-card">
+                <div class="cv-card-header">
+                    <div class="ch-icon" style="background:rgba(111,66,193,0.1);color:#6f42c1;">
+                        <i class="ph ph-users-three"></i>
                     </div>
-                    <div class="card-body">
-                        <p class="mb-2"><strong>Nom :</strong> {{ contract.organisation.name }}</p>
-                        <p class="mb-2"><strong>Adresse siege :</strong> {{ contract.organisation.addressHq }}, {{ contract.organisation.postalCodeHq }} {{ contract.organisation.cityHq }}</p>
-                        <p class="mb-2"><strong>Adresse stage :</strong> {{ contract.organisation.addressInternship }}, {{ contract.organisation.postalCodeInternship }} {{ contract.organisation.cityInternship }}</p>
-                        <p class="mb-2"><strong>Responsable :</strong> {{ contract.organisation.respName }} - {{ contract.organisation.respFunction }}</p>
-                        <p class="mb-2"><strong>Email :</strong> {{ contract.organisation.respEmail }}</p>
-                        <p class="mb-0"><strong>Telephone :</strong> {{ contract.organisation.respPhone }}</p>
-                    </div>
-                </section>
-            </div>
-
-            <div class="col-lg-6">
-                <section class="card shadow-sm h-100 contract-review-section">
-                    <div class="card-header bg-white">
-                        <h2 class="h5 mb-0">Tuteur et encadrement</h2>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-2"><strong>Tuteur entreprise :</strong> {{ contract.tutor.firstname }} {{ contract.tutor.lastname }}</p>
-                        <p class="mb-2"><strong>Email tuteur :</strong> {{ contract.tutor.email }}</p>
-                        <p class="mb-2"><strong>Telephone tuteur :</strong> {{ contract.tutor.telMobile ?: contract.tutor.telOther ?: 'Non renseigne' }}</p>
-                        <p class="mb-0"><strong>Professeur referent :</strong> {{ contract.coordinator.firstname }} {{ contract.coordinator.lastname }}</p>
-                    </div>
-                </section>
-            </div>
-
-            <div class="col-12">
-                <section class="card shadow-sm contract-review-section">
-                    <div class="card-header bg-white">
-                        <h2 class="h5 mb-0">Activites prevues</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="bg-light rounded p-3">{{ contract.plannedActivities|nl2br }}</div>
-                    </div>
-                </section>
-            </div>
-
-            <div class="col-12">
-                <section class="card shadow-sm contract-review-section">
-                    <div class="card-header bg-white">
-                        <h2 class="h5 mb-0">Conditions et horaires</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <p class="mb-2"><strong>Deplacements :</strong> {{ contract.deplacement ? 'Oui' : 'Non' }}</p>
-                                <p class="mb-2"><strong>Transport pris en charge :</strong> {{ contract.transportFreeTaken ? 'Oui' : 'Non' }}</p>
-                                <p class="mb-2"><strong>Repas pris en charge :</strong> {{ contract.lunchTaken ? 'Oui' : 'Non' }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="mb-2"><strong>Hebergement pris en charge :</strong> {{ contract.hostTaken ? 'Oui' : 'Non' }}</p>
-                                <p class="mb-2"><strong>Gratification :</strong> {{ contract.bonus ? 'Oui' : 'Non' }}</p>
-                                <p class="mb-2"><strong>Montant gratification :</strong> {{ contract.bonusAmount ? contract.bonusAmount ~ ' EUR' : 'Non renseigne' }}</p>
-                            </div>
+                    <h2>Tuteur & encadrement</h2>
+                </div>
+                <div class="cv-card-body">
+                    <div class="info-grid">
+                        <div class="info-item" style="grid-column:1/-1;">
+                            <div class="info-label">Tuteur entreprise</div>
+                            <div class="info-value">{{ contract.tutor.firstname }} {{ contract.tutor.lastname }}</div>
                         </div>
+                        <div class="info-item">
+                            <div class="info-label">Email tuteur</div>
+                            <div class="info-value muted">{{ contract.tutor.email }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Téléphone tuteur</div>
+                            <div class="info-value muted">{{ contract.tutor.telMobile ?: contract.tutor.telOther ?: 'Non renseigné' }}</div>
+                        </div>
+                        <div class="info-item" style="grid-column:1/-1;">
+                            <div class="info-label">Professeur référent</div>
+                            <div class="info-value">{{ contract.coordinator.firstname }} {{ contract.coordinator.lastname }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle mb-0 contract-review-table">
-                                <thead class="table-light">
+        {# Activités prévues #}
+        <div class="col-12">
+            <div class="cv-card">
+                <div class="cv-card-header">
+                    <div class="ch-icon" style="background:rgba(253,126,20,0.1);color:#fd7e14;">
+                        <i class="ph ph-notepad"></i>
+                    </div>
+                    <h2>Activités prévues</h2>
+                </div>
+                <div class="cv-card-body">
+                    <div class="activities-block">{{ contract.plannedActivities|nl2br }}</div>
+                </div>
+            </div>
+        </div>
+
+        {# Conditions & horaires #}
+        <div class="col-12">
+            <div class="cv-card">
+                <div class="cv-card-header">
+                    <div class="ch-icon" style="background:rgba(13,202,240,0.1);color:#0dcaf0;">
+                        <i class="ph ph-clock"></i>
+                    </div>
+                    <h2>Conditions & horaires</h2>
+                </div>
+                <div class="cv-card-body">
+
+                    {# Badges conditions #}
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 col-md-4">
+                            <div class="info-label">Déplacements</div>
+                            <span class="{{ contract.deplacement ? 'badge-yes' : 'badge-no' }}">
+                                <i class="ph {{ contract.deplacement ? 'ph-check' : 'ph-x' }}"></i>
+                                {{ contract.deplacement ? 'Oui' : 'Non' }}
+                            </span>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="info-label">Transport pris en charge</div>
+                            <span class="{{ contract.transportFreeTaken ? 'badge-yes' : 'badge-no' }}">
+                                <i class="ph {{ contract.transportFreeTaken ? 'ph-check' : 'ph-x' }}"></i>
+                                {{ contract.transportFreeTaken ? 'Oui' : 'Non' }}
+                            </span>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="info-label">Repas pris en charge</div>
+                            <span class="{{ contract.lunchTaken ? 'badge-yes' : 'badge-no' }}">
+                                <i class="ph {{ contract.lunchTaken ? 'ph-check' : 'ph-x' }}"></i>
+                                {{ contract.lunchTaken ? 'Oui' : 'Non' }}
+                            </span>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="info-label">Hébergement pris en charge</div>
+                            <span class="{{ contract.hostTaken ? 'badge-yes' : 'badge-no' }}">
+                                <i class="ph {{ contract.hostTaken ? 'ph-check' : 'ph-x' }}"></i>
+                                {{ contract.hostTaken ? 'Oui' : 'Non' }}
+                            </span>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="info-label">Gratification</div>
+                            <span class="{{ contract.bonus ? 'badge-yes' : 'badge-no' }}">
+                                <i class="ph {{ contract.bonus ? 'ph-check' : 'ph-x' }}"></i>
+                                {{ contract.bonus ? 'Oui' : 'Non' }}
+                            </span>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="info-label">Montant gratification</div>
+                            <div class="info-value">{{ contract.bonusAmount ? contract.bonusAmount ~ ' €' : '—' }}</div>
+                        </div>
+                    </div>
+
+                    {# Tableau horaires #}
+                    <div class="table-responsive">
+                        <table class="schedule-table">
+                            <thead>
                                 <tr>
                                     <th>Jour</th>
-                                    <th>Matin debut</th>
+                                    <th>Matin début</th>
                                     <th>Matin fin</th>
-                                    <th>Apres-midi debut</th>
-                                    <th>Apres-midi fin</th>
+                                    <th>Après-midi début</th>
+                                    <th>Après-midi fin</th>
                                 </tr>
-                                </thead>
-                                <tbody>
-                                {% for day, schedule in contract.workHours %}
-                                    <tr>
-                                        <td class="fw-semibold text-capitalize">{{ day }}</td>
-                                        <td>{{ schedule.m_start ?: '-' }}</td>
-                                        <td>{{ schedule.m_end ?: '-' }}</td>
-                                        <td>{{ schedule.am_start ?: '-' }}</td>
-                                        <td>{{ schedule.am_end ?: '-' }}</td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+                            </thead>
+                            <tbody>
+                            {% for day, schedule in contract.workHours %}
+                                <tr>
+                                    <td>{{ day }}</td>
+                                    <td>{% if schedule.m_start %}<span class="time-val">{{ schedule.m_start }}</span>{% else %}<span class="time-empty">—</span>{% endif %}</td>
+                                    <td>{% if schedule.m_end %}<span class="time-val">{{ schedule.m_end }}</span>{% else %}<span class="time-empty">—</span>{% endif %}</td>
+                                    <td>{% if schedule.am_start %}<span class="time-val">{{ schedule.am_start }}</span>{% else %}<span class="time-empty">—</span>{% endif %}</td>
+                                    <td>{% if schedule.am_end %}<span class="time-val">{{ schedule.am_end }}</span>{% else %}<span class="time-empty">—</span>{% endif %}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                </section>
-            </div>
-        </div>
 
-        <div class="card contract-review-final mt-4 border-0">
-            <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-                <div>
-                    <h2 class="h4 mb-1 text-success">Derniere verification etudiante</h2>
-                    <p class="text-muted mb-0">Si toutes les informations sont correctes, transmettez maintenant la convention a votre professeur referent pour validation pedagogique.</p>
                 </div>
-
-                {% if contract.status == 'filled_by_company' %}
-                    <form method="post" action="{{ path('app_contract_validate_by_student', {'id': contract.id}) }}">
-                        <input type="hidden" name="_token" value="{{ csrf_token('validate_by_student' ~ contract.id) }}">
-                        <button class="btn btn-lg" type="submit">
-                            <i class="fas fa-paper-plane me-2"></i> Valider et transmettre au professeur
-                        </button>
-                    </form>
-                {% else %}
-                    <span class="badge bg-secondary fs-6 px-3 py-2">{{ contract.statusLabel }}</span>
-                {% endif %}
             </div>
         </div>
-    </main>
+
+    </div>
+
+    {# ── VALIDATION FINALE ── #}
+    <div class="cv-final">
+        <div>
+            <h2><i class="ph ph-check-circle me-2"></i>Dernière vérification</h2>
+            <p>Si toutes les informations sont correctes, transmettez la convention à votre professeur référent pour validation pédagogique.</p>
+        </div>
+        {% if contract.status == 'filled_by_company' %}
+            <form method="post" action="{{ path('app_contract_validate_by_student', {'id': contract.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('validate_by_student' ~ contract.id) }}">
+                <button class="btn-validate" type="submit">
+                    <i class="ph-bold ph-paper-plane-tilt"></i> Valider et transmettre au professeur
+                </button>
+            </form>
+        {% else %}
+            <span style="background:#e9ecef;color:#6c757d;padding:0.6em 1.2em;border-radius:50px;font-size:0.875rem;font-weight:600;">
+                {{ contract.statusLabel }}
+            </span>
+        {% endif %}
+    </div>
+
+</main>
 {% endblock %}

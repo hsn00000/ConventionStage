@@ -1,304 +1,418 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Dashboard Professeur - {{ professor.firstname }} {{ professor.lastname }}{% endblock %}
-
-{% block back_button %}
-    <div class="container pt-3">
-        <button onclick="history.back()" class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center" style="width:2rem;height:2rem;padding:0;">
-            <i class="ph ph-arrow-left" style="font-size:1.1rem;"></i>
-        </button>
-    </div>
-{% endblock %}
+{% block title %}Dashboard Professeur — {{ professor.firstname }} {{ professor.lastname }}{% endblock %}
 
 {% block content %}
-    <main class="container py-5">
+<style>
+    /* ── HERO ──────────────────────────────────────────── */
+    .prof-hero {
+        background: linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%);
+        border-radius: 18px;
+        padding: 2rem 2.5rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .prof-hero::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+        background-size: 20px 20px;
+        pointer-events: none;
+    }
+    .prof-hero > * { position: relative; z-index: 1; }
+    .prof-avatar {
+        width: 56px; height: 56px;
+        background: rgba(255,255,255,0.15);
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.4rem; font-weight: 800; flex-shrink: 0;
+    }
+    .prof-hero h1 { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.02em; margin: 0 0 0.2rem; }
+    .prof-hero p  { opacity: 0.65; margin: 0; font-size: 0.875rem; }
+    .hero-cta {
+        background: #fff; color: #1a1a2e;
+        border: none; border-radius: 50px;
+        padding: 0.6rem 1.4rem; font-weight: 700; font-size: 0.875rem;
+        display: inline-flex; align-items: center; gap: 6px;
+        text-decoration: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        white-space: nowrap;
+    }
+    .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.35); color: #1a1a2e; }
 
-        {# --- En-tête du Dashboard --- #}
-        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3 dashboard-header flex-wrap gap-2">
-            <h1 class="h2 mb-0 text-primary">Tableau de Bord Professeur</h1>
-            <p class="text-muted mb-0">Bienvenue, {{ professor.firstname }} {{ professor.lastname }}</p>
+    /* ── STAT CARDS ────────────────────────────────────── */
+    .stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 2rem; }
+    @media(max-width:767px){ .stat-grid { grid-template-columns: 1fr; } }
+    .stat-card {
+        background: #fff; border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        padding: 1.35rem 1.5rem;
+        display: flex; align-items: center; gap: 1rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.09); }
+    .stat-icon {
+        width: 52px; height: 52px; border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; flex-shrink: 0;
+    }
+    .stat-value { font-size: 1.75rem; font-weight: 800; line-height: 1; color: #1a1a2e; }
+    .stat-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6c757d; margin-top: 3px; }
+
+    /* ── SECTIONS ──────────────────────────────────────── */
+    .dash-section {
+        background: #fff; border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.07);
+        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        overflow: hidden; margin-bottom: 1.5rem;
+    }
+    .dash-section-header {
+        display: flex; align-items: center; gap: 0.65rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        background: #fafafa;
+    }
+    .dash-section-header h2 { font-size: 0.92rem; font-weight: 700; margin: 0; color: #1a1a2e; }
+    .section-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .section-count {
+        margin-left: auto; font-size: 0.72rem; font-weight: 700;
+        padding: 0.2em 0.65em; border-radius: 20px;
+    }
+
+    /* ── TABLEAU ───────────────────────────────────────── */
+    .dash-table thead th {
+        font-size: 0.72rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.05em;
+        color: #6c757d; background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        padding: 0.7rem 1.25rem; white-space: nowrap;
+    }
+    .dash-table tbody td {
+        padding: 0.9rem 1.25rem; vertical-align: middle;
+        font-size: 0.875rem; border-bottom: 1px solid #f1f3f5;
+    }
+    .dash-table tbody tr:last-child td { border-bottom: none; }
+    .dash-table tbody tr:hover td { background: #f8fbff; }
+    .cell-name { font-weight: 700; color: #1a1a2e; }
+    .cell-sub  { font-size: 0.78rem; color: #6c757d; }
+    .id-pill {
+        background: #e9ecef; color: #6c757d;
+        font-size: 0.7rem; font-weight: 700;
+        padding: 0.2em 0.6em; border-radius: 6px;
+    }
+
+    /* ── STATUS CHIPS ──────────────────────────────────── */
+    .s-chip {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 0.25em 0.75em; border-radius: 20px;
+        font-size: 0.72rem; font-weight: 700; white-space: nowrap;
+    }
+    .s-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    /* ── BOUTONS ───────────────────────────────────────── */
+    .btn-dash {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 0.38rem 0.9rem; border-radius: 8px;
+        font-size: 0.78rem; font-weight: 600;
+        border: 1.5px solid transparent;
+        text-decoration: none; transition: all 0.18s ease; cursor: pointer;
+    }
+    .btn-dash-primary { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+    .btn-dash-primary:hover { background: #2d2d5e; color: #fff; }
+    .btn-dash-outline { background: #fff; color: #1a1a2e; border-color: rgba(0,0,0,0.2); }
+    .btn-dash-outline:hover { background: #f8f9fa; color: #1a1a2e; }
+    .btn-dash-muted { background: #fff; color: #6c757d; border-color: rgba(0,0,0,0.12); }
+    .btn-dash-muted:hover { background: #f8f9fa; color: #495057; }
+
+    /* ── EMPTY STATE ───────────────────────────────────── */
+    .empty-state {
+        display: flex; flex-direction: column; align-items: center;
+        padding: 2.5rem 1rem; color: #adb5bd; text-align: center;
+    }
+    .empty-state i { font-size: 2rem; margin-bottom: 0.5rem; }
+    .empty-state p { font-size: 0.875rem; margin: 0; }
+
+    /* ── PROFIL CARD ───────────────────────────────────── */
+    .profile-card {
+        background: #fff; border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.07);
+        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        padding: 1.5rem;
+        display: flex; align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap; gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    .profile-info { display: flex; align-items: center; gap: 1rem; }
+    .profile-avatar {
+        width: 52px; height: 52px;
+        background: linear-gradient(135deg, #1a1a2e, #3d3d7e);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; font-weight: 800; color: #fff; flex-shrink: 0;
+    }
+</style>
+
+<main class="container py-5">
+
+    {# ── HERO ── #}
+    <div class="prof-hero">
+        <div class="d-flex align-items-center gap-3">
+            <div class="prof-avatar">{{ professor.firstname|first }}{{ professor.lastname|first }}</div>
+            <div>
+                <h1>{{ professor.firstname }} {{ professor.lastname }}</h1>
+                <p><i class="ph ph-chalkboard-teacher me-1"></i>Tableau de bord professeur référent</p>
+            </div>
         </div>
+        <a href="{{ path('app_forgot_password_request') }}" class="hero-cta">
+            <i class="ph ph-lock"></i> Modifier mon mot de passe
+        </a>
+    </div>
 
-        {# --- Messages Flash (Alerte Visuelle) --- #}
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
+    {# ── FLASH ── #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show mb-3 border-0 shadow-sm" role="alert">
                 {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         {% endfor %}
-        {% for message in app.flashes('error') %}
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    {% endfor %}
+
+    {# ── STAT CARDS ── #}
+    <div class="stat-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(220,53,69,0.1);">
+                <i class="ph ph-warning-circle" style="color:#dc3545;"></i>
             </div>
-        {% endfor %}
-        {% for message in app.flashes('warning') %}
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-
-        {# --- 1. Cartes de Métriques Clés (KPIs) --- #}
-        <div class="row mb-5 g-4">
-
-            {# KPI 1: Conventions en Attente (Urgent) #}
-            <div class="col-md-4">
-                <div class="card shadow-sm border-danger border-3 rounded-3 h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <span class="fs-1 me-3 text-danger">🚨</span>
-                            <div>
-                                <h6 class="card-subtitle mb-2 text-danger text-uppercase small fw-bold">Action Requise</h6>
-                                <h3 class="card-title mb-0">{{ pending_validation_count }} Conventions</h3>
-                            </div>
-                        </div>
-                        <p class="mt-3 mb-0 text-muted small">Cliquer ci-dessous pour voir la liste à valider.</p>
-                    </div>
-                </div>
-            </div>
-
-            {# KPI 2: Conventions Actives #}
-            <div class="col-md-4">
-                <div class="card shadow-sm border-success border-3 rounded-3 h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <span class="fs-1 me-3 text-success">✅</span>
-                            <div>
-                                <h6 class="card-subtitle mb-2 text-success text-uppercase small fw-bold">Collectes Validees</h6>
-                                <h3 class="card-title mb-0">{{ validated_collections_count }} Conventions</h3>
-                            </div>
-                        </div>
-                        <p class="mt-3 mb-0 text-muted small">Collectes d'informations deja validees par vos soins.</p>
-                    </div>
-                </div>
-            </div>
-
-            {# KPI 3: Étudiants Supervisés #}
-            <div class="col-md-4">
-                <div class="card shadow-sm border-primary border-3 rounded-3 h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <span class="fs-1 me-3 text-primary">🎓</span>
-                            <div>
-                                <h6 class="card-subtitle mb-2 text-primary text-uppercase small fw-bold">Vos Référents</h6>
-                                <h3 class="card-title mb-0">{{ students_count }} Étudiants</h3>
-                            </div>
-                        </div>
-                        <p class="mt-3 mb-0 text-muted small">Nombre total d'étudiants dont vous êtes référent.</p>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        {# --- 2. Section: Conventions à Valider (La plus importante) --- #}
-        <div class="row mb-5">
-            <div class="col-12">
-                <div class="card shadow rounded-3 border-danger">
-                    <div class="card-header bg-danger text-white p-3">
-                        <h4 class="mb-0">🚨 Conventions Nécessitant Votre Validation ({{ pending_validation_count }})</h4>
-                    </div>
-
-                    <div class="card-body p-0">
-                        {% if pending_validation_count == 0 %}
-                            {# Style amélioré pour l'alerte verte #}
-                            <div class="p-4 bg-light-subtle rounded-bottom text-center">
-                                <span class="text-success fs-4 me-2">👍</span>
-                                <span class="fw-bold text-success">Toutes les conventions urgentes ont été traitées. Bon travail !</span>
-                            </div>
-                        {% else %}
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light">
-                                    <tr>
-                                        <th class="py-3 px-3">ID</th>
-                                        <th class="py-3 px-3">Étudiant</th>
-                                        <th class="py-3 px-3">Entreprise</th>
-                                        <th class="py-3 px-3">Statut</th>
-                                        <th class="py-3 px-3" style="width: 250px;">Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for contract in contracts_to_validate %}
-                                        <tr class="alert-danger-subtle">
-                                            <td class="px-3">#{{ contract.id }}</td>
-                                            <td class="px-3">
-                                                <span class="fw-bold">{{ contract.student.firstname }} {{ contract.student.lastname }}</span>
-                                            </td>
-                                            <td class="px-3">{{ contract.organisation.name }}</td>
-                                            <td class="px-3">
-                                                <span class="badge bg-danger fw-bold py-2">ACTION REQUISE</span>
-                                            </td>
-                                            <td class="px-3">
-                                                <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn btn-sm btn-success me-2">
-                                                    Ouvrir et traiter
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
+            <div>
+                <div class="stat-value">{{ pending_validation_count }}</div>
+                <div class="stat-label">Action{{ pending_validation_count > 1 ? 's' : '' }} requise{{ pending_validation_count > 1 ? 's' : '' }}</div>
             </div>
         </div>
-
-        {# --- 3. Section: Collectes deja validees --- #}
-        <div class="row mb-5">
-            <div class="col-12">
-                <div class="card shadow rounded-3 border-success">
-                    <div class="card-header bg-success text-white p-3">
-                        <h4 class="mb-0">✅ Collectes deja validees par vous ({{ validated_collections_count }})</h4>
-                    </div>
-                    <div class="card-body p-0">
-                        {% if validated_collections is empty %}
-                            <div class="p-4 bg-light-subtle rounded-bottom text-center">
-                                <span class="text-muted">Aucune collecte validee pour le moment.</span>
-                            </div>
-                        {% else %}
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light">
-                                    <tr>
-                                        <th class="py-3 px-3">ID</th>
-                                        <th class="py-3 px-3">Etudiant</th>
-                                        <th class="py-3 px-3">Entreprise</th>
-                                        <th class="py-3 px-3">Etape actuelle</th>
-                                        <th class="py-3 px-3">Acces</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for contract in validated_collections %}
-                                        <tr>
-                                            <td class="px-3">#{{ contract.id }}</td>
-                                            <td class="px-3">
-                                                <span class="fw-bold">{{ contract.student.firstname }} {{ contract.student.lastname }}</span>
-                                            </td>
-                                            <td class="px-3">{{ contract.organisation.name }}</td>
-                                            <td class="px-3">
-                                                {% set label = contract.statusLabel %}
-                                                {% set badge_class = 'bg-success' %}
-                                                {% if contract.status == 'validated_by_prof' %}
-                                                    {% set label = 'En attente DDF' %}
-                                                    {% set badge_class = 'bg-primary' %}
-                                                {% elseif contract.status == 'validated_by_ddf' %}
-                                                    {% set label = 'Pret pour signature' %}
-                                                    {% set badge_class = 'bg-info text-dark' %}
-                                                {% elseif contract.status == 'signature_requested' %}
-                                                    {% set label = 'Signature en cours' %}
-                                                    {% set badge_class = 'bg-dark' %}
-                                                {% elseif contract.status == 'signed' %}
-                                                    {% set label = 'Convention signee' %}
-                                                    {% set badge_class = 'bg-success' %}
-                                                {% endif %}
-                                                <span class="badge {{ badge_class }} fw-bold py-2">{{ label }}</span>
-                                            </td>
-                                            <td class="px-3">
-                                                <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn btn-sm btn-outline-success">Voir la collecte</a>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(25,135,84,0.1);">
+                <i class="ph ph-check-circle" style="color:#198754;"></i>
+            </div>
+            <div>
+                <div class="stat-value">{{ validated_collections_count }}</div>
+                <div class="stat-label">Convention{{ validated_collections_count > 1 ? 's' : '' }} validée{{ validated_collections_count > 1 ? 's' : '' }}</div>
             </div>
         </div>
-
-        {# --- 4. Section: Conventions en Suivi (Moins Urgent) --- #}
-        <div class="row">
-            <div class="col-12">
-                <div class="card shadow rounded-3">
-                    <div class="card-header bg-light p-3">
-                        <h4 class="mb-0 text-secondary">Conventions en Suivi (En attente d'autres acteurs)</h4>
-                    </div>
-                    <div class="card-body p-0">
-                        {% set pending_follow_up = all_coordinated_contracts|filter(c => c.status in ['collection_sent', 'filled_by_company', 'validated_by_prof', 'validated_by_ddf', 'signature_requested']) %}
-
-                        {% if pending_follow_up is empty %}
-                            <div class="alert alert-info m-3 mb-0" role="alert">
-                                Aucune convention en attente de l'entreprise ou de l'étudiant.
-                            </div>
-                        {% else %}
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light">
-                                    <tr>
-                                        <th class="py-3 px-3">ID</th>
-                                        <th class="py-3 px-3">Étudiant</th>
-                                        <th class="py-3 px-3">Entreprise</th>
-                                        <th class="py-3 px-3">Statut</th>
-                                        <th class="py-3 px-3">Progression</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for contract in pending_follow_up %}
-                                        <tr>
-                                            <td class="px-3">#{{ contract.id }}</td>
-                                            <td class="px-3">{{ contract.student.firstname }} {{ contract.student.lastname }}</td>
-                                            <td class="px-3">{{ contract.organisation.name }}</td>
-                                            <td class="px-3">
-                                                {% set label = 'En attente' %}
-                                                {% set badge_class = 'bg-warning text-dark' %}
-                                                {% if contract.status == 'collection_sent' %}
-                                                    {% set label = 'Collecte envoyee' %}
-                                                    {% set badge_class = 'bg-secondary' %}
-                                                {% elseif contract.status == 'filled_by_company' %}
-                                                    {% set label = 'Validation etudiant' %}
-                                                    {% set badge_class = 'bg-info text-dark' %}
-                                                {% elseif contract.status == 'validated_by_prof' %}
-                                                    {% set label = 'Validation DDF' %}
-                                                    {% set badge_class = 'bg-primary' %}
-                                                {% elseif contract.status == 'validated_by_ddf' %}
-                                                    {% set label = 'Pret pour signature' %}
-                                                    {% set badge_class = 'bg-primary' %}
-                                                {% elseif contract.status == 'signature_requested' %}
-                                                    {% set label = 'Signature en cours' %}
-                                                    {% set badge_class = 'bg-dark' %}
-                                                {% endif %}
-                                                <span class="badge {{ badge_class }} fw-bold py-2">{{ label }}</span>
-                                            </td>
-                                            <td class="px-3">
-                                                <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn btn-sm btn-outline-secondary">Voir</a>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(13,110,253,0.1);">
+                <i class="ph ph-graduation-cap" style="color:#0d6efd;"></i>
+            </div>
+            <div>
+                <div class="stat-value">{{ students_count }}</div>
+                <div class="stat-label">Étudiant{{ students_count > 1 ? 's' : '' }} référé{{ students_count > 1 ? 's' : '' }}</div>
             </div>
         </div>
+    </div>
 
-        {# --- 5. Section: Mon Profil (Informations Détaillées) --- #}
-        <div class="card shadow-sm mt-5 rounded-3">
-            <div class="card-header bg-light p-3">
-                <h4 class="mb-0 text-secondary">Mon Profil & Sécurité</h4>
-            </div>
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <p><strong>Nom :</strong> {{ professor.lastname }}</p>
-                        <p><strong>Prénom :</strong> {{ professor.firstname }}</p>
-                        <p><strong>Email :</strong> {{ professor.email }}</p>
-                    </div>
-                    <div class="col-md-6 text-md-end">
-                        {# Remplacement du bouton "Modifier mes informations" par "Modifier le mot de passe" #}
-                        {# La route app_forgot_password_request renvoie vers le formulaire de demande de réinitialisation. #}
-                        <a href="{{ path('app_forgot_password_request') }}" class="btn btn-warning">
-                            Modifier le mot de passe
-                        </a>
-                    </div>
-                </div>
-            </div>
+    {# ══════════════════════════════════════════════════ #}
+    {# SECTION 1 — À VALIDER (urgent)                    #}
+    {# ══════════════════════════════════════════════════ #}
+    <div class="dash-section">
+        <div class="dash-section-header">
+            <span class="section-dot" style="background:#dc3545;"></span>
+            <h2>Conventions à valider</h2>
+            <span class="section-count" style="background:rgba(220,53,69,0.1);color:#dc3545;">
+                {{ pending_validation_count }}
+            </span>
         </div>
 
-    </main>
+        {% if pending_validation_count == 0 %}
+            <div class="empty-state">
+                <i class="ph ph-check-circle" style="color:#20c997;"></i>
+                <p>Toutes les conventions urgentes ont été traitées.</p>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="dash-table table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Étudiant</th>
+                            <th>Entreprise</th>
+                            <th>Statut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for contract in contracts_to_validate %}
+                        <tr>
+                            <td><span class="id-pill">#{{ contract.id }}</span></td>
+                            <td>
+                                <div class="cell-name"><i class="ph ph-student me-1 text-muted"></i>{{ contract.student.firstname }} {{ contract.student.lastname }}</div>
+                            </td>
+                            <td>
+                                <div class="cell-name"><i class="ph ph-buildings me-1 text-muted"></i>{{ contract.organisation.name }}</div>
+                            </td>
+                            <td>
+                                <span class="s-chip" style="background:#f8d7da;color:#842029;">
+                                    <span class="s-dot" style="background:#dc3545;"></span> Action requise
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn-dash btn-dash-primary">
+                                    <i class="ph ph-arrow-right"></i> Ouvrir et traiter
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    {# ══════════════════════════════════════════════════ #}
+    {# SECTION 2 — DÉJÀ VALIDÉES                         #}
+    {# ══════════════════════════════════════════════════ #}
+    <div class="dash-section">
+        <div class="dash-section-header">
+            <span class="section-dot" style="background:#198754;"></span>
+            <h2>Conventions déjà validées</h2>
+            <span class="section-count" style="background:rgba(25,135,84,0.1);color:#198754;">
+                {{ validated_collections_count }}
+            </span>
+        </div>
+
+        {% if validated_collections is empty %}
+            <div class="empty-state">
+                <i class="ph ph-folder-open"></i>
+                <p>Aucune convention validée pour le moment.</p>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="dash-table table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Étudiant</th>
+                            <th>Entreprise</th>
+                            <th>Étape actuelle</th>
+                            <th>Accès</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for contract in validated_collections %}
+                        <tr>
+                            <td><span class="id-pill">#{{ contract.id }}</span></td>
+                            <td><div class="cell-name"><i class="ph ph-student me-1 text-muted"></i>{{ contract.student.firstname }} {{ contract.student.lastname }}</div></td>
+                            <td><div class="cell-name"><i class="ph ph-buildings me-1 text-muted"></i>{{ contract.organisation.name }}</div></td>
+                            <td>
+                                {% if contract.status == 'validated_by_prof' %}
+                                    <span class="s-chip" style="background:#e8f0fe;color:#1a56db;"><span class="s-dot" style="background:#0d6efd;"></span> En attente DDF</span>
+                                {% elseif contract.status == 'validated_by_ddf' %}
+                                    <span class="s-chip" style="background:#cff4fc;color:#055160;"><span class="s-dot" style="background:#0dcaf0;"></span> Prêt pour signature</span>
+                                {% elseif contract.status == 'signature_requested' %}
+                                    <span class="s-chip" style="background:#e2e3e5;color:#41464b;"><span class="s-dot" style="background:#6c757d;"></span> Signature en cours</span>
+                                {% elseif contract.status == 'signed' %}
+                                    <span class="s-chip" style="background:#d1e7dd;color:#0a3622;"><span class="s-dot" style="background:#198754;"></span> Signée</span>
+                                {% else %}
+                                    <span class="s-chip" style="background:#d1e7dd;color:#0a3622;"><span class="s-dot" style="background:#198754;"></span> {{ contract.statusLabel }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn-dash btn-dash-muted">
+                                    <i class="ph ph-eye"></i> Voir
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    {# ══════════════════════════════════════════════════ #}
+    {# SECTION 3 — EN SUIVI                              #}
+    {# ══════════════════════════════════════════════════ #}
+    {% set pending_follow_up = all_coordinated_contracts|filter(c => c.status in ['collection_sent','filled_by_company','validated_by_prof','validated_by_ddf','signature_requested']) %}
+    <div class="dash-section">
+        <div class="dash-section-header">
+            <span class="section-dot" style="background:#fd7e14;"></span>
+            <h2>Conventions en suivi</h2>
+            <span class="section-count" style="background:rgba(253,126,20,0.1);color:#fd7e14;">
+                {{ pending_follow_up|length }}
+            </span>
+        </div>
+
+        {% if pending_follow_up is empty %}
+            <div class="empty-state">
+                <i class="ph ph-clock"></i>
+                <p>Aucune convention en attente d'autres acteurs.</p>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="dash-table table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Étudiant</th>
+                            <th>Entreprise</th>
+                            <th>Statut</th>
+                            <th>Accès</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for contract in pending_follow_up %}
+                        <tr>
+                            <td><span class="id-pill">#{{ contract.id }}</span></td>
+                            <td><div class="cell-name">{{ contract.student.firstname }} {{ contract.student.lastname }}</div></td>
+                            <td><div class="cell-name">{{ contract.organisation.name }}</div></td>
+                            <td>
+                                {% if contract.status == 'collection_sent' %}
+                                    <span class="s-chip" style="background:#e9ecef;color:#6c757d;"><span class="s-dot" style="background:#adb5bd;"></span> Collecte envoyée</span>
+                                {% elseif contract.status == 'filled_by_company' %}
+                                    <span class="s-chip" style="background:#cff4fc;color:#055160;"><span class="s-dot" style="background:#0dcaf0;"></span> Validation étudiant</span>
+                                {% elseif contract.status == 'validated_by_prof' %}
+                                    <span class="s-chip" style="background:#e8f0fe;color:#1a56db;"><span class="s-dot" style="background:#0d6efd;"></span> Validation DDF</span>
+                                {% elseif contract.status == 'validated_by_ddf' %}
+                                    <span class="s-chip" style="background:#e8f0fe;color:#1a56db;"><span class="s-dot" style="background:#0d6efd;"></span> Prêt signature</span>
+                                {% elseif contract.status == 'signature_requested' %}
+                                    <span class="s-chip" style="background:#e2e3e5;color:#41464b;"><span class="s-dot" style="background:#6c757d;"></span> Signature en cours</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn-dash btn-dash-muted">
+                                    <i class="ph ph-eye"></i> Voir
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    {# ── PROFIL ── #}
+    <div class="profile-card">
+        <div class="profile-info">
+            <div class="profile-avatar">{{ professor.firstname|first }}{{ professor.lastname|first }}</div>
+            <div>
+                <div style="font-weight:700;font-size:0.95rem;color:#1a1a2e;">{{ professor.firstname }} {{ professor.lastname }}</div>
+                <div style="font-size:0.8rem;color:#6c757d;">{{ professor.email }}</div>
+            </div>
+        </div>
+        <a href="{{ path('app_forgot_password_request') }}" class="btn-dash btn-dash-outline">
+            <i class="ph ph-lock"></i> Modifier mon mot de passe
+        </a>
+    </div>
+
+</main>
 {% endblock %}
