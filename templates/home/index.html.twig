@@ -25,16 +25,101 @@
             text-transform: uppercase;
             margin-bottom: 1.25rem;
         }
-        .hero-image-glow {
+        /* ---- Mockup hero ---- */
+        .hero-mockup {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        .hm-card {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 24px 64px rgba(13, 110, 253, 0.13), 0 4px 16px rgba(0,0,0,0.06);
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        .hm-card-top {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        .hm-avatar {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: linear-gradient(135deg, #0d6efd, #6ea8fe);
+            color: #fff; font-weight: 800; font-size: 0.95rem;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .hm-name  { font-weight: 700; font-size: 0.95rem; color: #1a1a2e; line-height: 1.2; }
+        .hm-role  { font-size: 0.75rem; color: #6c757d; }
+        .hm-status {
+            background: #e8f0fe; color: #1a56db;
+            font-size: 0.72rem; font-weight: 700;
+            padding: 0.28em 0.8em; border-radius: 20px;
+            display: inline-flex; align-items: center; gap: 5px;
+        }
+        .hm-status::before {
+            content: ''; width: 6px; height: 6px;
+            border-radius: 50%; background: #0d6efd;
+        }
+        .hm-field { margin-bottom: 1rem; }
+        .hm-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #adb5bd; margin-bottom: 3px; }
+        .hm-value { font-size: 0.9rem; font-weight: 600; color: #1a1a2e; }
+        .hm-divider { border: none; border-top: 1px solid #f1f3f5; margin: 1.1rem 0; }
+
+        /* Steps */
+        .hm-steps { display: flex; align-items: center; gap: 0; margin-top: 0.5rem; }
+        .hm-step  { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
+        .hm-step-dot {
+            width: 26px; height: 26px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.65rem; font-weight: 700;
+        }
+        .hm-step-dot.done    { background: linear-gradient(135deg,#198754,#51cf66); color: #fff; }
+        .hm-step-dot.active  { background: linear-gradient(135deg,#0d6efd,#6ea8fe); color: #fff; box-shadow: 0 0 0 5px rgba(13,110,253,0.15); }
+        .hm-step-dot.pending { background: #e9ecef; color: #adb5bd; }
+        .hm-step-label { font-size: 0.65rem; color: #6c757d; white-space: nowrap; }
+        .hm-step-line { flex: 1; height: 2px; background: #e9ecef; margin-bottom: 20px; }
+        .hm-step-line.done { background: linear-gradient(90deg,#198754,#51cf66); }
+
+        /* Floating cards */
+        .hm-float-notif {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: -1.4rem; right: -2rem;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(25,135,84,0.18);
+            padding: 0.7rem 1.1rem;
+            display: flex; align-items: center; gap: 9px;
+            font-size: 0.82rem; font-weight: 700; color: #1a1a2e;
+            z-index: 3;
+            animation: floatUp 3s ease-in-out infinite;
+        }
+        .hm-float-stat {
+            position: absolute;
+            bottom: -1.2rem; left: -2rem;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(13,110,253,0.15);
+            padding: 0.7rem 1.2rem;
+            text-align: center;
+            z-index: 3;
+            animation: floatUp 3s ease-in-out infinite 1.5s;
+        }
+        @keyframes floatUp {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-6px); }
+        }
+        .hm-glow {
+            position: absolute;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 420px;
-            height: 420px;
-            background: radial-gradient(circle, rgba(13, 110, 253, 0.13) 0%, transparent 70%);
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(13,110,253,0.1) 0%, transparent 70%);
             border-radius: 50%;
             z-index: 0;
+            pointer-events: none;
         }
 
         /* ---- Stats ---- */
@@ -238,16 +323,70 @@
 
                 </div>
 
-                {# --- Illustration --- #}
+                {# --- Mockup illustration --- #}
                 <div class="col-12 col-lg-6 text-center d-none d-lg-flex align-items-center justify-content-center">
-                    <div class="position-relative" style="width: 100%; max-width: 480px;">
-                        <div class="hero-image-glow"></div>
-                        <img
-                            src="{{ asset('img/Conventio.png') }}"
-                            alt="Illustration Conventio"
-                            class="img-fluid position-relative"
-                            style="max-height: 420px; z-index: 1; filter: drop-shadow(0 24px 48px rgba(13, 110, 253, 0.18));"
-                        >
+                    <div class="hero-mockup">
+                        <div class="hm-glow"></div>
+
+                        {# Floating notif #}
+                        <div class="hm-float-notif">
+                            <i class="ph-bold ph-check-circle" style="color:#198754;font-size:1.2rem;"></i>
+                            Convention validée !
+                        </div>
+
+                        {# Main card #}
+                        <div class="hm-card">
+                            <div class="hm-card-top">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="hm-avatar">PH</div>
+                                    <div>
+                                        <div class="hm-name">Paco Hybord</div>
+                                        <div class="hm-role">Étudiant · BTS SIO</div>
+                                    </div>
+                                </div>
+                                <span class="hm-status">En cours</span>
+                            </div>
+
+                            <div class="hm-field">
+                                <div class="hm-label">Entreprise</div>
+                                <div class="hm-value"><i class="ph ph-buildings me-1 text-muted"></i>Société Générale</div>
+                            </div>
+                            <div class="hm-field">
+                                <div class="hm-label">Tuteur entreprise</div>
+                                <div class="hm-value"><i class="ph ph-envelope me-1 text-muted"></i>marc.dupont@sg.fr</div>
+                            </div>
+
+                            <hr class="hm-divider">
+
+                            <div class="hm-label mb-2">Progression</div>
+                            <div class="hm-steps">
+                                <div class="hm-step">
+                                    <div class="hm-step-dot done"><i class="ph-bold ph-check"></i></div>
+                                    <div class="hm-step-label">Initié</div>
+                                </div>
+                                <div class="hm-step-line done"></div>
+                                <div class="hm-step">
+                                    <div class="hm-step-dot done"><i class="ph-bold ph-check"></i></div>
+                                    <div class="hm-step-label">Complété</div>
+                                </div>
+                                <div class="hm-step-line"></div>
+                                <div class="hm-step">
+                                    <div class="hm-step-dot active">3</div>
+                                    <div class="hm-step-label">Validation</div>
+                                </div>
+                                <div class="hm-step-line"></div>
+                                <div class="hm-step">
+                                    <div class="hm-step-dot pending">4</div>
+                                    <div class="hm-step-label">Signé</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {# Floating stat #}
+                        <div class="hm-float-stat">
+                            <div style="font-size:1.1rem;font-weight:800;color:#0d6efd;">&lt;&nbsp;5 min</div>
+                            <div style="font-size:0.7rem;color:#6c757d;">Pour créer</div>
+                        </div>
                     </div>
                 </div>
 

@@ -4,10 +4,8 @@
 
 {% block back_button %}
     <div class="container pt-3">
-        <a href="{{ path('app_professor_show', {'id': app.user.id}) }}"
-           class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center"
-           style="width:2rem;height:2rem;padding:0;">
-            <i class="ph ph-arrow-left" style="font-size:1.1rem;"></i>
+        <a href="{{ path('app_professor_show', {'id': app.user.id}) }}" class="btn-retour">
+            <i class="ph ph-arrow-left"></i> Retour
         </a>
     </div>
 {% endblock %}
