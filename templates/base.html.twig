@@ -21,12 +21,54 @@
             .navbar-glass {
                 position: sticky;
                 top: 0;
-                z-index: 1030;
+                z-index: 1050;
                 background: rgba(255, 255, 255, 0.82) !important;
                 backdrop-filter: blur(16px);
                 -webkit-backdrop-filter: blur(16px);
                 border-bottom: 1px solid rgba(0, 0, 0, 0.07);
             }
+
+            /* Flash messages — toujours en bas, jamais sous la navbar */
+            .flash-container {
+                position: fixed;
+                bottom: 1.5rem;
+                right: 1.5rem;
+                z-index: 1060;
+                display: flex;
+                flex-direction: column;
+                gap: 0.6rem;
+                max-width: 380px;
+                width: calc(100% - 3rem);
+            }
+            .flash-toast {
+                background: #fff;
+                border-radius: 12px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+                padding: 0.85rem 1.1rem;
+                display: flex;
+                align-items: flex-start;
+                gap: 0.65rem;
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: #1a1a2e;
+                border-left: 4px solid transparent;
+                animation: slideInToast 0.25s ease;
+            }
+            @keyframes slideInToast {
+                from { opacity: 0; transform: translateY(16px); }
+                to   { opacity: 1; transform: translateY(0); }
+            }
+            .flash-toast.success { border-color: #198754; }
+            .flash-toast.danger  { border-color: #dc3545; }
+            .flash-toast.warning { border-color: #ffc107; }
+            .flash-toast.info    { border-color: #0dcaf0; }
+            .flash-toast-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+            .flash-toast-close {
+                margin-left: auto; background: none; border: none;
+                cursor: pointer; color: #adb5bd; font-size: 1rem;
+                padding: 0; line-height: 1; flex-shrink: 0;
+            }
+            .flash-toast-close:hover { color: #6c757d; }
 
             /* Logo */
             .navbar-brand-text {
@@ -236,6 +278,33 @@
 
     {# Bouton retour - affiché si une page le demande #}
     {% block back_button %}{% endblock %}
+
+    {# ── Flash messages globaux (toasts bas-droite, toujours au-dessus de la navbar) ── #}
+    {% if app.flashes|length > 0 %}
+        <div class="flash-container" id="flashContainer">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="flash-toast {{ label == 'error' ? 'danger' : label }}">
+                        <span class="flash-toast-icon">
+                            {% if label == 'success' %}✅
+                            {% elseif label == 'error' or label == 'danger' %}❌
+                            {% elseif label == 'warning' %}⚠️
+                            {% else %}ℹ️
+                            {% endif %}
+                        </span>
+                        <span>{{ message }}</span>
+                        <button class="flash-toast-close" onclick="this.closest('.flash-toast').remove()">✕</button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        <script>
+            setTimeout(function() {
+                var c = document.getElementById('flashContainer');
+                if (c) c.style.opacity = '0', c.style.transition = 'opacity 0.5s', setTimeout(function(){ c.remove(); }, 500);
+            }, 5000);
+        </script>
+    {% endif %}
 
 {% block body %}
 

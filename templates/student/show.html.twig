@@ -17,7 +17,17 @@
         justify-content: space-between;
         flex-wrap: wrap;
         gap: 1rem;
+        position: relative;
+        overflow: hidden;
     }
+    .student-hero::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image: radial-gradient(rgba(255,255,255,0.18) 1px, transparent 1px);
+        background-size: 20px 20px;
+        pointer-events: none;
+    }
+    .student-hero > * { position: relative; z-index: 1; }
     .student-hero-avatar {
         width: 56px; height: 56px;
         background: rgba(255,255,255,0.2);

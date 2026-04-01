@@ -1,67 +1,222 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nouvelle demande de convention{% endblock %}
+{% block title %}Nouvelle convention de stage{% endblock %}
 
 {% block back_button %}
     <div class="container pt-3">
-        <button onclick="history.back()" class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center" style="width:2rem;height:2rem;padding:0;">
+        <a href="{{ path('app_student_show', {'id': app.user.id}) }}"
+           class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center"
+           style="width:2rem;height:2rem;padding:0;">
             <i class="ph ph-arrow-left" style="font-size:1.1rem;"></i>
-        </button>
+        </a>
     </div>
 {% endblock %}
 
 {% block body %}
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="card shadow-sm rounded-4 border-0">
-                    <div class="card-body p-5">
-                        <h1 class="h3 mb-4 text-primary text-center">Démarrer une convention</h1>
+<style>
+    .init-wrapper {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        align-items: center;
+        padding: 2.5rem 0;
+    }
 
-                        {# --- 1. AFFICHER LES MESSAGES FLASH (Erreurs du contrôleur) --- #}
-                        {# C'est ici que l'erreur "Aucun professeur..." s'affichera #}
-                        {% for label, messages in app.flashes %}
-                            {% for message in messages %}
-                                <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
-                                    <i class="fas fa-exclamation-circle me-2"></i> {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            {% endfor %}
-                        {% endfor %}
-                        {# -------------------------------------------------------------- #}
+    /* ── HERO LATÉRAL ─────────────────────────────────── */
+    .init-hero {
+        background: linear-gradient(135deg, #0d6efd 0%, #6ea8fe 100%);
+        border-radius: 20px 0 0 20px;
+        padding: 3rem 2.5rem;
+        color: #fff;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .init-hero::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image: radial-gradient(rgba(255,255,255,0.18) 1px, transparent 1px);
+        background-size: 20px 20px;
+        pointer-events: none;
+    }
+    .init-hero > * { position: relative; z-index: 1; }
+    .init-hero h2  { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 0.75rem; }
+    .init-hero p   { opacity: 0.8; font-size: 0.9rem; line-height: 1.7; margin: 0 0 2rem; }
 
-                        <div class="alert alert-info border-0 bg-info-subtle text-info-emphasis mt-3">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Vous ne connaissez pas toutes les informations administratives de l'entreprise ?
-                            Remplissez ce formulaire et nous enverrons un email à votre tuteur pour qu'il le fasse à votre place.
+    .step-list { display: flex; flex-direction: column; gap: 1rem; }
+    .step-item { display: flex; align-items: flex-start; gap: 0.85rem; }
+    .step-num  {
+        width: 28px; height: 28px; flex-shrink: 0;
+        background: rgba(255,255,255,0.2);
+        border: 1.5px solid rgba(255,255,255,0.35);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.75rem; font-weight: 800; color: #fff;
+    }
+    .step-text { font-size: 0.85rem; line-height: 1.5; padding-top: 4px; }
+    .step-text strong { display: block; font-weight: 700; }
+    .step-text span   { opacity: 0.75; }
+
+    /* ── FORMULAIRE ───────────────────────────────────── */
+    .init-form-panel {
+        background: #fff;
+        border-radius: 0 20px 20px 0;
+        padding: 3rem 2.5rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    @media (max-width: 767px) {
+        .init-hero    { border-radius: 20px 20px 0 0; }
+        .init-form-panel { border-radius: 0 0 20px 20px; }
+    }
+
+    .init-form-panel h1 {
+        font-size: 1.35rem; font-weight: 800;
+        color: #1a1a2e; margin: 0 0 0.35rem;
+    }
+    .init-form-panel .subtitle {
+        font-size: 0.875rem; color: #6c757d; margin: 0 0 2rem;
+    }
+
+    /* Champs */
+    .field-group { margin-bottom: 1.5rem; }
+    .field-group label {
+        display: block;
+        font-size: 0.75rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.07em;
+        color: #6c757d; margin-bottom: 0.4rem;
+    }
+    .field-group .form-control {
+        border: 1.5px solid rgba(0,0,0,0.12);
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem; color: #1a1a2e;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        background: #fafafa;
+    }
+    .field-group .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13,110,253,0.1);
+        background: #fff; outline: none;
+    }
+    .field-group .form-control::placeholder { color: #adb5bd; }
+
+    /* Info box */
+    .info-box {
+        display: flex; align-items: flex-start; gap: 0.75rem;
+        background: #f0f4ff;
+        border-radius: 10px;
+        padding: 0.85rem 1rem;
+        margin-bottom: 1.75rem;
+        font-size: 0.82rem; color: #1a56db; line-height: 1.6;
+    }
+    .info-box i { font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+
+    /* Bouton */
+    .btn-submit {
+        width: 100%;
+        padding: 0.85rem;
+        border-radius: 50px;
+        background: linear-gradient(135deg, #0d6efd, #6ea8fe);
+        color: #fff; font-size: 0.95rem; font-weight: 700;
+        border: none; cursor: pointer;
+        box-shadow: 0 6px 20px rgba(13,110,253,0.35);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 28px rgba(13,110,253,0.45);
+    }
+</style>
+
+<div class="container init-wrapper">
+    <div class="w-100">
+        <div class="row g-0 shadow-lg" style="border-radius:20px;overflow:hidden;max-width:860px;margin:0 auto;">
+
+            {# ── CÔTÉ GAUCHE : HERO ── #}
+            <div class="col-md-5">
+                <div class="init-hero">
+                    <div style="margin-bottom:1.75rem;">
+                        <div style="width:52px;height:52px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.3);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.25rem;">
+                            <i class="ph-bold ph-file-plus"></i>
                         </div>
+                        <h2>Démarrer une<br>convention de stage</h2>
+                        <p>Renseignez les infos de base et on s'occupe du reste — un email sera envoyé à votre tuteur automatiquement.</p>
+                    </div>
 
-                        {{ form_start(form) }}
-
-                        {# --- 2. AFFICHER LES ERREURS DU FORMULAIRE (CSRF, etc.) --- #}
-                        {% if form.vars.errors|length > 0 %}
-                            <div class="alert alert-danger mt-3">
-                                {{ form_errors(form) }}
+                    <div class="step-list">
+                        <div class="step-item">
+                            <div class="step-num">1</div>
+                            <div class="step-text">
+                                <strong>Vous initiez</strong>
+                                <span>Nom de l'entreprise + email du tuteur</span>
                             </div>
-                        {% endif %}
-                        {# ---------------------------------------------------------- #}
-
-                        <div class="mb-4 mt-4">
-                            {{ form_row(form.companyName, {'attr': {'class': 'form-control form-control-lg'}}) }}
                         </div>
-                        <div class="mb-4">
-                            {{ form_row(form.tutorEmail, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                        <div class="step-item">
+                            <div class="step-num">2</div>
+                            <div class="step-text">
+                                <strong>Le tuteur complète</strong>
+                                <span>Il reçoit un lien sécurisé par email</span>
+                            </div>
                         </div>
-
-                        <div class="d-grid mt-5">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                Envoyer la demande <i class="fas fa-paper-plane ms-2"></i>
-                            </button>
+                        <div class="step-item">
+                            <div class="step-num">3</div>
+                            <div class="step-text">
+                                <strong>Le professeur valide</strong>
+                                <span>Votre référent reçoit la convention</span>
+                            </div>
                         </div>
-                        {{ form_end(form) }}
                     </div>
                 </div>
             </div>
+
+            {# ── CÔTÉ DROIT : FORMULAIRE ── #}
+            <div class="col-md-7">
+                <div class="init-form-panel">
+                    <h1><i class="ph ph-buildings me-2" style="color:#0d6efd;"></i>Nouvelle convention</h1>
+                    <p class="subtitle">Deux informations suffisent pour démarrer.</p>
+
+                    <div class="info-box">
+                        <i class="ph ph-info"></i>
+                        <span>Vous ne connaissez pas toutes les infos de l'entreprise ? Pas de problème — votre tuteur recevra un lien pour les compléter lui-même.</span>
+                    </div>
+
+                    {% if form.vars.errors|length > 0 %}
+                        <div class="alert alert-danger border-0 rounded-3 mb-3" style="font-size:0.875rem;">
+                            <i class="ph ph-warning me-2"></i>{{ form_errors(form) }}
+                        </div>
+                    {% endif %}
+
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                    <div class="field-group">
+                        {{ form_label(form.companyName) }}
+                        {{ form_widget(form.companyName, {'attr': {'class': 'form-control', 'placeholder': 'ex : Société Générale, Orange, SSII Locale...'}}) }}
+                        {{ form_errors(form.companyName) }}
+                    </div>
+
+                    <div class="field-group">
+                        {{ form_label(form.tutorEmail) }}
+                        {{ form_widget(form.tutorEmail, {'attr': {'class': 'form-control', 'placeholder': 'ex : tuteur@entreprise.fr'}}) }}
+                        {{ form_errors(form.tutorEmail) }}
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="ph-bold ph-paper-plane-tilt"></i>
+                        Envoyer la demande
+                    </button>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
         </div>
     </div>
+</div>
 {% endblock %}
