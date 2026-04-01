@@ -4,445 +4,543 @@
 
 {% block content %}
 <style>
+    /* ── HERO ─────────────────────────────────────────────────── */
     .ddf-hero {
         background: linear-gradient(135deg, #0d6efd 0%, #6ea8fe 100%);
         border-radius: 16px;
         padding: 2rem 2.5rem;
         color: #fff;
         margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        position: relative;
+        overflow: hidden;
     }
-    .ddf-hero h1 { font-weight: 800; letter-spacing: -0.03em; font-size: 1.8rem; }
-    .ddf-hero p { opacity: 0.85; margin-bottom: 0; font-size: 0.95rem; }
+    .ddf-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(rgba(255,255,255,0.18) 1px, transparent 1px);
+        background-size: 20px 20px;
+        pointer-events: none;
+        border-radius: 16px;
+    }
+    .ddf-hero > * { position: relative; z-index: 1; }
+    .ddf-hero h1 { font-weight: 800; letter-spacing: -0.03em; font-size: 1.8rem; margin: 0 0 0.25rem; }
+    .ddf-hero p  { opacity: 0.8; margin: 0; font-size: 0.9rem; }
+    .hero-stat { text-align: center; }
+    .hero-stat-value { font-size: 2rem; font-weight: 800; line-height: 1; }
+    .hero-stat-label { font-size: 0.72rem; opacity: 0.75; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .hero-sep { width: 1px; background: rgba(255,255,255,0.25); align-self: stretch; }
 
-    .stat-card {
-        border: none;
-        border-radius: 14px;
+    /* ── SECTIONS ─────────────────────────────────────────────── */
+    .ddf-section {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.07);
+        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        overflow: hidden;
+        margin-bottom: 1.75rem;
+    }
+    .ddf-section-header {
+        display: flex; align-items: center; gap: 0.65rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        background: #fafafa;
+    }
+    .ddf-section-header h2 { font-size: 0.92rem; font-weight: 700; margin: 0; color: #1a1a2e; }
+    .section-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .section-count {
+        margin-left: auto;
+        font-size: 0.72rem; font-weight: 700;
+        padding: 0.2em 0.65em;
+        border-radius: 20px;
+    }
+
+    /* ── TABLEAU SIMPLE ───────────────────────────────────────── */
+    .ddf-table thead th {
+        font-size: 0.72rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.05em;
+        color: #6c757d; background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        padding: 0.7rem 1.25rem;
+        white-space: nowrap;
+    }
+    .ddf-table tbody td {
+        padding: 0.9rem 1.25rem;
+        vertical-align: middle;
+        font-size: 0.875rem;
+        border-bottom: 1px solid #f1f3f5;
+    }
+    .ddf-table tbody tr:last-child td { border-bottom: none; }
+    .ddf-table tbody tr:hover td { background: #f8fbff; }
+
+    .id-pill {
+        background: #e9ecef; color: #6c757d;
+        font-size: 0.7rem; font-weight: 700;
+        padding: 0.2em 0.6em; border-radius: 6px;
+        display: inline-block;
+    }
+    .cell-name { font-weight: 600; color: #212529; }
+    .cell-sub  { font-size: 0.78rem; color: #6c757d; }
+
+    /* ── BOUTONS ──────────────────────────────────────────────── */
+    .btn-ddf {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 0.38rem 0.85rem;
+        border-radius: 8px;
+        font-size: 0.78rem; font-weight: 600;
+        border: 1.5px solid transparent;
+        text-decoration: none;
+        transition: all 0.18s ease;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+    .btn-ddf-primary  { background: #0d6efd; color: #fff; border-color: #0d6efd; }
+    .btn-ddf-primary:hover  { background: #0b5ed7; color: #fff; }
+    .btn-ddf-outline  { background: #fff; color: #0d6efd; border-color: rgba(13,110,253,0.4); }
+    .btn-ddf-outline:hover  { background: rgba(13,110,253,0.06); color: #0d6efd; }
+    .btn-ddf-muted    { background: #fff; color: #6c757d; border-color: rgba(0,0,0,0.15); }
+    .btn-ddf-muted:hover    { background: #f8f9fa; color: #495057; }
+    .btn-ddf-success  { background: #fff; color: #198754; border-color: rgba(25,135,84,0.4); }
+    .btn-ddf-success:hover  { background: rgba(25,135,84,0.06); color: #198754; }
+
+    /* ── CARTES SIGNATURES EN COURS ───────────────────────────── */
+    .sig-cards { display: flex; flex-direction: column; gap: 0; }
+
+    .sig-card {
         padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #f1f3f5;
+        transition: background 0.15s;
+    }
+    .sig-card:last-child { border-bottom: none; }
+    .sig-card:hover { background: #f8fbff; }
+
+    /* Ligne du haut : ID + étudiant + entreprise + bouton PDF */
+    .sig-card-top {
         display: flex;
         align-items: center;
         gap: 1rem;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
     }
-    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.10); }
-    .stat-icon {
-        width: 48px; height: 48px;
-        border-radius: 12px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.4rem; flex-shrink: 0;
-    }
-    .stat-value { font-size: 1.6rem; font-weight: 800; line-height: 1; }
-    .stat-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.6; margin-top: 2px; }
+    .sig-card-identity { flex: 1; min-width: 200px; }
+    .sig-card-identity .name { font-weight: 700; font-size: 0.9rem; color: #1a1a2e; }
+    .sig-card-identity .company { font-size: 0.8rem; color: #6c757d; margin-top: 2px; }
 
-    .section-card {
-        border: none;
-        border-radius: 16px;
-        box-shadow: 0 2px 16px rgba(0,0,0,0.07);
-        overflow: hidden;
-        margin-bottom: 1.5rem;
+    /* Ligne du bas : statut global + signataires + manquants + IDs + action */
+    .sig-card-body {
+        display: grid;
+        grid-template-columns: auto 1fr auto auto auto;
+        gap: 1.25rem;
+        align-items: start;
     }
-    .section-header {
-        display: flex; align-items: center; gap: 0.6rem;
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid rgba(0,0,0,0.06);
-        background: #fff;
+    @media (max-width: 992px) {
+        .sig-card-body { grid-template-columns: 1fr 1fr; }
+        .sig-card-body > *:last-child { grid-column: 1 / -1; }
     }
-    .section-header .section-dot {
-        width: 10px; height: 10px;
-        border-radius: 50%; flex-shrink: 0;
+    @media (max-width: 576px) {
+        .sig-card-body { grid-template-columns: 1fr; }
     }
-    .section-header h2 { font-size: 0.95rem; font-weight: 700; margin: 0; }
-    .section-header .badge-count {
-        margin-left: auto;
-        font-size: 0.75rem;
-        padding: 0.25em 0.65em;
+
+    .sig-block-label {
+        font-size: 0.68rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.07em;
+        color: #adb5bd; margin-bottom: 0.4rem;
+    }
+
+    /* Badge statut de la demande */
+    .req-status-badge {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 0.3em 0.8em;
         border-radius: 20px;
-        font-weight: 600;
+        font-size: 0.78rem; font-weight: 700;
+        background: #e8f0fe; color: #1a56db;
+        white-space: nowrap;
     }
 
+    /* Liste des signataires */
+    .signers-list { display: flex; flex-direction: column; gap: 6px; }
+    .signer-item {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 0.8rem;
+    }
+    .signer-role-tag {
+        font-size: 0.68rem; font-weight: 700;
+        color: #6c757d;
+        background: #f1f3f5;
+        padding: 0.15em 0.5em;
+        border-radius: 5px;
+        white-space: nowrap;
+        min-width: 60px;
+        text-align: center;
+    }
+    .signer-name { color: #212529; font-weight: 500; }
+    .signer-badge {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 0.18em 0.55em;
+        border-radius: 6px;
+        font-size: 0.68rem; font-weight: 700;
+        white-space: nowrap;
+        margin-left: auto;
+    }
+    .signer-badge-done    { background: #d1e7dd; color: #0a3622; }
+    .signer-badge-pending { background: #fff3cd; color: #664d03; }
+
+    /* Manquants */
+    .missing-chip {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 0.25em 0.7em;
+        border-radius: 8px;
+        font-size: 0.75rem; font-weight: 600;
+    }
+    .missing-chip-ok      { background: #d1e7dd; color: #0a3622; }
+    .missing-chip-waiting { background: #fff3cd; color: #664d03; }
+
+    /* IDs YouSign */
+    .yousign-ids { display: flex; flex-direction: column; gap: 4px; }
+    .yousign-id-row { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: #6c757d; }
+    .yousign-id-label { font-weight: 700; opacity: 0.6; min-width: 28px; }
+    .yousign-id-value {
+        font-family: monospace;
+        background: #f1f3f5;
+        padding: 2px 6px; border-radius: 4px;
+        max-width: 140px;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        display: inline-block;
+    }
+
+    /* ── EMPTY STATE ──────────────────────────────────────────── */
     .empty-state {
         display: flex; flex-direction: column; align-items: center;
         padding: 3rem 1rem; color: #adb5bd; text-align: center;
     }
-    .empty-state i { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .empty-state i { font-size: 2.5rem; margin-bottom: 0.6rem; }
     .empty-state p { font-size: 0.875rem; margin: 0; }
-
-    .table thead th {
-        font-size: 0.75rem; font-weight: 700;
-        text-transform: uppercase; letter-spacing: 0.05em;
-        color: #6c757d; background: #f8f9fa;
-        border-bottom: 1px solid #e9ecef; padding: 0.75rem 1rem;
-    }
-    .table tbody td { padding: 0.85rem 1rem; vertical-align: middle; font-size: 0.875rem; }
-    .table tbody tr:last-child td { border-bottom: none; }
-    .table tbody tr:hover td { background: #f8fbff; }
-
-    .student-name { font-weight: 600; color: #212529; }
-    .company-name { color: #495057; }
-    .id-badge {
-        display: inline-block;
-        background: #e9ecef; color: #6c757d;
-        font-size: 0.7rem; font-weight: 700;
-        padding: 0.15em 0.55em; border-radius: 6px;
-    }
-
-    .signer-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 4px; font-size: 0.8rem; }
-    .signer-role { color: #6c757d; min-width: 70px; }
-
-    .code-id {
-        font-family: monospace; font-size: 0.72rem;
-        background: #f1f3f5; padding: 2px 6px;
-        border-radius: 4px; color: #495057;
-        max-width: 120px; overflow: hidden;
-        text-overflow: ellipsis; white-space: nowrap;
-        display: inline-block; vertical-align: middle;
-    }
-
-    .btn-action {
-        border-radius: 8px; font-size: 0.8rem; font-weight: 600;
-        padding: 0.4rem 0.8rem; border: 1.5px solid transparent;
-        transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 5px;
-    }
-    .btn-action-primary { background: #0d6efd; color: #fff; border-color: #0d6efd; }
-    .btn-action-primary:hover { background: #0b5ed7; color: #fff; transform: translateY(-1px); }
-    .btn-action-outline { background: transparent; color: #0d6efd; border-color: rgba(13,110,253,0.35); }
-    .btn-action-outline:hover { background: rgba(13,110,253,0.07); color: #0d6efd; }
-    .btn-action-muted { background: transparent; color: #6c757d; border-color: rgba(0,0,0,0.15); }
-    .btn-action-muted:hover { background: #f8f9fa; color: #495057; }
-    .btn-action-success { background: transparent; color: #198754; border-color: rgba(25,135,84,0.35); }
-    .btn-action-success:hover { background: rgba(25,135,84,0.07); color: #198754; }
 </style>
 
 <main class="container py-5">
 
-    {# HERO #}
-    <div class="ddf-hero d-flex align-items-center justify-content-between flex-wrap gap-3">
+    {# ── HERO ── #}
+    <div class="ddf-hero">
         <div>
-            <h1 class="mb-1"><i class="ph-bold ph-file-signature me-2"></i>Validation DDF</h1>
+            <h1><i class="ph-bold ph-file-signature me-2"></i>Validation DDF</h1>
             <p>Validation administrative, génération du PDF et envoi à la signature électronique.</p>
         </div>
-        <div class="d-flex gap-3 flex-wrap">
-            <div class="text-center">
-                <div style="font-size:2rem;font-weight:800;">{{ contracts_to_validate|length }}</div>
-                <div style="font-size:0.75rem;opacity:0.8;">À valider</div>
+        <div class="d-flex align-items-center gap-4">
+            <div class="hero-stat">
+                <div class="hero-stat-value">{{ contracts_to_validate|length }}</div>
+                <div class="hero-stat-label">À valider</div>
             </div>
-            <div style="width:1px;background:rgba(255,255,255,0.3)"></div>
-            <div class="text-center">
-                <div style="font-size:2rem;font-weight:800;">{{ signature_in_progress|length }}</div>
-                <div style="font-size:0.75rem;opacity:0.8;">En signature</div>
+            <div class="hero-sep"></div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">{{ signature_in_progress|length }}</div>
+                <div class="hero-stat-label">En signature</div>
             </div>
-            <div style="width:1px;background:rgba(255,255,255,0.3)"></div>
-            <div class="text-center">
-                <div style="font-size:2rem;font-weight:800;">{{ signed_contracts|length }}</div>
-                <div style="font-size:0.75rem;opacity:0.8;">Finalisées</div>
+            <div class="hero-sep"></div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">{{ signed_contracts|length }}</div>
+                <div class="hero-stat-label">Finalisées</div>
             </div>
         </div>
     </div>
 
-    {# FLASH MESSAGES #}
+    {# ── FLASH MESSAGES ── #}
     {% for label, messages in app.flashes %}
         {% for message in messages %}
-            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show mb-3" role="alert">
-                <i class="ph-bold {{ label == 'error' or label == 'danger' ? 'ph-warning' : (label == 'success' ? 'ph-check-circle' : 'ph-info') }} me-2"></i>
+            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show mb-3 border-0 shadow-sm" role="alert">
+                <i class="ph-bold {{ label == 'error' or label == 'danger' ? 'ph-warning-circle' : (label == 'success' ? 'ph-check-circle' : 'ph-info') }} me-2"></i>
                 {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         {% endfor %}
     {% endfor %}
 
-    {# ── SECTION 1 : À VALIDER ────────────────────────────────────────────── #}
-    <div class="section-card">
-        <div class="section-header">
-            <span class="section-dot" style="background:#fd7e14"></span>
+    {# ══════════════════════════════════════════════════════════ #}
+    {# SECTION 1 — CONVENTIONS À VALIDER                         #}
+    {# ══════════════════════════════════════════════════════════ #}
+    <div class="ddf-section">
+        <div class="ddf-section-header">
+            <span class="section-dot" style="background:#fd7e14;"></span>
             <h2>Conventions à valider</h2>
-            <span class="badge-count badge" style="background:rgba(253,126,20,0.12);color:#fd7e14;">
+            <span class="section-count" style="background:rgba(253,126,20,0.12);color:#fd7e14;">
                 {{ contracts_to_validate|length }}
             </span>
         </div>
-        <div class="card-body p-0">
-            {% if contracts_to_validate is empty %}
-                <div class="empty-state">
-                    <i class="ph ph-check-circle" style="color:#20c997"></i>
-                    <p>Aucune convention en attente de validation DDF.</p>
-                </div>
-            {% else %}
-                <div class="table-responsive">
-                    <table class="table mb-0">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Étudiant</th>
-                                <th>Entreprise</th>
-                                <th>Professeur</th>
-                                <th>PDF</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for contract in contracts_to_validate %}
-                            <tr>
-                                <td><span class="id-badge">#{{ contract.id }}</span></td>
-                                <td>
-                                    <span class="student-name">
-                                        <i class="ph ph-student me-1 text-muted"></i>
-                                        {{ contract.student.firstname }} {{ contract.student.lastname }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="company-name">
-                                        <i class="ph ph-buildings me-1 text-muted"></i>
-                                        {{ contract.organisation.name }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="company-name">
-                                        <i class="ph ph-chalkboard-teacher me-1 text-muted"></i>
-                                        {{ contract.coordinator.firstname }} {{ contract.coordinator.lastname }}
-                                    </span>
-                                </td>
-                                <td>
-                                    {% if contract.pdfUnsigned %}
-                                        <div class="d-flex gap-2 flex-wrap">
-                                            <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn-action btn-action-outline">
-                                                <i class="ph ph-eye"></i> Voir
-                                            </a>
-                                            <form method="post" action="{{ path('app_ddf_contract_generate_pdf', {'id': contract.id}) }}">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('ddf_generate_pdf_contract' ~ contract.id) }}">
-                                                <button class="btn-action btn-action-muted" type="submit">
-                                                    <i class="ph ph-arrow-clockwise"></i> Regénérer
-                                                </button>
-                                            </form>
-                                        </div>
-                                    {% else %}
+
+        {% if contracts_to_validate is empty %}
+            <div class="empty-state">
+                <i class="ph ph-check-circle" style="color:#20c997;"></i>
+                <p>Aucune convention en attente de validation DDF.</p>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="ddf-table table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Étudiant</th>
+                            <th>Entreprise</th>
+                            <th>Professeur</th>
+                            <th>PDF</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for contract in contracts_to_validate %}
+                        <tr>
+                            <td><span class="id-pill">#{{ contract.id }}</span></td>
+                            <td>
+                                <div class="cell-name"><i class="ph ph-student me-1 text-muted"></i>{{ contract.student.firstname }} {{ contract.student.lastname }}</div>
+                            </td>
+                            <td>
+                                <div class="cell-name"><i class="ph ph-buildings me-1 text-muted"></i>{{ contract.organisation.name }}</div>
+                            </td>
+                            <td>
+                                <div class="cell-name">{{ contract.coordinator.firstname }} {{ contract.coordinator.lastname }}</div>
+                                <div class="cell-sub">{{ contract.coordinator.email }}</div>
+                            </td>
+                            <td>
+                                {% if contract.pdfUnsigned %}
+                                    <div class="d-flex gap-2">
+                                        <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn-ddf btn-ddf-outline">
+                                            <i class="ph ph-eye"></i> Voir
+                                        </a>
                                         <form method="post" action="{{ path('app_ddf_contract_generate_pdf', {'id': contract.id}) }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token('ddf_generate_pdf_contract' ~ contract.id) }}">
-                                            <button class="btn-action btn-action-outline" type="submit">
-                                                <i class="ph ph-file-pdf"></i> Générer le PDF
-                                            </button>
+                                            <button class="btn-ddf btn-ddf-muted" type="submit"><i class="ph ph-arrow-clockwise"></i> Regénérer</button>
                                         </form>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <form method="post" action="{{ path('app_ddf_contract_validate', {'id': contract.id}) }}">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('ddf_validate_contract' ~ contract.id) }}">
-                                        <button class="btn-action btn-action-primary" type="submit">
-                                            <i class="ph ph-paper-plane-tilt"></i> Valider & envoyer
-                                        </button>
+                                    </div>
+                                {% else %}
+                                    <form method="post" action="{{ path('app_ddf_contract_generate_pdf', {'id': contract.id}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('ddf_generate_pdf_contract' ~ contract.id) }}">
+                                        <button class="btn-ddf btn-ddf-outline" type="submit"><i class="ph ph-file-pdf"></i> Générer le PDF</button>
                                     </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% endif %}
-        </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="post" action="{{ path('app_ddf_contract_validate', {'id': contract.id}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('ddf_validate_contract' ~ contract.id) }}">
+                                    <button class="btn-ddf btn-ddf-primary" type="submit"><i class="ph ph-paper-plane-tilt"></i> Valider & envoyer</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
     </div>
 
-    {# ── SECTION 2 : SIGNATURES EN COURS ─────────────────────────────────── #}
-    <div class="section-card">
-        <div class="section-header">
-            <span class="section-dot" style="background:#0d6efd"></span>
+    {# ══════════════════════════════════════════════════════════ #}
+    {# SECTION 2 — SIGNATURES EN COURS (cartes)                  #}
+    {# ══════════════════════════════════════════════════════════ #}
+    <div class="ddf-section">
+        <div class="ddf-section-header">
+            <span class="section-dot" style="background:#0d6efd;"></span>
             <h2>Signatures en cours</h2>
-            <span class="badge-count badge" style="background:rgba(13,110,253,0.1);color:#0d6efd;">
+            <span class="section-count" style="background:rgba(13,110,253,0.1);color:#0d6efd;">
                 {{ signature_in_progress|length }}
             </span>
         </div>
-        <div class="card-body p-0">
-            {% if signature_in_progress is empty %}
-                <div class="empty-state">
-                    <i class="ph ph-signature"></i>
-                    <p>Aucune signature en cours.</p>
-                </div>
-            {% else %}
-                <div class="table-responsive">
-                    <table class="table mb-0">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Étudiant</th>
-                                <th>Entreprise</th>
-                                <th>PDF</th>
-                                <th>Statut & signataires</th>
-                                <th>Il manque</th>
-                                <th>Identifiants YouSign</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for contract in signature_in_progress %}
-                            {% set signature_status = signature_statuses[contract.id] ?? null %}
-                            <tr>
-                                <td><span class="id-badge">#{{ contract.id }}</span></td>
-                                <td>
-                                    <span class="student-name">
-                                        <i class="ph ph-student me-1 text-muted"></i>
-                                        {{ contract.student.firstname }} {{ contract.student.lastname }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="company-name">
-                                        <i class="ph ph-buildings me-1 text-muted"></i>
-                                        {{ contract.organisation.name }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="d-flex gap-2 flex-wrap">
-                                        {% if contract.pdfUnsigned %}
-                                            <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn-action btn-action-outline">
-                                                <i class="ph ph-eye"></i> Voir
-                                            </a>
-                                        {% endif %}
-                                        <form method="post" action="{{ path('app_ddf_contract_generate_pdf', {'id': contract.id}) }}">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('ddf_generate_pdf_contract' ~ contract.id) }}">
-                                            <button class="btn-action btn-action-muted" type="submit">
-                                                <i class="ph ph-arrow-clockwise"></i>
-                                                {{ contract.pdfUnsigned ? 'Regénérer' : 'Générer' }}
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                                <td>
-                                    {% if signature_status and signature_status.error is not defined %}
-                                        <div class="mb-2">
-                                            <span class="badge rounded-pill" style="background:#e8f0fe;color:#1a56db;font-size:0.72rem;font-weight:600;">
-                                                {{ signature_status.request_status_label }}
+
+        {% if signature_in_progress is empty %}
+            <div class="empty-state">
+                <i class="ph ph-pen-nib" style="color:#0d6efd;"></i>
+                <p>Aucune signature en cours.</p>
+            </div>
+        {% else %}
+            <div class="sig-cards">
+            {% for contract in signature_in_progress %}
+                {% set ss = signature_statuses[contract.id] ?? null %}
+                <div class="sig-card">
+
+                    {# Ligne identité #}
+                    <div class="sig-card-top">
+                        <span class="id-pill">#{{ contract.id }}</span>
+                        <div class="sig-card-identity">
+                            <div class="name"><i class="ph ph-student me-1 text-muted"></i>{{ contract.student.firstname }} {{ contract.student.lastname }}</div>
+                            <div class="company"><i class="ph ph-buildings me-1"></i>{{ contract.organisation.name }}</div>
+                        </div>
+                        {# Boutons PDF #}
+                        <div class="d-flex gap-2 ms-auto flex-wrap">
+                            {% if contract.pdfUnsigned %}
+                                <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn-ddf btn-ddf-outline">
+                                    <i class="ph ph-eye"></i> Voir le PDF
+                                </a>
+                            {% endif %}
+                            <form method="post" action="{{ path('app_ddf_contract_generate_pdf', {'id': contract.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('ddf_generate_pdf_contract' ~ contract.id) }}">
+                                <button class="btn-ddf btn-ddf-muted" type="submit">
+                                    <i class="ph ph-arrow-clockwise"></i> {{ contract.pdfUnsigned ? 'Regénérer' : 'Générer PDF' }}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    {# Grille d'infos #}
+                    <div class="sig-card-body">
+
+                        {# Statut global de la demande #}
+                        <div>
+                            <div class="sig-block-label">Statut demande</div>
+                            {% if ss and ss.error is not defined %}
+                                <span class="req-status-badge">
+                                    <i class="ph ph-dot-outline"></i>
+                                    {{ ss.request_status_label }}
+                                </span>
+                            {% elseif ss and ss.error is defined %}
+                                <span class="missing-chip missing-chip-waiting"><i class="ph ph-warning"></i> Erreur API</span>
+                            {% else %}
+                                <span style="font-size:0.8rem;color:#adb5bd;">Indisponible</span>
+                            {% endif %}
+                        </div>
+
+                        {# Signataires #}
+                        <div>
+                            <div class="sig-block-label">Signataires</div>
+                            {% if ss and ss.error is not defined and ss.signers is not empty %}
+                                <div class="signers-list">
+                                    {% for signer in ss.signers %}
+                                        <div class="signer-item">
+                                            <span class="signer-role-tag">{{ signer.role }}</span>
+                                            <span class="signer-name">{{ signer.name ?: (signer.email ?: 'Inconnu') }}</span>
+                                            <span class="signer-badge {{ signer.is_complete ? 'signer-badge-done' : 'signer-badge-pending' }}">
+                                                <i class="ph {{ signer.is_complete ? 'ph-check' : 'ph-clock' }}"></i>
+                                                {{ signer.status_label }}
                                             </span>
                                         </div>
-                                        {% for signer in signature_status.signers %}
-                                            <div class="signer-row">
-                                                <span class="signer-role">{{ signer.role }}</span>
-                                                <span>{{ signer.name ?: (signer.email ?: 'Inconnu') }}</span>
-                                                <span class="badge {{ signer.is_complete ? 'text-bg-success' : 'text-bg-warning' }}" style="font-size:0.68rem;">
-                                                    {{ signer.status_label }}
-                                                </span>
-                                            </div>
-                                        {% endfor %}
-                                    {% elseif signature_status and signature_status.error is defined %}
-                                        <span class="text-danger small"><i class="ph ph-warning me-1"></i>{{ signature_status.error }}</span>
-                                    {% else %}
-                                        <span class="text-muted small">Indisponible</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if signature_status and signature_status.error is not defined %}
-                                        {% if signature_status.missing_signers is empty %}
-                                            <span style="color:#198754;font-size:0.8rem;font-weight:600;">
-                                                <i class="ph ph-check me-1"></i>Complet
-                                            </span>
-                                        {% else %}
-                                            <span style="color:#fd7e14;font-size:0.8rem;">
-                                                <i class="ph ph-clock me-1"></i>{{ signature_status.missing_signers|join(', ') }}
-                                            </span>
-                                        {% endif %}
-                                    {% else %}
-                                        <span class="text-muted small">—</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div style="font-size:0.72rem;color:#6c757d;margin-bottom:3px;">
-                                        <span style="opacity:0.6;">Req.</span>
-                                        <span class="code-id" title="{{ contract.yousignSignatureRequestId ?: 'N/A' }}">
-                                            {{ contract.yousignSignatureRequestId ?: 'N/A' }}
-                                        </span>
-                                    </div>
-                                    <div style="font-size:0.72rem;color:#6c757d;">
-                                        <span style="opacity:0.6;">Doc.</span>
-                                        <span class="code-id" title="{{ contract.yousignDocumentId ?: 'N/A' }}">
-                                            {{ contract.yousignDocumentId ?: 'N/A' }}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <form method="post" action="{{ path('app_ddf_contract_sync_signed_document', {'id': contract.id}) }}">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('ddf_sync_contract' ~ contract.id) }}">
-                                        <button class="btn-action btn-action-outline" type="submit">
-                                            <i class="ph ph-arrows-clockwise"></i> Synchroniser
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                                    {% endfor %}
+                                </div>
+                            {% elseif ss and ss.error is defined %}
+                                <span class="cell-sub text-danger">{{ ss.error }}</span>
+                            {% else %}
+                                <span class="cell-sub">—</span>
+                            {% endif %}
+                        </div>
+
+                        {# En attente de #}
+                        <div>
+                            <div class="sig-block-label">En attente de</div>
+                            {% if ss and ss.error is not defined %}
+                                {% if ss.missing_signers is empty %}
+                                    <span class="missing-chip missing-chip-ok"><i class="ph ph-check-circle"></i> Tous ont signé</span>
+                                {% else %}
+                                    {% for m in ss.missing_signers %}
+                                        <span class="missing-chip missing-chip-waiting d-inline-flex mb-1"><i class="ph ph-hourglass"></i> {{ m }}</span>
+                                    {% endfor %}
+                                {% endif %}
+                            {% else %}
+                                <span class="cell-sub">—</span>
+                            {% endif %}
+                        </div>
+
+                        {# IDs YouSign #}
+                        <div>
+                            <div class="sig-block-label">IDs YouSign</div>
+                            <div class="yousign-ids">
+                                <div class="yousign-id-row">
+                                    <span class="yousign-id-label">Req.</span>
+                                    <span class="yousign-id-value" title="{{ contract.yousignSignatureRequestId ?: 'N/A' }}">
+                                        {{ contract.yousignSignatureRequestId ?: 'N/A' }}
+                                    </span>
+                                </div>
+                                <div class="yousign-id-row">
+                                    <span class="yousign-id-label">Doc.</span>
+                                    <span class="yousign-id-value" title="{{ contract.yousignDocumentId ?: 'N/A' }}">
+                                        {{ contract.yousignDocumentId ?: 'N/A' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {# Action synchroniser #}
+                        <div>
+                            <div class="sig-block-label">Action</div>
+                            <form method="post" action="{{ path('app_ddf_contract_sync_signed_document', {'id': contract.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('ddf_sync_contract' ~ contract.id) }}">
+                                <button class="btn-ddf btn-ddf-outline" type="submit">
+                                    <i class="ph ph-arrows-clockwise"></i> Synchroniser
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
                 </div>
-            {% endif %}
-        </div>
+            {% endfor %}
+            </div>
+        {% endif %}
     </div>
 
-    {# ── SECTION 3 : SIGNATURES FINALISÉES ───────────────────────────────── #}
-    <div class="section-card">
-        <div class="section-header">
-            <span class="section-dot" style="background:#198754"></span>
+    {# ══════════════════════════════════════════════════════════ #}
+    {# SECTION 3 — SIGNATURES FINALISÉES                         #}
+    {# ══════════════════════════════════════════════════════════ #}
+    <div class="ddf-section">
+        <div class="ddf-section-header">
+            <span class="section-dot" style="background:#198754;"></span>
             <h2>Signatures finalisées</h2>
-            <span class="badge-count badge" style="background:rgba(25,135,84,0.1);color:#198754;">
+            <span class="section-count" style="background:rgba(25,135,84,0.1);color:#198754;">
                 {{ signed_contracts|length }}
             </span>
         </div>
-        <div class="card-body p-0">
-            {% if signed_contracts is empty %}
-                <div class="empty-state">
-                    <i class="ph ph-seal-check"></i>
-                    <p>Aucune convention signée pour le moment.</p>
-                </div>
-            {% else %}
-                <div class="table-responsive">
-                    <table class="table mb-0">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Étudiant</th>
-                                <th>Entreprise</th>
-                                <th>PDF signé</th>
-                                <th>Identifiants YouSign</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for contract in signed_contracts %}
-                            <tr>
-                                <td><span class="id-badge">#{{ contract.id }}</span></td>
-                                <td>
-                                    <span class="student-name">
-                                        <i class="ph ph-student me-1 text-muted"></i>
-                                        {{ contract.student.firstname }} {{ contract.student.lastname }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="company-name">
-                                        <i class="ph ph-buildings me-1 text-muted"></i>
-                                        {{ contract.organisation.name }}
-                                    </span>
-                                </td>
-                                <td>
-                                    {% if contract.pdfSigned or contract.pdfUnsigned %}
-                                        <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn-action btn-action-success">
-                                            <i class="ph ph-file-pdf"></i> Voir le PDF signé
-                                        </a>
-                                    {% else %}
-                                        <span class="text-muted small">N/A</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div style="font-size:0.72rem;color:#6c757d;margin-bottom:3px;">
-                                        <span style="opacity:0.6;">Req.</span>
-                                        <span class="code-id" title="{{ contract.yousignSignatureRequestId ?: 'N/A' }}">
-                                            {{ contract.yousignSignatureRequestId ?: 'N/A' }}
-                                        </span>
+
+        {% if signed_contracts is empty %}
+            <div class="empty-state">
+                <i class="ph ph-seal-check" style="color:#198754;"></i>
+                <p>Aucune convention signée pour le moment.</p>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="ddf-table table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Étudiant</th>
+                            <th>Entreprise</th>
+                            <th>PDF signé</th>
+                            <th>IDs YouSign</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for contract in signed_contracts %}
+                        <tr>
+                            <td><span class="id-pill">#{{ contract.id }}</span></td>
+                            <td>
+                                <div class="cell-name"><i class="ph ph-student me-1 text-muted"></i>{{ contract.student.firstname }} {{ contract.student.lastname }}</div>
+                            </td>
+                            <td>
+                                <div class="cell-name"><i class="ph ph-buildings me-1 text-muted"></i>{{ contract.organisation.name }}</div>
+                            </td>
+                            <td>
+                                {% if contract.pdfSigned or contract.pdfUnsigned %}
+                                    <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn-ddf btn-ddf-success">
+                                        <i class="ph ph-file-pdf"></i> Voir le PDF signé
+                                    </a>
+                                {% else %}
+                                    <span class="cell-sub">Non disponible</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="yousign-ids">
+                                    <div class="yousign-id-row">
+                                        <span class="yousign-id-label">Req.</span>
+                                        <span class="yousign-id-value" title="{{ contract.yousignSignatureRequestId ?: 'N/A' }}">{{ contract.yousignSignatureRequestId ?: 'N/A' }}</span>
                                     </div>
-                                    <div style="font-size:0.72rem;color:#6c757d;">
-                                        <span style="opacity:0.6;">Doc.</span>
-                                        <span class="code-id" title="{{ contract.yousignDocumentId ?: 'N/A' }}">
-                                            {{ contract.yousignDocumentId ?: 'N/A' }}
-                                        </span>
+                                    <div class="yousign-id-row">
+                                        <span class="yousign-id-label">Doc.</span>
+                                        <span class="yousign-id-value" title="{{ contract.yousignDocumentId ?: 'N/A' }}">{{ contract.yousignDocumentId ?: 'N/A' }}</span>
                                     </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% endif %}
-        </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
     </div>
 
 </main>

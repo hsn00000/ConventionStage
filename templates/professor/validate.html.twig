@@ -1,171 +1,419 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Validation du stage{% endblock %}
+{% block title %}Validation — Convention #{{ contract.id }}{% endblock %}
+
+{% block back_button %}
+    <div class="container pt-3">
+        <a href="{{ path('app_professor_show', {'id': app.user.id}) }}"
+           class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center"
+           style="width:2rem;height:2rem;padding:0;">
+            <i class="ph ph-arrow-left" style="font-size:1.1rem;"></i>
+        </a>
+    </div>
+{% endblock %}
 
 {% block body %}
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-xl-10">
-                <div class="card shadow border-0 rounded-4 overflow-hidden">
-                    <div class="card-header bg-primary text-white p-4">
-                        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-                            <div>
-                                <p class="mb-2 text-uppercase small fw-semibold opacity-75">Validation pedagogique</p>
-                                <h1 class="h3 mb-0">Convention #{{ contract.id }}</h1>
-                            </div>
-                            <span class="badge bg-light text-primary fs-6 px-3 py-2">{{ contract.statusLabel }}</span>
-                        </div>
+<style>
+    /* ── HERO ────────────────────────────────────────── */
+    .val-hero {
+        background: linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%);
+        border-radius: 18px;
+        padding: 2rem 2.5rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        position: relative; overflow: hidden;
+        display: flex; align-items: center;
+        justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    }
+    .val-hero::before {
+        content: ''; position: absolute; inset: 0;
+        background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+        background-size: 20px 20px; pointer-events: none;
+    }
+    .val-hero > * { position: relative; z-index: 1; }
+    .val-hero h1  { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 0.25rem; }
+    .val-hero p   { opacity: 0.65; margin: 0; font-size: 0.875rem; }
+    .status-pill  {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 0.4em 1em; border-radius: 50px;
+        font-size: 0.75rem; font-weight: 700;
+        background: rgba(255,255,255,0.15);
+        border: 1.5px solid rgba(255,255,255,0.3);
+        color: #fff; white-space: nowrap;
+    }
+
+    /* ── CARTES INFO ─────────────────────────────────── */
+    .info-card {
+        background: #fff; border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.07);
+        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        overflow: hidden; height: 100%;
+    }
+    .info-card-header {
+        display: flex; align-items: center; gap: 0.6rem;
+        padding: 0.85rem 1.25rem;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        background: #fafafa;
+    }
+    .info-card-header .ic-icon {
+        width: 30px; height: 30px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.95rem; flex-shrink: 0;
+    }
+    .info-card-header h2 { font-size: 0.85rem; font-weight: 700; margin: 0; color: #1a1a2e; }
+    .info-card-body { padding: 1.25rem; }
+
+    /* ── CHAMPS ──────────────────────────────────────── */
+    .field { margin-bottom: 0.85rem; }
+    .field:last-child { margin-bottom: 0; }
+    .field-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #adb5bd; margin-bottom: 2px; }
+    .field-value { font-size: 0.875rem; font-weight: 600; color: #1a1a2e; }
+    .field-value.light { font-weight: 400; color: #495057; }
+    .field-divider { border: none; border-top: 1px solid #f1f3f5; margin: 0.85rem 0; }
+
+    /* ── BADGES OUI/NON ──────────────────────────────── */
+    .b-yes { display:inline-flex;align-items:center;gap:4px;background:#d1e7dd;color:#0a3622;padding:0.18em 0.6em;border-radius:6px;font-size:0.72rem;font-weight:700; }
+    .b-no  { display:inline-flex;align-items:center;gap:4px;background:#e9ecef;color:#6c757d;padding:0.18em 0.6em;border-radius:6px;font-size:0.72rem;font-weight:700; }
+
+    /* ── PÉRIODES ────────────────────────────────────── */
+    .period-chip {
+        background: #f0f4ff; border-radius: 10px;
+        padding: 0.75rem 1rem; border: 1px solid #dde6ff;
+    }
+    .period-chip .p-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6ea8fe; margin-bottom: 4px; }
+    .period-chip .p-dates { font-size: 0.875rem; font-weight: 600; color: #1a1a2e; }
+
+    /* ── HORAIRES ────────────────────────────────────── */
+    .schedule-table { width: 100%; border-collapse: collapse; }
+    .schedule-table thead th {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.05em; color: #6c757d; background: #f8f9fa;
+        padding: 0.6rem 1rem; text-align: center;
+        border-bottom: 2px solid #e9ecef;
+    }
+    .schedule-table thead th:first-child { text-align: left; }
+    .schedule-table tbody td {
+        padding: 0.65rem 1rem; text-align: center;
+        font-size: 0.85rem; border-bottom: 1px solid #f1f3f5; color: #495057;
+    }
+    .schedule-table tbody td:first-child { text-align: left; font-weight: 700; color: #1a1a2e; text-transform: capitalize; }
+    .schedule-table tbody tr:last-child td { border-bottom: none; }
+    .schedule-table tbody tr:hover td { background: #f8fbff; }
+    .time-val { display:inline-block;background:#f0f4ff;color:#0d6efd;padding:2px 8px;border-radius:6px;font-size:0.78rem;font-weight:600;font-family:monospace; }
+    .time-empty { color: #ced4da; }
+
+    /* ── ACTIVITÉS ───────────────────────────────────── */
+    .activities-block {
+        background: #f8f9fa; border-radius: 10px;
+        padding: 1rem 1.25rem; font-size: 0.875rem;
+        line-height: 1.8; color: #495057;
+        border-left: 4px solid #0dcaf0;
+    }
+
+    /* ── ZONE DÉCISION ───────────────────────────────── */
+    .decision-zone {
+        background: #fff; border-radius: 18px;
+        border: 1px solid rgba(0,0,0,0.07);
+        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        padding: 1.75rem 2rem; margin-top: 2rem;
+    }
+    .decision-zone h2 { font-size: 1rem; font-weight: 800; color: #1a1a2e; margin: 0 0 0.35rem; }
+    .decision-zone p  { font-size: 0.875rem; color: #6c757d; margin: 0 0 1.5rem; }
+
+    .rejection-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6c757d; margin-bottom: 0.4rem; }
+    .rejection-textarea {
+        width: 100%; border: 1.5px solid rgba(0,0,0,0.12);
+        border-radius: 10px; padding: 0.85rem 1rem;
+        font-size: 0.875rem; color: #1a1a2e; resize: vertical;
+        min-height: 110px; outline: none;
+        transition: border-color 0.2s ease;
+        font-family: inherit;
+    }
+    .rejection-textarea:focus { border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13,110,253,0.1); }
+
+    .decision-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.25rem; }
+    .btn-validate {
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 0.7rem 1.75rem; border-radius: 50px;
+        background: linear-gradient(135deg, #198754, #20c997);
+        color: #fff; font-size: 0.9rem; font-weight: 700;
+        border: none; cursor: pointer;
+        box-shadow: 0 6px 20px rgba(25,135,84,0.35);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn-validate:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(25,135,84,0.4); }
+    .btn-refuse {
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 0.7rem 1.75rem; border-radius: 50px;
+        background: transparent; color: #dc3545;
+        font-size: 0.9rem; font-weight: 700;
+        border: 1.5px solid rgba(220,53,69,0.4);
+        cursor: pointer; transition: all 0.2s ease;
+    }
+    .btn-refuse:hover { background: rgba(220,53,69,0.07); border-color: #dc3545; }
+
+    .already-processed {
+        background: #f8f9fa; border-radius: 12px;
+        padding: 1rem 1.25rem; margin-top: 1.5rem;
+        display: flex; align-items: center; gap: 0.75rem;
+        font-size: 0.875rem; color: #6c757d;
+    }
+</style>
+
+<div class="container py-5">
+
+    {# ── HERO ── #}
+    <div class="val-hero">
+        <div>
+            <h1><i class="ph-bold ph-clipboard-text me-2"></i>Convention #{{ contract.id }}</h1>
+            <p>Validation pédagogique — relisez la synthèse avant de statuer.</p>
+        </div>
+        <span class="status-pill">
+            <i class="ph ph-dot-outline"></i>{{ contract.statusLabel }}
+        </span>
+    </div>
+
+    <div class="row g-4 mb-4">
+
+        {# ── Étudiant ── #}
+        <div class="col-lg-6">
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="ic-icon" style="background:rgba(13,110,253,0.1);color:#0d6efd;"><i class="ph ph-student"></i></div>
+                    <h2>Étudiant</h2>
+                </div>
+                <div class="info-card-body">
+                    <div class="field">
+                        <div class="field-label">Nom complet</div>
+                        <div class="field-value">{{ contract.student.firstname }} {{ contract.student.lastname }}</div>
                     </div>
-
-                    <div class="card-body p-4 p-lg-5">
-                        <div class="alert alert-info border-0 mb-4">
-                            Le professeur voit ici la synthese de la collecte entreprise avant validation du sujet et de l'organisation du stage.
-                        </div>
-
-                        <div class="row g-4 mb-4">
-                            <div class="col-lg-6">
-                                <div class="border rounded-4 p-4 h-100 bg-light">
-                                    <h2 class="h6 text-uppercase text-muted mb-3">Etudiant</h2>
-                                    <p class="mb-1 fw-semibold">{{ contract.student.firstname }} {{ contract.student.lastname }}</p>
-                                    <p class="mb-1">{{ contract.student.email }}</p>
-                                    <p class="mb-0 text-muted">
-                                        Niveau :
-                                        {{ contract.student.level ? contract.student.level.levelName : 'Non renseigne' }}
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="border rounded-4 p-4 h-100 bg-light">
-                                    <h2 class="h6 text-uppercase text-muted mb-3">Entreprise</h2>
-                                    <p class="mb-1 fw-semibold">{{ contract.organisation.name }}</p>
-                                    <p class="mb-1">{{ contract.organisation.addressInternship }}</p>
-                                    <p class="mb-1">{{ contract.organisation.postalCodeInternship }} {{ contract.organisation.cityInternship }}</p>
-                                    <p class="mb-0 text-muted">
-                                        Siege :
-                                        {{ contract.organisation.addressHq }}, {{ contract.organisation.postalCodeHq }} {{ contract.organisation.cityHq }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row g-4 mb-4">
-                            <div class="col-lg-6">
-                                <div class="border rounded-4 p-4 h-100">
-                                    <h2 class="h6 text-uppercase text-muted mb-3">Tuteur et signataire</h2>
-                                    <p class="mb-1 fw-semibold">
-                                        Tuteur : {{ contract.tutor.firstname }} {{ contract.tutor.lastname }}
-                                    </p>
-                                    <p class="mb-1">{{ contract.tutor.email }}</p>
-                                    <p class="mb-3">
-                                        {{ contract.tutor.telMobile ?: 'Telephone mobile non renseigne' }}
-                                    </p>
-                                    <p class="mb-1 fw-semibold">Responsable signataire : {{ contract.organisation.respName }}</p>
-                                    <p class="mb-1">{{ contract.organisation.respFunction }}</p>
-                                    <p class="mb-1">{{ contract.organisation.respEmail }}</p>
-                                    <p class="mb-0">{{ contract.organisation.respPhone }}</p>
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="border rounded-4 p-4 h-100">
-                                    <h2 class="h6 text-uppercase text-muted mb-3">Assurance et logistique</h2>
-                                    <p class="mb-1"><strong>Assureur :</strong> {{ contract.organisation.insuranceName }}</p>
-                                    <p class="mb-3"><strong>Police :</strong> {{ contract.organisation.insuranceContract }}</p>
-                                    <p class="mb-1"><strong>Deplacement :</strong> {{ contract.deplacement ? 'Oui' : 'Non' }}</p>
-                                    <p class="mb-1"><strong>Transport pris en charge :</strong> {{ contract.transportFreeTaken ? 'Oui' : 'Non' }}</p>
-                                    <p class="mb-1"><strong>Repas pris en charge :</strong> {{ contract.lunchTaken ? 'Oui' : 'Non' }}</p>
-                                    <p class="mb-1"><strong>Hebergement pris en charge :</strong> {{ contract.hostTaken ? 'Oui' : 'Non' }}</p>
-                                    <p class="mb-0">
-                                        <strong>Gratification :</strong>
-                                        {{ contract.bonus ? 'Oui' : 'Non' }}
-                                        {% if contract.bonus and contract.bonusAmount %}
-                                            ({{ contract.bonusAmount }} EUR)
-                                        {% endif %}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="border rounded-4 p-4 mb-4">
-                            <h2 class="h6 text-uppercase text-muted mb-3">Periodes de stage</h2>
-                            {% if contract.contractDates is empty %}
-                                <p class="mb-0 text-muted">Aucune periode renseignee.</p>
-                            {% else %}
-                                <div class="row g-3">
-                                    {% for period in contract.contractDates %}
-                                        <div class="col-md-6 col-xl-4">
-                                            <div class="bg-light rounded-3 p-3 h-100">
-                                                <p class="mb-1 fw-semibold">Periode {{ loop.index }}</p>
-                                                <p class="mb-0">
-                                                    Du {{ period.startDate|date('d/m/Y') }} au {{ period.endDate|date('d/m/Y') }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="border rounded-4 p-4 mb-4">
-                            <h2 class="h6 text-uppercase text-muted mb-3">Horaires hebdomadaires</h2>
-                            <div class="table-responsive">
-                                <table class="table table-sm align-middle mb-0">
-                                    <thead>
-                                    <tr>
-                                        <th>Jour</th>
-                                        <th>Matin debut</th>
-                                        <th>Matin fin</th>
-                                        <th>Apres-midi debut</th>
-                                        <th>Apres-midi fin</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for day, hours in contract.workHours %}
-                                        <tr>
-                                            <td class="fw-semibold text-capitalize">{{ day }}</td>
-                                            <td>{{ hours.m_start ?: '-' }}</td>
-                                            <td>{{ hours.m_end ?: '-' }}</td>
-                                            <td>{{ hours.am_start ?: '-' }}</td>
-                                            <td>{{ hours.am_end ?: '-' }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="border rounded-4 p-4 mb-4">
-                            <h2 class="h6 text-uppercase text-muted mb-3">Sujet du stage</h2>
-                            <div class="bg-light p-4 rounded-3 border-start border-4 border-info">
-                                <p class="mb-0 fs-5">{{ contract.plannedActivities|nl2br }}</p>
-                            </div>
-                        </div>
-
-                        {% if can_validate or can_refuse %}
-                            <form method="post" class="mt-4 d-grid gap-3 d-md-flex justify-content-md-center">
-                                <input type="hidden" name="_token" value="{{ csrf_token('validate_contract' ~ contract.id) }}">
-                                <div class="w-100 mb-3">
-                                    <label for="rejection_reason" class="form-label fw-semibold">Motif de refus visible par l'etudiant</label>
-                                    <textarea id="rejection_reason" name="rejection_reason" class="form-control" rows="4" placeholder="Expliquez ce qui n'est pas conforme dans la collecte: informations manquantes, sujet imprecis, horaires incoherents...">{{ contract.professorRejectionReason }}</textarea>
-                                </div>
-                                {% if can_validate %}
-                                    <button type="submit" name="action" value="validate" class="btn btn-success btn-lg px-5 rounded-pill shadow-sm">
-                                        Valider la convention
-                                    </button>
-                                {% endif %}
-                                {% if can_refuse %}
-                                    <button type="submit" name="action" value="refuse" class="btn btn-outline-danger btn-lg px-5 rounded-pill" onclick="return confirm('Etes-vous sur de vouloir refuser cette convention ?');">
-                                        Refuser
-                                    </button>
-                                {% endif %}
-                            </form>
-                        {% else %}
-                            <div class="alert alert-secondary mt-4 mb-0">
-                                Cette collecte a deja ete traitee par le professeur referent. Elle ne peut plus etre revalidee ni rejetee a cette etape.
-                            </div>
-                        {% endif %}
+                    <div class="field">
+                        <div class="field-label">Email</div>
+                        <div class="field-value light">{{ contract.student.email }}</div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Niveau</div>
+                        <div class="field-value light">{{ contract.student.level ? contract.student.level.levelName : 'Non renseigné' }}</div>
                     </div>
                 </div>
             </div>
         </div>
+
+        {# ── Entreprise ── #}
+        <div class="col-lg-6">
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="ic-icon" style="background:rgba(253,126,20,0.1);color:#fd7e14;"><i class="ph ph-buildings"></i></div>
+                    <h2>Entreprise</h2>
+                </div>
+                <div class="info-card-body">
+                    <div class="field">
+                        <div class="field-label">Nom</div>
+                        <div class="field-value" style="font-size:1rem;">{{ contract.organisation.name }}</div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Adresse du stage</div>
+                        <div class="field-value light">{{ contract.organisation.addressInternship }}, {{ contract.organisation.postalCodeInternship }} {{ contract.organisation.cityInternship }}</div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Siège social</div>
+                        <div class="field-value light">{{ contract.organisation.addressHq }}, {{ contract.organisation.postalCodeHq }} {{ contract.organisation.cityHq }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ── Tuteur & signataire ── #}
+        <div class="col-lg-6">
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="ic-icon" style="background:rgba(111,66,193,0.1);color:#6f42c1;"><i class="ph ph-users-three"></i></div>
+                    <h2>Tuteur & signataire</h2>
+                </div>
+                <div class="info-card-body">
+                    <div class="field">
+                        <div class="field-label">Tuteur entreprise</div>
+                        <div class="field-value">{{ contract.tutor.firstname }} {{ contract.tutor.lastname }}</div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Email / Téléphone</div>
+                        <div class="field-value light">{{ contract.tutor.email }}</div>
+                        <div class="field-value light">{{ contract.tutor.telMobile ?: 'Non renseigné' }}</div>
+                    </div>
+                    <hr class="field-divider">
+                    <div class="field">
+                        <div class="field-label">Responsable signataire</div>
+                        <div class="field-value">{{ contract.organisation.respName }}</div>
+                        <div class="field-value light">{{ contract.organisation.respFunction }}</div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Contact signataire</div>
+                        <div class="field-value light">{{ contract.organisation.respEmail }}<br>{{ contract.organisation.respPhone }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ── Assurance & logistique ── #}
+        <div class="col-lg-6">
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="ic-icon" style="background:rgba(25,135,84,0.1);color:#198754;"><i class="ph ph-shield-check"></i></div>
+                    <h2>Assurance & logistique</h2>
+                </div>
+                <div class="info-card-body">
+                    <div class="field">
+                        <div class="field-label">Assureur</div>
+                        <div class="field-value">{{ contract.organisation.insuranceName ?: '—' }}</div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Numéro de police</div>
+                        <div class="field-value light">{{ contract.organisation.insuranceContract ?: '—' }}</div>
+                    </div>
+                    <hr class="field-divider">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="field-label">Déplacements</div>
+                            <span class="{{ contract.deplacement ? 'b-yes' : 'b-no' }}"><i class="ph {{ contract.deplacement ? 'ph-check' : 'ph-x' }}"></i>{{ contract.deplacement ? 'Oui' : 'Non' }}</span>
+                        </div>
+                        <div class="col-6">
+                            <div class="field-label">Transport</div>
+                            <span class="{{ contract.transportFreeTaken ? 'b-yes' : 'b-no' }}"><i class="ph {{ contract.transportFreeTaken ? 'ph-check' : 'ph-x' }}"></i>{{ contract.transportFreeTaken ? 'Oui' : 'Non' }}</span>
+                        </div>
+                        <div class="col-6">
+                            <div class="field-label">Repas</div>
+                            <span class="{{ contract.lunchTaken ? 'b-yes' : 'b-no' }}"><i class="ph {{ contract.lunchTaken ? 'ph-check' : 'ph-x' }}"></i>{{ contract.lunchTaken ? 'Oui' : 'Non' }}</span>
+                        </div>
+                        <div class="col-6">
+                            <div class="field-label">Hébergement</div>
+                            <span class="{{ contract.hostTaken ? 'b-yes' : 'b-no' }}"><i class="ph {{ contract.hostTaken ? 'ph-check' : 'ph-x' }}"></i>{{ contract.hostTaken ? 'Oui' : 'Non' }}</span>
+                        </div>
+                        <div class="col-12">
+                            <div class="field-label">Gratification</div>
+                            <span class="{{ contract.bonus ? 'b-yes' : 'b-no' }}"><i class="ph {{ contract.bonus ? 'ph-check' : 'ph-x' }}"></i>{{ contract.bonus ? 'Oui' : 'Non' }}</span>
+                            {% if contract.bonus and contract.bonusAmount %}
+                                <span style="font-size:0.8rem;font-weight:600;color:#1a1a2e;margin-left:6px;">— {{ contract.bonusAmount }} €</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ── Périodes de stage ── #}
+        <div class="col-12">
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="ic-icon" style="background:rgba(13,202,240,0.1);color:#0dcaf0;"><i class="ph ph-calendar-blank"></i></div>
+                    <h2>Périodes de stage</h2>
+                </div>
+                <div class="info-card-body">
+                    {% if contract.contractDates is empty %}
+                        <p class="text-muted" style="font-size:0.875rem;margin:0;">Aucune période renseignée.</p>
+                    {% else %}
+                        <div class="row g-3">
+                            {% for period in contract.contractDates %}
+                                <div class="col-md-4 col-sm-6">
+                                    <div class="period-chip">
+                                        <div class="p-label">Période {{ loop.index }}</div>
+                                        <div class="p-dates">
+                                            <i class="ph ph-arrow-right me-1" style="font-size:0.7rem;"></i>
+                                            {{ period.startDate|date('d/m/Y') }} → {{ period.endDate|date('d/m/Y') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# ── Horaires ── #}
+        <div class="col-12">
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="ic-icon" style="background:rgba(13,110,253,0.1);color:#0d6efd;"><i class="ph ph-clock"></i></div>
+                    <h2>Horaires hebdomadaires</h2>
+                </div>
+                <div class="info-card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="schedule-table">
+                            <thead>
+                                <tr>
+                                    <th>Jour</th>
+                                    <th>Matin début</th>
+                                    <th>Matin fin</th>
+                                    <th>Après-midi début</th>
+                                    <th>Après-midi fin</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for day, hours in contract.workHours %}
+                                <tr>
+                                    <td>{{ day }}</td>
+                                    <td>{% if hours.m_start %}<span class="time-val">{{ hours.m_start }}</span>{% else %}<span class="time-empty">—</span>{% endif %}</td>
+                                    <td>{% if hours.m_end %}<span class="time-val">{{ hours.m_end }}</span>{% else %}<span class="time-empty">—</span>{% endif %}</td>
+                                    <td>{% if hours.am_start %}<span class="time-val">{{ hours.am_start }}</span>{% else %}<span class="time-empty">—</span>{% endif %}</td>
+                                    <td>{% if hours.am_end %}<span class="time-val">{{ hours.am_end }}</span>{% else %}<span class="time-empty">—</span>{% endif %}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ── Sujet du stage ── #}
+        <div class="col-12">
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="ic-icon" style="background:rgba(253,126,20,0.1);color:#fd7e14;"><i class="ph ph-notepad"></i></div>
+                    <h2>Sujet & activités prévues</h2>
+                </div>
+                <div class="info-card-body">
+                    <div class="activities-block">{{ contract.plannedActivities|nl2br }}</div>
+                </div>
+            </div>
+        </div>
+
     </div>
+
+    {# ── ZONE DE DÉCISION ── #}
+    <div class="decision-zone">
+        <h2><i class="ph ph-scales me-2"></i>Décision pédagogique</h2>
+        <p>Renseignez un motif de refus si nécessaire, puis validez ou refusez la convention.</p>
+
+        {% if can_validate or can_refuse %}
+            <form method="post">
+                <input type="hidden" name="_token" value="{{ csrf_token('validate_contract' ~ contract.id) }}">
+                <div class="mb-1">
+                    <div class="rejection-label">Motif de refus <span style="font-weight:400;text-transform:none;letter-spacing:0;">(visible par l'étudiant — laissez vide si vous validez)</span></div>
+                    <textarea name="rejection_reason" class="rejection-textarea"
+                        placeholder="Informations manquantes, sujet imprécis, horaires incohérents...">{{ contract.professorRejectionReason }}</textarea>
+                </div>
+                <div class="decision-actions">
+                    {% if can_validate %}
+                        <button type="submit" name="action" value="validate" class="btn-validate">
+                            <i class="ph-bold ph-check-circle"></i> Valider la convention
+                        </button>
+                    {% endif %}
+                    {% if can_refuse %}
+                        <button type="submit" name="action" value="refuse" class="btn-refuse"
+                            onclick="return confirm('Êtes-vous sûr de vouloir refuser cette convention ?');">
+                            <i class="ph ph-x-circle"></i> Refuser
+                        </button>
+                    {% endif %}
+                </div>
+            </form>
+        {% else %}
+            <div class="already-processed">
+                <i class="ph ph-info" style="font-size:1.25rem;flex-shrink:0;"></i>
+                Cette convention a déjà été traitée. Elle ne peut plus être revalidée ni rejetée à cette étape.
+            </div>
+        {% endif %}
+    </div>
+
+</div>
 {% endblock %}
