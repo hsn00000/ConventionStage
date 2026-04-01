@@ -1,235 +1,316 @@
-{# templates/student/show.html.twig - Dashboard Étudiant Style SaaS #}
+{# templates/student/show.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Mon Tableau de Bord Étudiant{% endblock %}
-
-{# Utiliser BLOCK CONTENT pour conserver la navbar #}
-{% block back_button %}
-    <div class="container pt-3">
-        <button onclick="history.back()" class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center" style="width:2rem;height:2rem;padding:0;">
-            <i class="ph ph-arrow-left" style="font-size:1.1rem;"></i>
-        </button>
-    </div>
-{% endblock %}
+{% block title %}Mon Tableau de Bord{% endblock %}
 
 {% block content %}
-    <style>
-        .contract-status-chip {
-            min-width: 180px;
-            padding: 0.7rem 1rem;
-            font-size: 0.82rem;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            text-align: center;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
-        }
+<style>
+    /* ── HERO ─────────────────────────────────────────────────────────── */
+    .student-hero {
+        background: linear-gradient(135deg, #0d6efd 0%, #6ea8fe 100%);
+        border-radius: 20px;
+        padding: 2rem 2.5rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .student-hero-avatar {
+        width: 56px; height: 56px;
+        background: rgba(255,255,255,0.2);
+        border: 2px solid rgba(255,255,255,0.35);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.4rem; font-weight: 800; color: #fff;
+        flex-shrink: 0;
+    }
+    .student-hero h1 { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.02em; margin: 0; }
+    .student-hero p  { opacity: 0.75; margin: 0.25rem 0 0; font-size: 0.875rem; }
+    .hero-cta {
+        background: #fff;
+        color: #0d6efd;
+        border: none;
+        border-radius: 50px;
+        padding: 0.6rem 1.4rem;
+        font-weight: 700;
+        font-size: 0.875rem;
+        display: inline-flex; align-items: center; gap: 6px;
+        text-decoration: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        white-space: nowrap;
+    }
+    .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); color: #0b5ed7; }
 
-        .student-contract-cta {
-            min-width: 190px;
-            justify-content: center;
-            border-radius: 999px;
-            padding: 0.75rem 1.15rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ff7a18 0%, #ffb347 100%);
-            border-color: #ff9a3d;
-            color: #1f2937;
-            box-shadow: 0 12px 28px rgba(255, 122, 24, 0.28);
-        }
+    /* ── STAT CARDS ───────────────────────────────────────────────────── */
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    @media (max-width: 767px) { .stat-grid { grid-template-columns: 1fr; } }
 
-        .student-contract-cta-outline {
-            min-width: 150px;
-            justify-content: center;
-            border-radius: 999px;
-            padding: 0.7rem 1rem;
-            font-weight: 600;
-            background: #f3f7ff;
-            border-color: #b8c9f5;
-            color: #25438f;
-        }
+    .stat-card {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        padding: 1.35rem 1.5rem;
+        display: flex; align-items: center; gap: 1rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.09); }
+    .stat-icon {
+        width: 52px; height: 52px;
+        border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; flex-shrink: 0;
+    }
+    .stat-value { font-size: 1.75rem; font-weight: 800; line-height: 1; color: #1a1a2e; }
+    .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6c757d; margin-top: 3px; }
 
-        .student-contract-cta:hover,
-        .student-contract-cta:focus {
-            background: linear-gradient(135deg, #ff8f32 0%, #ffc36a 100%);
-            border-color: #ff9a3d;
-            color: #1f2937;
-        }
+    /* ── CONVENTION LIST ──────────────────────────────────────────────── */
+    .contracts-section {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    .contracts-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .contracts-header h2 { font-size: 0.95rem; font-weight: 700; margin: 0; color: #1a1a2e; }
 
-        .student-contract-cta-outline:hover,
-        .student-contract-cta-outline:focus {
-            background: #dfe9ff;
-            border-color: #9eb8f2;
-            color: #17357d;
-        }
+    .contract-item {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        transition: background 0.15s ease;
+    }
+    .contract-item:last-child { border-bottom: none; }
+    .contract-item:hover { background: #f8fbff; }
 
-        .student-contract-row {
-            gap: 1rem;
-        }
+    .contract-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .contract-company { font-weight: 700; font-size: 1rem; color: #1a1a2e; }
+    .contract-id { font-size: 0.72rem; font-weight: 700; color: #6c757d; background: #f1f3f5; padding: 2px 8px; border-radius: 6px; margin-left: 8px; }
+    .contract-dates { font-size: 0.8rem; color: #6c757d; margin-top: 4px; display: flex; align-items: center; gap: 5px; }
 
-        .student-contract-card-title {
-            font-size: 1.05rem;
-        }
+    .status-chip {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 0.3em 0.85em;
+        border-radius: 20px;
+        font-size: 0.75rem; font-weight: 700;
+        white-space: nowrap;
+    }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; }
 
-        @media (max-width: 767px) {
-            .student-contract-row {
-                align-items: flex-start !important;
-            }
+    .contract-actions { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
 
-            .student-contract-actions {
-                width: 100%;
-            }
+    .btn-view {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 0.45rem 1rem;
+        border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+        text-decoration: none; transition: all 0.2s ease;
+    }
+    .btn-view-primary { background: #0d6efd; color: #fff; }
+    .btn-view-primary:hover { background: #0b5ed7; color: #fff; transform: translateY(-1px); }
+    .btn-view-outline { background: transparent; color: #0d6efd; border: 1.5px solid rgba(13,110,253,0.3); }
+    .btn-view-outline:hover { background: rgba(13,110,253,0.06); color: #0d6efd; }
 
-            .student-contract-actions .btn {
-                width: 100%;
-            }
+    .refusal-block {
+        margin-top: 0.75rem;
+        background: #fff5f5;
+        border: 1px solid rgba(220,53,69,0.2);
+        border-radius: 10px;
+        padding: 0.85rem 1rem;
+        font-size: 0.825rem;
+        color: #842029;
+    }
 
-            .contract-status-chip {
-                width: 100%;
-                margin-bottom: 0.75rem;
-            }
-        }
-    </style>
-    <main class="container py-5">
+    .empty-state {
+        text-align: center; padding: 3.5rem 1rem; color: #adb5bd;
+    }
+    .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; }
+    .empty-state p { font-size: 0.875rem; margin: 0; }
 
-        {# HEADER DU DASHBOARD #}
-        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3 dashboard-header flex-wrap gap-2">
+    /* ── FOOTER ───────────────────────────────────────────────────────── */
+    .dashboard-footer {
+        display: flex; justify-content: center; gap: 0.75rem;
+        flex-wrap: wrap; padding-top: 1.5rem; border-top: 1px solid rgba(0,0,0,0.07);
+    }
+    .btn-footer {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 0.45rem 1rem; border-radius: 8px;
+        font-size: 0.8rem; font-weight: 600;
+        color: #6c757d; background: transparent;
+        border: 1.5px solid rgba(0,0,0,0.12);
+        text-decoration: none; transition: all 0.2s ease;
+    }
+    .btn-footer:hover { background: #f8f9fa; color: #495057; border-color: rgba(0,0,0,0.2); }
+</style>
+
+<main class="container py-5">
+
+    {# ── HERO ── #}
+    <div class="student-hero">
+        <div class="d-flex align-items-center gap-3">
+            <div class="student-hero-avatar">
+                {{ student.firstname|first }}{{ student.lastname|first }}
+            </div>
             <div>
-                <h1 class="h2 text-primary mb-0">
-                    <i class="fas fa-tachometer-alt me-2"></i> Tableau de Bord
-                </h1>
-                <p class="text-muted mb-0">
-                    Bienvenue, {{ student.firstname }} {{ student.lastname }}. Gérez vos stages en un clin d'œil.
-                </p>
+                <h1>{{ student.firstname }} {{ student.lastname }}</h1>
+                <p><i class="ph ph-graduation-cap me-1"></i>{{ student.level.levelName ?? 'Étudiant' }}</p>
             </div>
-            <a href="{{ path('app_student_contract_init') }}" class="btn btn-primary shadow-sm d-inline-flex align-items-center">
-                <i class="fas fa-plus me-2"></i> Nouvelle Convention
-            </a>
         </div>
+        <a href="{{ path('app_student_contract_init') }}" class="hero-cta">
+            <i class="ph-bold ph-plus"></i> Nouvelle convention
+        </a>
+    </div>
 
-        {# INDICATEURS CLÉS (CARDS STYLE SAAS) #}
-        <div class="row mt-4 g-4">
+    {# ── STAT CARDS ── #}
+    <div class="stat-grid">
 
-            {# Carte 1: Statut de la convention #}
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 shadow-lg h-100 bg-light-subtle text-dark">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-file-contract fa-3x text-primary me-3"></i>
-                            <div>
-                                <p class="text-uppercase text-muted fw-bold mb-0">Statut Actuel</p>
-                                <h3 class="fw-bold mb-0 {% if contract_status starts with 'En cours' %}text-info{% elseif contract_status starts with 'Validée' %}text-success{% else %}text-secondary{% endif %}">
-                                    {{ contract_status }}
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        {# Statut convention active #}
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(13,110,253,0.1);">
+                <i class="ph ph-file-text" style="color:#0d6efd;"></i>
             </div>
-
-            {# Carte 2: Jours restants #}
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 shadow-lg h-100 bg-primary text-white">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-calendar-alt fa-3x me-3"></i>
-                            <div>
-                                <p class="text-uppercase fw-bold mb-0 opacity-75">Jours Restants</p>
-                                <h3 class="display-6 fw-bold mb-0">{{ remaining_days }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {# Carte 3: Conventions passées #}
-            <div class="col-lg-4 col-md-12">
-                <div class="card border-0 shadow-lg h-100 bg-white">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-check-double fa-3x text-success me-3"></i>
-                            <div>
-                                <p class="text-uppercase text-muted fw-bold mb-0">Historique Complété</p>
-                                <h3 class="display-6 fw-bold mb-0">{{ past_contracts_count }}</h3>
-                            </div>
-                        </div>
-                    </div>
+            <div>
+                <div class="stat-label">Statut actuel</div>
+                <div style="font-size:1rem;font-weight:700;color:#1a1a2e;margin-top:4px;">
+                    {% if contract_status == 'Aucune convention' %}
+                        <span style="color:#adb5bd;">Aucune</span>
+                    {% else %}
+                        {{ contract_status }}
+                    {% endif %}
                 </div>
             </div>
         </div>
 
-        {# SECTION DE LISTE DES CONVENTIONS #}
-        <div class="row mt-5">
-            <div class="col-12">
-                <div class="card shadow border-0 rounded-3">
-                    <div class="card-header bg-white border-bottom p-3">
-                        <h3 class="h5 mb-0 text-dark"><i class="fas fa-folder-open me-2"></i> Mes Documents et Suivis</h3>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        {% if contracts is empty %}
-                            <li class="list-group-item">
-                                <div class="alert alert-warning m-0 border-0">Aucun historique de convention trouvé.</div>
-                            </li>
+        {# Jours restants #}
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(13,202,240,0.1);">
+                <i class="ph ph-calendar" style="color:#0dcaf0;"></i>
+            </div>
+            <div>
+                <div class="stat-value">{{ remaining_days }}</div>
+                <div class="stat-label">Jours restants</div>
+            </div>
+        </div>
+
+        {# Historique #}
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(25,135,84,0.1);">
+                <i class="ph ph-check-circle" style="color:#198754;"></i>
+            </div>
+            <div>
+                <div class="stat-value">{{ past_contracts_count }}</div>
+                <div class="stat-label">Convention{{ past_contracts_count > 1 ? 's' : '' }} passée{{ past_contracts_count > 1 ? 's' : '' }}</div>
+            </div>
+        </div>
+
+    </div>
+
+    {# ── LISTE DES CONVENTIONS ── #}
+    <div class="contracts-section">
+        <div class="contracts-header">
+            <h2><i class="ph ph-folder-open me-2" style="color:#0d6efd;"></i>Mes conventions</h2>
+            <span style="font-size:0.78rem;color:#6c757d;font-weight:600;">{{ contracts|length }} au total</span>
+        </div>
+
+        {% if contracts is empty %}
+            <div class="empty-state">
+                <i class="ph ph-file-dashed"></i>
+                <p>Aucune convention trouvée.<br>Créez votre première convention de stage.</p>
+            </div>
+        {% else %}
+            {% for contract in contracts %}
+                <div class="contract-item">
+                    <div class="contract-top">
+                        <div>
+                            <div>
+                                <span class="contract-company">
+                                    <i class="ph ph-buildings me-1 text-muted"></i>
+                                    {{ contract.organisation is defined and contract.organisation.name is defined ? contract.organisation.name : 'Entreprise inconnue' }}
+                                </span>
+                                <span class="contract-id">#{{ contract.id }}</span>
+                            </div>
+                            <div class="contract-dates">
+                                <i class="ph ph-calendar-blank"></i>
+                                {{ contract.startDate is defined and contract.startDate is not null ? contract.startDate|date('d/m/Y') : 'N/A' }}
+                                <i class="ph ph-arrow-right" style="font-size:0.65rem;"></i>
+                                {{ contract.endDate is defined and contract.endDate is not null ? contract.endDate|date('d/m/Y') : 'N/A' }}
+                            </div>
+                        </div>
+
+                        {# Badge statut #}
+                        {% if contract.status == 'Brouillon' %}
+                            <span class="status-chip" style="background:#f1f3f5;color:#6c757d;">
+                                <span class="status-dot" style="background:#adb5bd;"></span>Brouillon
+                            </span>
+                        {% elseif contract.status == 'filled_by_company' %}
+                            <span class="status-chip" style="background:#fff3cd;color:#856404;">
+                                <span class="status-dot" style="background:#ffc107;"></span>{{ contract.statusLabel }}
+                            </span>
+                        {% elseif contract.status == 'validated_by_prof' %}
+                            <span class="status-chip" style="background:#cff4fc;color:#055160;">
+                                <span class="status-dot" style="background:#0dcaf0;"></span>{{ contract.statusLabel }}
+                            </span>
+                        {% elseif contract.status == 'signature_requested' %}
+                            <span class="status-chip" style="background:#e2e3e5;color:#41464b;">
+                                <span class="status-dot" style="background:#6c757d;"></span>{{ contract.statusLabel }}
+                            </span>
+                        {% elseif contract.status == 'signed' %}
+                            <span class="status-chip" style="background:#d1e7dd;color:#0a3622;">
+                                <span class="status-dot" style="background:#198754;"></span>{{ contract.statusLabel }}
+                            </span>
+                        {% elseif contract.status == 'refused' %}
+                            <span class="status-chip" style="background:#f8d7da;color:#58151c;">
+                                <span class="status-dot" style="background:#dc3545;"></span>{{ contract.statusLabel }}
+                            </span>
                         {% else %}
-                            {% for contract in contracts %}
-                                <li class="list-group-item py-4">
-                                    <div class="d-flex justify-content-between align-items-center student-contract-row flex-column flex-md-row">
-                                    <div>
-                                        <span class="fw-bold text-dark student-contract-card-title d-block mb-1">
-                                            Convention N°{{ contract.id }}
-                                            {% if contract.organisation is defined and contract.organisation.name is defined %}
-                                                - {{ contract.organisation.name }}
-                                            {% endif %}
-                                        </span>
-                                        <div class="text-muted small">
-                                            {# ATTENTION : Les méthodes getStartDate et getEndDate doivent exister sur l'objet contract #}
-                                            Du {{ contract.startDate is defined and contract.startDate is not null ? contract.startDate|date('d/m/Y') : 'Date N/A' }}
-                                            au {{ contract.endDate is defined and contract.endDate is not null ? contract.endDate|date('d/m/Y') : 'Date N/A' }}
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center student-contract-actions flex-column flex-md-row">
-                                        {# Style de badge mis à jour #}
-                                        <span class="badge rounded-pill contract-status-chip me-md-3
-                                            {% if contract.status == 'filled_by_company' %}bg-warning text-dark{% elseif contract.status == 'validated_by_student' %}bg-primary{% elseif contract.status == 'validated_by_prof' %}bg-info text-dark{% elseif contract.status == 'signature_requested' %}bg-dark{% elseif contract.status == 'signed' %}bg-success{% elseif contract.status == 'refused' %}bg-danger{% else %}bg-secondary{% endif %}">
-                                            {{ contract.statusLabel }}
-                                        </span>
-                                        {% if contract.status == 'filled_by_company' %}
-                                            <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="btn btn-primary d-inline-flex align-items-center student-contract-cta">
-                                                <i class="fas fa-clipboard-check me-2"></i> Verifier et valider
-                                            </a>
-                                        {% else %}
-                                            <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="btn btn-outline-secondary d-inline-flex align-items-center student-contract-cta-outline">
-                                                <i class="fas fa-eye me-2"></i> Voir la convention
-                                            </a>
-                                        {% endif %}
-                                    </div>
-                                    </div>
-                                    {% if contract.status == 'refused' %}
-                                        <div class="alert alert-danger mt-3 mb-0">
-                                            <strong>Collecte rejetee par le professeur referent.</strong>
-                                            {% if contract.professorRejectionReason %}
-                                                <div class="mt-2">{{ contract.professorRejectionReason|nl2br }}</div>
-                                            {% endif %}
-                                        </div>
-                                    {% endif %}
-                                </li>
-                            {% endfor %}
+                            <span class="status-chip" style="background:#f1f3f5;color:#6c757d;">
+                                <span class="status-dot" style="background:#adb5bd;"></span>{{ contract.statusLabel }}
+                            </span>
                         {% endif %}
-                    </ul>
+                    </div>
+
+                    <div class="contract-actions">
+                        {% if contract.status == 'filled_by_company' %}
+                            <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="btn-view btn-view-primary">
+                                <i class="ph-bold ph-clipboard-text"></i> Vérifier et valider
+                            </a>
+                        {% else %}
+                            <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="btn-view btn-view-outline">
+                                <i class="ph ph-eye"></i> Voir la convention
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    {% if contract.status == 'refused' %}
+                        <div class="refusal-block">
+                            <strong><i class="ph ph-x-circle me-1"></i>Convention refusée par le professeur référent.</strong>
+                            {% if contract.professorRejectionReason %}
+                                <div class="mt-1">{{ contract.professorRejectionReason|nl2br }}</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
                 </div>
-            </div>
-        </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 
-        {# Pied de page/Liens annexes (Le bouton Modifier a été retiré, ajout du bouton Réinitialiser MDP) #}
-        <div class="mt-5 pt-3 text-center border-top d-flex justify-content-center">
+    {# ── FOOTER ── #}
+    <div class="dashboard-footer">
+        <a href="{{ path('app_forgot_password_request') }}" class="btn-footer">
+            <i class="ph ph-lock"></i> Réinitialiser mon mot de passe
+        </a>
+        <a href="{{ path('app_home') }}" class="btn-footer">
+            <i class="ph ph-house"></i> Retour à l'accueil
+        </a>
+    </div>
 
-            {# Bouton Réinitialiser MDP (AJOUTÉ ICI) #}
-            <a href="{{ path('app_forgot_password_request') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center me-3" title="Réinitialiser mon mot de passe">
-                <i class="fas fa-lock me-1"></i> Réinitialiser mon mot de passe
-            </a>
-
-            <a href="{{ path('app_home') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center">
-                <i class="fas fa-home me-1"></i> Retour à l'accueil
-            </a>
-        </div>
-
-    </main>
+</main>
 {% endblock %}
