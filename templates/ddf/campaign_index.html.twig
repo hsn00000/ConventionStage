@@ -119,6 +119,12 @@
                                             <i class="ph ph-arrows-clockwise"></i>Resynchroniser
                                         </button>
                                     </form>
+                                    <form method="post" action="{{ path('app_ddf_campaign_delete', {'id': campaign.id}) }}" onsubmit="return confirm('Supprimer cette campagne de stage ? Les conventions déjà liées seront conservées sans campagne associée.');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('ddf_delete_campaign' ~ campaign.id) }}">
+                                        <button type="submit" class="btn-campaign btn btn-outline-danger btn-sm">
+                                            <i class="ph ph-trash"></i>Supprimer
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

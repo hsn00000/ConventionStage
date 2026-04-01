@@ -91,7 +91,7 @@ class Contract
     #[ORM\JoinColumn(nullable: false)]
     private ?Professor $coordinator = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: 'contracts')]
     #[ORM\JoinColumn(name: 'stage_campaign_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?Session $session = null;
 

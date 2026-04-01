@@ -38,13 +38,20 @@ class Session
      * @var Collection<int, SessionDate>
      */
     #[Assert\Count(min: 1, minMessage: 'Ajoutez au moins une période à la session.')]
-    #[ORM\OneToMany(targetEntity: SessionDate::class, mappedBy: 'session')]
+    #[ORM\OneToMany(targetEntity: SessionDate::class, mappedBy: 'session', cascade: ['persist'], orphanRemoval: true)]
     private Collection $sessionDates;
+
+    /**
+     * @var Collection<int, Contract>
+     */
+    #[ORM\OneToMany(targetEntity: Contract::class, mappedBy: 'session')]
+    private Collection $contracts;
 
     public function __construct()
     {
         $this->users = new ArrayCollection();
         $this->sessionDates = new ArrayCollection();
+        $this->contracts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -159,6 +166,35 @@ class Session
         }
 
         return implode(' ; ', $labels);
+    }
+
+    /**
+     * @return Collection<int, Contract>
+     */
+    public function getContracts(): Collection
+    {
+        return $this->contracts;
+    }
+
+    public function addContract(Contract $contract): static
+    {
+        if (!$this->contracts->contains($contract)) {
+            $this->contracts->add($contract);
+            $contract->setSession($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContract(Contract $contract): static
+    {
+        if ($this->contracts->removeElement($contract)) {
+            if ($contract->getSession() === $this) {
+                $contract->setSession(null);
+            }
+        }
+
+        return $this;
     }
 
     public function __toString(): string

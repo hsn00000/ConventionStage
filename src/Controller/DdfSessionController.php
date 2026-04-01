@@ -87,4 +87,25 @@ class DdfSessionController extends AbstractController
 
         return $this->redirectToRoute('app_ddf_campaign_index');
     }
+
+    #[Route('/{id}', name: 'app_ddf_campaign_delete', methods: ['POST'])]
+    public function delete(Session $session, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        if (!$this->isCsrfTokenValid('ddf_delete_campaign' . $session->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton CSRF invalide.');
+
+            return $this->redirectToRoute('app_ddf_campaign_index');
+        }
+
+        foreach ($session->getContracts() as $contract) {
+            $contract->setSession(null);
+        }
+
+        $entityManager->remove($session);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'La campagne de stage a ete supprimee.');
+
+        return $this->redirectToRoute('app_ddf_campaign_index');
+    }
 }
