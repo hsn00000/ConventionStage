@@ -3,51 +3,166 @@
 {% block title %}Validation du stage{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
+    <div class="container py-5">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card shadow border-0 rounded-4">
-                    <div class="card-header bg-primary text-white p-4 rounded-top-4">
-                        <h2 class="h4 mb-0 text-center">Validation du Sujet de Stage</h2>
+            <div class="col-xl-10">
+                <div class="card shadow border-0 rounded-4 overflow-hidden">
+                    <div class="card-header bg-primary text-white p-4">
+                        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+                            <div>
+                                <p class="mb-2 text-uppercase small fw-semibold opacity-75">Validation pedagogique</p>
+                                <h1 class="h3 mb-0">Convention #{{ contract.id }}</h1>
+                            </div>
+                            <span class="badge bg-light text-primary fs-6 px-3 py-2">{{ contract.statusLabel }}</span>
+                        </div>
                     </div>
 
-                    <div class="card-body p-5">
+                    <div class="card-body p-4 p-lg-5">
+                        <div class="alert alert-info border-0 mb-4">
+                            Le professeur voit ici la synthese de la collecte entreprise avant validation du sujet et de l'organisation du stage.
+                        </div>
 
-                        {# Infos Étudiant #}
-                        <div class="mb-4">
-                            <h5 class="text-uppercase text-muted small fw-bold mb-3">Étudiant</h5>
-                            <div class="d-flex align-items-center">
-                                <div class="avatar bg-light text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; font-size: 1.2rem;">
-                                    {{ contract.student.firstname|first }}{{ contract.student.lastname|first }}
+                        <div class="row g-4 mb-4">
+                            <div class="col-lg-6">
+                                <div class="border rounded-4 p-4 h-100 bg-light">
+                                    <h2 class="h6 text-uppercase text-muted mb-3">Etudiant</h2>
+                                    <p class="mb-1 fw-semibold">{{ contract.student.firstname }} {{ contract.student.lastname }}</p>
+                                    <p class="mb-1">{{ contract.student.email }}</p>
+                                    <p class="mb-0 text-muted">
+                                        Niveau :
+                                        {{ contract.student.level ? contract.student.level.levelName : 'Non renseigne' }}
+                                    </p>
                                 </div>
-                                <div>
-                                    <h4 class="mb-0 h5">{{ contract.student.firstname }} {{ contract.student.lastname }}</h4>
-                                    <small class="text-muted">{{ contract.student.email }}</small>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="border rounded-4 p-4 h-100 bg-light">
+                                    <h2 class="h6 text-uppercase text-muted mb-3">Entreprise</h2>
+                                    <p class="mb-1 fw-semibold">{{ contract.organisation.name }}</p>
+                                    <p class="mb-1">{{ contract.organisation.addressInternship }}</p>
+                                    <p class="mb-1">{{ contract.organisation.postalCodeInternship }} {{ contract.organisation.cityInternship }}</p>
+                                    <p class="mb-0 text-muted">
+                                        Siege :
+                                        {{ contract.organisation.addressHq }}, {{ contract.organisation.postalCodeHq }} {{ contract.organisation.cityHq }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
 
-                        <hr class="my-4">
+                        <div class="row g-4 mb-4">
+                            <div class="col-lg-6">
+                                <div class="border rounded-4 p-4 h-100">
+                                    <h2 class="h6 text-uppercase text-muted mb-3">Tuteur et signataire</h2>
+                                    <p class="mb-1 fw-semibold">
+                                        Tuteur : {{ contract.tutor.firstname }} {{ contract.tutor.lastname }}
+                                    </p>
+                                    <p class="mb-1">{{ contract.tutor.email }}</p>
+                                    <p class="mb-3">
+                                        {{ contract.tutor.telMobile ?: 'Telephone mobile non renseigne' }}
+                                    </p>
+                                    <p class="mb-1 fw-semibold">Responsable signataire : {{ contract.organisation.respName }}</p>
+                                    <p class="mb-1">{{ contract.organisation.respFunction }}</p>
+                                    <p class="mb-1">{{ contract.organisation.respEmail }}</p>
+                                    <p class="mb-0">{{ contract.organisation.respPhone }}</p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="border rounded-4 p-4 h-100">
+                                    <h2 class="h6 text-uppercase text-muted mb-3">Assurance et logistique</h2>
+                                    <p class="mb-1"><strong>Assureur :</strong> {{ contract.organisation.insuranceName }}</p>
+                                    <p class="mb-3"><strong>Police :</strong> {{ contract.organisation.insuranceContract }}</p>
+                                    <p class="mb-1"><strong>Deplacement :</strong> {{ contract.deplacement ? 'Oui' : 'Non' }}</p>
+                                    <p class="mb-1"><strong>Transport pris en charge :</strong> {{ contract.transportFreeTaken ? 'Oui' : 'Non' }}</p>
+                                    <p class="mb-1"><strong>Repas pris en charge :</strong> {{ contract.lunchTaken ? 'Oui' : 'Non' }}</p>
+                                    <p class="mb-1"><strong>Hebergement pris en charge :</strong> {{ contract.hostTaken ? 'Oui' : 'Non' }}</p>
+                                    <p class="mb-0">
+                                        <strong>Gratification :</strong>
+                                        {{ contract.bonus ? 'Oui' : 'Non' }}
+                                        {% if contract.bonus and contract.bonusAmount %}
+                                            ({{ contract.bonusAmount }} EUR)
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
 
-                        {# Le Sujet à valider #}
-                        <div class="mb-4">
-                            <h5 class="text-uppercase text-muted small fw-bold mb-3">Sujet du stage proposé</h5>
+                        <div class="border rounded-4 p-4 mb-4">
+                            <h2 class="h6 text-uppercase text-muted mb-3">Periodes de stage</h2>
+                            {% if contract.contractDates is empty %}
+                                <p class="mb-0 text-muted">Aucune periode renseignee.</p>
+                            {% else %}
+                                <div class="row g-3">
+                                    {% for period in contract.contractDates %}
+                                        <div class="col-md-6 col-xl-4">
+                                            <div class="bg-light rounded-3 p-3 h-100">
+                                                <p class="mb-1 fw-semibold">Periode {{ loop.index }}</p>
+                                                <p class="mb-0">
+                                                    Du {{ period.startDate|date('d/m/Y') }} au {{ period.endDate|date('d/m/Y') }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="border rounded-4 p-4 mb-4">
+                            <h2 class="h6 text-uppercase text-muted mb-3">Horaires hebdomadaires</h2>
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th>Jour</th>
+                                        <th>Matin debut</th>
+                                        <th>Matin fin</th>
+                                        <th>Apres-midi debut</th>
+                                        <th>Apres-midi fin</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for day, hours in contract.workHours %}
+                                        <tr>
+                                            <td class="fw-semibold text-capitalize">{{ day }}</td>
+                                            <td>{{ hours.m_start ?: '-' }}</td>
+                                            <td>{{ hours.m_end ?: '-' }}</td>
+                                            <td>{{ hours.am_start ?: '-' }}</td>
+                                            <td>{{ hours.am_end ?: '-' }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="border rounded-4 p-4 mb-4">
+                            <h2 class="h6 text-uppercase text-muted mb-3">Sujet du stage</h2>
                             <div class="bg-light p-4 rounded-3 border-start border-4 border-info">
-                                <p class="mb-0 fs-5 text-dark">{{ contract.plannedActivities }}</p>
+                                <p class="mb-0 fs-5">{{ contract.plannedActivities|nl2br }}</p>
                             </div>
                         </div>
 
-                        {# Actions (Boutons) #}
-                        <form method="post" class="mt-5 d-grid gap-3 d-md-flex justify-content-md-center">
-                            <button type="submit" name="action" value="validate" class="btn btn-success btn-lg px-5 rounded-pill shadow-sm">
-                                <i class="fas fa-check-circle me-2"></i> Valider le sujet
-                            </button>
-
-                            <button type="submit" name="action" value="refuse" class="btn btn-outline-danger btn-lg px-5 rounded-pill" onclick="return confirm('Êtes-vous sûr de vouloir refuser ce sujet ?');">
-                                <i class="fas fa-times-circle me-2"></i> Refuser
-                            </button>
-                        </form>
-
+                        {% if can_validate or can_refuse %}
+                            <form method="post" class="mt-4 d-grid gap-3 d-md-flex justify-content-md-center">
+                                <input type="hidden" name="_token" value="{{ csrf_token('validate_contract' ~ contract.id) }}">
+                                <div class="w-100 mb-3">
+                                    <label for="rejection_reason" class="form-label fw-semibold">Motif de refus visible par l'etudiant</label>
+                                    <textarea id="rejection_reason" name="rejection_reason" class="form-control" rows="4" placeholder="Expliquez ce qui n'est pas conforme dans la collecte: informations manquantes, sujet imprecis, horaires incoherents...">{{ contract.professorRejectionReason }}</textarea>
+                                </div>
+                                {% if can_validate %}
+                                    <button type="submit" name="action" value="validate" class="btn btn-success btn-lg px-5 rounded-pill shadow-sm">
+                                        Valider la convention
+                                    </button>
+                                {% endif %}
+                                {% if can_refuse %}
+                                    <button type="submit" name="action" value="refuse" class="btn btn-outline-danger btn-lg px-5 rounded-pill" onclick="return confirm('Etes-vous sur de vouloir refuser cette convention ?');">
+                                        Refuser
+                                    </button>
+                                {% endif %}
+                            </form>
+                        {% else %}
+                            <div class="alert alert-secondary mt-4 mb-0">
+                                Cette collecte a deja ete traitee par le professeur referent. Elle ne peut plus etre revalidee ni rejetee a cette etape.
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

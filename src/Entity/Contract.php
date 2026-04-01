@@ -12,6 +12,15 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ContractRepository::class)]
 class Contract
 {
+    public const STATUS_COLLECTION_SENT = 'collection_sent';
+    public const STATUS_FILLED_BY_COMPANY = 'filled_by_company';
+    public const STATUS_VALIDATED_BY_STUDENT = 'validated_by_student';
+    public const STATUS_VALIDATED_BY_PROF = 'validated_by_prof';
+    public const STATUS_VALIDATED_BY_DDF = 'validated_by_ddf';
+    public const STATUS_SIGNATURE_REQUESTED = 'signature_requested';
+    public const STATUS_SIGNED = 'signed';
+    public const STATUS_REFUSED = 'refused';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -42,6 +51,9 @@ class Contract
     #[ORM\Column(type: Types::TEXT)]
     private ?string $plannedActivities = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $professorRejectionReason = null;
+
     #[ORM\Column(length: 255)]
     private ?string $sharingToken = null;
 
@@ -56,6 +68,12 @@ class Contract
 
     #[ORM\Column(nullable: true)]
     private ?float $bonusAmount = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $yousignDocumentId = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $yousignSignatureRequestId = null;
 
     #[ORM\ManyToOne(inversedBy: 'contracts')]
     #[ORM\JoinColumn(nullable: false)]
@@ -95,7 +113,7 @@ class Contract
         ];
 
         // Statut par défaut
-        $this->status = 'Brouillon';
+        $this->status = self::STATUS_COLLECTION_SENT;
     }
 
     public function getId(): ?int
@@ -113,6 +131,21 @@ class Contract
         $this->status = $status;
 
         return $this;
+    }
+
+    public function getStatusLabel(): string
+    {
+        return match ($this->status) {
+            self::STATUS_COLLECTION_SENT => 'Collecte envoyée',
+            self::STATUS_FILLED_BY_COMPANY => 'Complétée par l’entreprise',
+            self::STATUS_VALIDATED_BY_STUDENT => 'Validée par l’étudiant',
+            self::STATUS_VALIDATED_BY_PROF => 'Validée par le professeur',
+            self::STATUS_VALIDATED_BY_DDF => 'Validée par la DDF',
+            self::STATUS_SIGNATURE_REQUESTED => 'Signature en cours',
+            self::STATUS_SIGNED => 'Signée',
+            self::STATUS_REFUSED => 'Refusée',
+            default => (string) $this->status,
+        };
     }
 
     public function getDeplacement(): ?bool
@@ -179,14 +212,94 @@ class Contract
 
     public function getWorkHours(): array
     {
-        return $this->workHours;
+        $normalizedWorkHours = [];
+
+        foreach ($this->workHours as $day => $schedule) {
+            if (!is_array($schedule)) {
+                $normalizedWorkHours[$day] = [
+                    'm_start' => null,
+                    'm_end' => null,
+                    'am_start' => null,
+                    'am_end' => null,
+                ];
+
+                continue;
+            }
+
+            $normalizedWorkHours[$day] = [
+                'm_start' => $this->normalizeWorkHourValue($schedule['m_start'] ?? null),
+                'm_end' => $this->normalizeWorkHourValue($schedule['m_end'] ?? null),
+                'am_start' => $this->normalizeWorkHourValue($schedule['am_start'] ?? null),
+                'am_end' => $this->normalizeWorkHourValue($schedule['am_end'] ?? null),
+            ];
+        }
+
+        return $normalizedWorkHours;
     }
 
     public function setWorkHours(array $workHours): static
     {
-        $this->workHours = $workHours;
+        $normalizedWorkHours = [];
+
+        foreach ($workHours as $day => $schedule) {
+            if (!is_array($schedule)) {
+                continue;
+            }
+
+            $normalizedWorkHours[$day] = [
+                'm_start' => $this->normalizeWorkHourValue($schedule['m_start'] ?? null),
+                'm_end' => $this->normalizeWorkHourValue($schedule['m_end'] ?? null),
+                'am_start' => $this->normalizeWorkHourValue($schedule['am_start'] ?? null),
+                'am_end' => $this->normalizeWorkHourValue($schedule['am_end'] ?? null),
+            ];
+        }
+
+        $this->workHours = $normalizedWorkHours;
 
         return $this;
+    }
+
+    private function normalizeWorkHourValue(mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('H:i');
+        }
+
+        if (is_array($value)) {
+            $dateValue = $value['date'] ?? null;
+            if (!is_string($dateValue) || trim($dateValue) === '') {
+                return null;
+            }
+
+            try {
+                return (new \DateTimeImmutable($dateValue))->format('H:i');
+            } catch (\Throwable) {
+                return null;
+            }
+        }
+
+        if (is_string($value)) {
+            $trimmedValue = trim($value);
+            if ($trimmedValue === '') {
+                return null;
+            }
+
+            if (preg_match('/^\d{2}:\d{2}$/', $trimmedValue) === 1) {
+                return $trimmedValue;
+            }
+
+            try {
+                return (new \DateTimeImmutable($trimmedValue))->format('H:i');
+            } catch (\Throwable) {
+                return $trimmedValue;
+            }
+        }
+
+        return null;
     }
 
     // -----------------------------------------------------
@@ -199,6 +312,18 @@ class Contract
     public function setPlannedActivities(string $plannedActivities): static
     {
         $this->plannedActivities = $plannedActivities;
+
+        return $this;
+    }
+
+    public function getProfessorRejectionReason(): ?string
+    {
+        return $this->professorRejectionReason;
+    }
+
+    public function setProfessorRejectionReason(?string $professorRejectionReason): static
+    {
+        $this->professorRejectionReason = $professorRejectionReason;
 
         return $this;
     }
@@ -337,6 +462,30 @@ class Contract
     public function setBonusAmount(?float $bonusAmount): static
     {
         $this->bonusAmount = $bonusAmount;
+        return $this;
+    }
+
+    public function getYousignDocumentId(): ?string
+    {
+        return $this->yousignDocumentId;
+    }
+
+    public function setYousignDocumentId(?string $yousignDocumentId): static
+    {
+        $this->yousignDocumentId = $yousignDocumentId;
+
+        return $this;
+    }
+
+    public function getYousignSignatureRequestId(): ?string
+    {
+        return $this->yousignSignatureRequestId;
+    }
+
+    public function setYousignSignatureRequestId(?string $yousignSignatureRequestId): static
+    {
+        $this->yousignSignatureRequestId = $yousignSignatureRequestId;
+
         return $this;
     }
 }

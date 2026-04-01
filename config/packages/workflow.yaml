@@ -6,22 +6,48 @@ framework:
                 enabled: true
             marking_store:
                 type: 'method'
-                property: 'status' # <--- On utilise bien ta propriété 'status'
+                property: 'status'
             supports:
                 - App\Entity\Contract
-            initial_marking: Brouillon # <--- Correspond à ton constructeur
+            initial_marking: collection_sent
+
             places:
-                - Brouillon
+                - collection_sent
                 - filled_by_company
+                - validated_by_student
                 - validated_by_prof
+                - validated_by_ddf
+                - signature_requested
+                - signed
                 - refused
+
             transitions:
                 fill_by_company:
-                    from: Brouillon
-                    to:   filled_by_company
+                    from: collection_sent
+                    to: filled_by_company
+
+                validate_by_student:
+                    from: filled_by_company
+                    to: validated_by_student
+
                 validate_by_prof:
-                    from: filled_by_company
-                    to:   validated_by_prof
+                    from: validated_by_student
+                    to: validated_by_prof
+
+                validate_by_ddf:
+                    from: validated_by_prof
+                    to: validated_by_ddf
+
+                request_signature:
+                    from: validated_by_ddf
+                    to: signature_requested
+
+                mark_signed:
+                    from: signature_requested
+                    to: signed
+
                 refuse_subject:
-                    from: filled_by_company
-                    to:   refused
+                    from:
+                        - filled_by_company
+                        - validated_by_student
+                    to: refused

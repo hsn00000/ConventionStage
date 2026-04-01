@@ -57,11 +57,11 @@
                         <div class="d-flex align-items-center">
                             <span class="fs-1 me-3 text-success">✅</span>
                             <div>
-                                <h6 class="card-subtitle mb-2 text-success text-uppercase small fw-bold">Suivi en Cours</h6>
-                                <h3 class="card-title mb-0">{{ active_contracts_count }} Conventions Actives</h3>
+                                <h6 class="card-subtitle mb-2 text-success text-uppercase small fw-bold">Collectes Validees</h6>
+                                <h3 class="card-title mb-0">{{ validated_collections_count }} Conventions</h3>
                             </div>
                         </div>
-                        <p class="mt-3 mb-0 text-muted small">Nombre de stages en cours de déroulement.</p>
+                        <p class="mt-3 mb-0 text-muted small">Collectes d'informations deja validees par vos soins.</p>
                     </div>
                 </div>
             </div>
@@ -113,31 +113,21 @@
                                     </thead>
                                     <tbody>
                                     {% for contract in contracts_to_validate %}
-                                        {% if contract.status == 'A valider Prof' %}
-                                            <tr class="alert-danger-subtle">
-                                                <td class="px-3">#{{ contract.id }}</td>
-                                                <td class="px-3">
-                                                    <span class="fw-bold">{{ contract.student.firstname }} {{ contract.student.lastname }}</span>
-                                                </td>
-                                                <td class="px-3">{{ contract.organisation.name }}</td>
-                                                <td class="px-3">
-                                                    <span class="badge bg-danger fw-bold py-2">ACTION REQUISE</span>
-                                                </td>
-                                                <td class="px-3">
-                                                    {# Bouton de Validation (POST) #}
-                                                    <form method="POST" action="{{ path('app_professor_contract_validate', {'id': contract.id}) }}" style="display: inline-block;" onsubmit="return confirm('Confirmez-vous la VALIDATION de cette convention ?');">
-                                                        <input type="hidden" name="_token" value="{{ csrf_token('validate' ~ contract.id) }}">
-                                                        <button type="submit" class="btn btn-sm btn-success me-2">Valider</button>
-                                                    </form>
-
-                                                    {# Bouton de Refus (POST) #}
-                                                    <form method="POST" action="{{ path('app_professor_contract_refuse', {'id': contract.id}) }}" style="display: inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir REFUSER cette convention ?');">
-                                                        <input type="hidden" name="_token" value="{{ csrf_token('refuse' ~ contract.id) }}">
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger">Refuser</button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        {% endif %}
+                                        <tr class="alert-danger-subtle">
+                                            <td class="px-3">#{{ contract.id }}</td>
+                                            <td class="px-3">
+                                                <span class="fw-bold">{{ contract.student.firstname }} {{ contract.student.lastname }}</span>
+                                            </td>
+                                            <td class="px-3">{{ contract.organisation.name }}</td>
+                                            <td class="px-3">
+                                                <span class="badge bg-danger fw-bold py-2">ACTION REQUISE</span>
+                                            </td>
+                                            <td class="px-3">
+                                                <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn btn-sm btn-success me-2">
+                                                    Ouvrir et traiter
+                                                </a>
+                                            </td>
+                                        </tr>
                                     {% endfor %}
                                     </tbody>
                                 </table>
@@ -148,7 +138,71 @@
             </div>
         </div>
 
-        {# --- 3. Section: Conventions en Suivi (Moins Urgent) --- #}
+        {# --- 3. Section: Collectes deja validees --- #}
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="card shadow rounded-3 border-success">
+                    <div class="card-header bg-success text-white p-3">
+                        <h4 class="mb-0">✅ Collectes deja validees par vous ({{ validated_collections_count }})</h4>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if validated_collections is empty %}
+                            <div class="p-4 bg-light-subtle rounded-bottom text-center">
+                                <span class="text-muted">Aucune collecte validee pour le moment.</span>
+                            </div>
+                        {% else %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th class="py-3 px-3">ID</th>
+                                        <th class="py-3 px-3">Etudiant</th>
+                                        <th class="py-3 px-3">Entreprise</th>
+                                        <th class="py-3 px-3">Etape actuelle</th>
+                                        <th class="py-3 px-3">Acces</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for contract in validated_collections %}
+                                        <tr>
+                                            <td class="px-3">#{{ contract.id }}</td>
+                                            <td class="px-3">
+                                                <span class="fw-bold">{{ contract.student.firstname }} {{ contract.student.lastname }}</span>
+                                            </td>
+                                            <td class="px-3">{{ contract.organisation.name }}</td>
+                                            <td class="px-3">
+                                                {% set label = contract.statusLabel %}
+                                                {% set badge_class = 'bg-success' %}
+                                                {% if contract.status == 'validated_by_prof' %}
+                                                    {% set label = 'En attente DDF' %}
+                                                    {% set badge_class = 'bg-primary' %}
+                                                {% elseif contract.status == 'validated_by_ddf' %}
+                                                    {% set label = 'Pret pour signature' %}
+                                                    {% set badge_class = 'bg-info text-dark' %}
+                                                {% elseif contract.status == 'signature_requested' %}
+                                                    {% set label = 'Signature en cours' %}
+                                                    {% set badge_class = 'bg-dark' %}
+                                                {% elseif contract.status == 'signed' %}
+                                                    {% set label = 'Convention signee' %}
+                                                    {% set badge_class = 'bg-success' %}
+                                                {% endif %}
+                                                <span class="badge {{ badge_class }} fw-bold py-2">{{ label }}</span>
+                                            </td>
+                                            <td class="px-3">
+                                                <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn btn-sm btn-outline-success">Voir la collecte</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# --- 4. Section: Conventions en Suivi (Moins Urgent) --- #}
         <div class="row">
             <div class="col-12">
                 <div class="card shadow rounded-3">
@@ -156,7 +210,7 @@
                         <h4 class="mb-0 text-secondary">Conventions en Suivi (En attente d'autres acteurs)</h4>
                     </div>
                     <div class="card-body p-0">
-                        {% set pending_follow_up = contracts_to_validate|filter(c => c.status != 'A valider Prof') %}
+                        {% set pending_follow_up = all_coordinated_contracts|filter(c => c.status in ['collection_sent', 'filled_by_company', 'validated_by_prof', 'validated_by_ddf', 'signature_requested']) %}
 
                         {% if pending_follow_up is empty %}
                             <div class="alert alert-info m-3 mb-0" role="alert">
@@ -181,14 +235,28 @@
                                             <td class="px-3">{{ contract.student.firstname }} {{ contract.student.lastname }}</td>
                                             <td class="px-3">{{ contract.organisation.name }}</td>
                                             <td class="px-3">
-                                                {% set badge_color = 'warning-subtle text-warning' %}
-                                                {% if contract.status == 'Brouillon' %}{% set badge_color = 'secondary-subtle text-secondary' %}
-                                                {% elseif contract.status == 'En attente entreprise' %}{% set badge_color = 'info-subtle text-info' %}
+                                                {% set label = 'En attente' %}
+                                                {% set badge_class = 'bg-warning text-dark' %}
+                                                {% if contract.status == 'collection_sent' %}
+                                                    {% set label = 'Collecte envoyee' %}
+                                                    {% set badge_class = 'bg-secondary' %}
+                                                {% elseif contract.status == 'filled_by_company' %}
+                                                    {% set label = 'Validation etudiant' %}
+                                                    {% set badge_class = 'bg-info text-dark' %}
+                                                {% elseif contract.status == 'validated_by_prof' %}
+                                                    {% set label = 'Validation DDF' %}
+                                                    {% set badge_class = 'bg-primary' %}
+                                                {% elseif contract.status == 'validated_by_ddf' %}
+                                                    {% set label = 'Pret pour signature' %}
+                                                    {% set badge_class = 'bg-primary' %}
+                                                {% elseif contract.status == 'signature_requested' %}
+                                                    {% set label = 'Signature en cours' %}
+                                                    {% set badge_class = 'bg-dark' %}
                                                 {% endif %}
-                                                <span class="badge bg-{{ badge_color }} fw-bold py-2">{{ contract.status|upper }}</span>
+                                                <span class="badge {{ badge_class }} fw-bold py-2">{{ label }}</span>
                                             </td>
                                             <td class="px-3">
-                                                <a href="#" class="btn btn-sm btn-outline-secondary">Détails/Rappel</a>
+                                                <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn btn-sm btn-outline-secondary">Voir</a>
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -201,7 +269,7 @@
             </div>
         </div>
 
-        {# --- 4. Section: Mon Profil (Informations Détaillées) --- #}
+        {# --- 5. Section: Mon Profil (Informations Détaillées) --- #}
         <div class="card shadow-sm mt-5 rounded-3">
             <div class="card-header bg-light p-3">
                 <h4 class="mb-0 text-secondary">Mon Profil & Sécurité</h4>

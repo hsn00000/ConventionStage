@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Convention {{ contract.id }}</title>
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; color: #1f2937; font-size: 12px; line-height: 1.45; margin: 0; }
+        h1, h2, h3 { margin: 0; }
+        .page { padding: 24px 28px 90px; }
+        .header { border-bottom: 2px solid #0f4c81; padding-bottom: 14px; margin-bottom: 20px; }
+        .header h1 { color: #0f4c81; font-size: 24px; }
+        .header p { margin: 6px 0 0; color: #4b5563; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+        .card { border: 1px solid #d1d5db; border-radius: 10px; padding: 12px; background: #f9fafb; }
+        .card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: #0f4c81; margin-bottom: 10px; }
+        .row { margin-bottom: 6px; }
+        .label { color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .value { font-weight: 600; }
+        .section { margin-bottom: 18px; }
+        .section h3 { font-size: 15px; color: #111827; margin-bottom: 8px; }
+        .schedule-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        .schedule-table th, .schedule-table td { border: 1px solid #d1d5db; padding: 7px; text-align: left; font-size: 11px; }
+        .schedule-table th { background: #e5eef6; color: #0f4c81; }
+        .signature-area { margin-top: 28px; border: 1px dashed #94a3b8; border-radius: 12px; padding: 18px; }
+        .signature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 10px; }
+        .signature-box { height: 110px; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; }
+        .muted { color: #6b7280; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <h1>Convention de stage</h1>
+            <p>Convention n° {{ contract.id }} - generation DDF</p>
+        </div>
+
+        <div class="grid">
+            <section class="card">
+                <h2>Etudiant</h2>
+                <div class="row"><div class="label">Nom</div><div class="value">{{ contract.student.lastname }} {{ contract.student.firstname }}</div></div>
+                <div class="row"><div class="label">Email</div><div>{{ contract.student.email }}</div></div>
+                <div class="row"><div class="label">Classe</div><div>{{ contract.student.level ? contract.student.level.levelCode : 'Non renseignee' }}</div></div>
+                <div class="row"><div class="label">Professeur referent</div><div>{{ contract.coordinator.lastname }} {{ contract.coordinator.firstname }}</div></div>
+            </section>
+
+            <section class="card">
+                <h2>Entreprise</h2>
+                <div class="row"><div class="label">Nom</div><div class="value">{{ contract.organisation.name }}</div></div>
+                <div class="row"><div class="label">Adresse</div><div>{{ contract.organisation.addressInternship }}, {{ contract.organisation.postalCodeInternship }} {{ contract.organisation.cityInternship }}</div></div>
+                <div class="row"><div class="label">Responsable</div><div>{{ contract.organisation.respName }} - {{ contract.organisation.respFunction }}</div></div>
+                <div class="row"><div class="label">Contact</div><div>{{ contract.organisation.respEmail }} / {{ contract.organisation.respPhone }}</div></div>
+            </section>
+        </div>
+
+        <div class="grid">
+            <section class="card">
+                <h2>Tuteur entreprise</h2>
+                <div class="row"><div class="label">Nom</div><div class="value">{{ contract.tutor.lastname }} {{ contract.tutor.firstname }}</div></div>
+                <div class="row"><div class="label">Email</div><div>{{ contract.tutor.email }}</div></div>
+                <div class="row"><div class="label">Telephone</div><div>{{ contract.tutor.telMobile ?: contract.tutor.telOther ?: 'Non renseigne' }}</div></div>
+            </section>
+
+            <section class="card">
+                <h2>Conditions</h2>
+                <div class="row"><div class="label">Deplacements</div><div>{{ contract.deplacement ? 'Oui' : 'Non' }}</div></div>
+                <div class="row"><div class="label">Transport pris en charge</div><div>{{ contract.transportFreeTaken ? 'Oui' : 'Non' }}</div></div>
+                <div class="row"><div class="label">Restauration prise en charge</div><div>{{ contract.lunchTaken ? 'Oui' : 'Non' }}</div></div>
+                <div class="row"><div class="label">Hebergement pris en charge</div><div>{{ contract.hostTaken ? 'Oui' : 'Non' }}</div></div>
+                <div class="row"><div class="label">Gratification</div><div>{{ contract.bonus ? 'Oui' : 'Non' }}{% if contract.bonus and contract.bonusAmount %} - {{ contract.bonusAmount }} EUR{% endif %}</div></div>
+            </section>
+        </div>
+
+        <section class="section">
+            <h3>Activites prevues</h3>
+            <div class="card">{{ contract.plannedActivities|nl2br }}</div>
+        </section>
+
+        <section class="section">
+            <h3>Horaires hebdomadaires</h3>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Jour</th>
+                        <th>Matin debut</th>
+                        <th>Matin fin</th>
+                        <th>Apres-midi debut</th>
+                        <th>Apres-midi fin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for day, schedule in contract.workHours %}
+                        <tr>
+                            <td>{{ day|capitalize }}</td>
+                            <td>{{ schedule.m_start ?: '-' }}</td>
+                            <td>{{ schedule.m_end ?: '-' }}</td>
+                            <td>{{ schedule.am_start ?: '-' }}</td>
+                            <td>{{ schedule.am_end ?: '-' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <section class="signature-area">
+            <div class="label">Zone de signature electronique</div>
+            <p class="muted">Les signatures seront apposees via YouSign sur les zones ci-dessous.</p>
+            <div class="signature-grid">
+                <div class="signature-box">
+                    <strong>Signature etudiant</strong>
+                    <p class="muted">Nom: {{ contract.student.firstname }} {{ contract.student.lastname }}</p>
+                    <p class="muted">{{ '{{s1|signature|180|60}}' }}</p>
+                </div>
+                <div class="signature-box">
+                    <strong>Signature tuteur entreprise</strong>
+                    <p class="muted">Nom: {{ contract.tutor.firstname }} {{ contract.tutor.lastname }}</p>
+                    <p class="muted">{{ '{{s2|signature|180|60}}' }}</p>
+                </div>
+                <div class="signature-box">
+                    <strong>Signature professeur referent</strong>
+                    <p class="muted">Nom: {{ contract.coordinator.firstname }} {{ contract.coordinator.lastname }}</p>
+                    <p class="muted">{{ '{{s3|signature|180|60}}' }}</p>
+                </div>
+                <div class="signature-box">
+                    <strong>Signature proviseur</strong>
+                    <p class="muted">Nom: A renseigner dans les parametres</p>
+                    <p class="muted">{{ '{{s4|signature|180|60}}' }}</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

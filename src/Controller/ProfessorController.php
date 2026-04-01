@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Contract;
+use App\Repository\ContractRepository;
 use App\Entity\Professor;
 use App\Form\ProfessorType;
 use App\Repository\ProfessorRepository;
@@ -51,51 +52,60 @@ final class ProfessorController extends AbstractController
      */
     #[Route('/{id}', name: 'app_professor_show', methods: ['GET'])]
     #[IsGranted('ROLE_PROFESSOR')]
-    public function show(Professor $professor): Response
+    public function show(Professor $professor, ContractRepository $contractRepository): Response
     {
         // SÉCURITÉ : Vérifier que le prof connecté regarde son propre profil
         if ($this->getUser() === null || $this->getUser()->getId() !== $professor->getId()) {
             throw $this->createAccessDeniedException("Vous n'êtes pas autorisé à accéder à ce profil.");
         }
 
-        // Récupération des étudiants suivis (Méthode issue du main)
-        // Si cette méthode n'existe pas encore dans ton entité Professor, utilise $professor->getStudents() ou une liste vide []
+        // Récupération des étudiants suivis
         $students = method_exists($professor, 'getStudentsReferred') ? $professor->getStudentsReferred() : [];
 
-        // Récupération des contrats via la relation
         $allCoordinatedContracts = $professor->getContracts();
-
-        // 1. Filtrer les conventions à valider (Status Workflow : 'filled_by_company')
-        $contractsToValidate = $allCoordinatedContracts->filter(function (Contract $contract) {
-            return $contract->getStatus() === 'filled_by_company';
+        $contractsToValidate = $contractRepository->findPendingProfessorValidation($professor);
+        $validatedCollections = $allCoordinatedContracts->filter(function (Contract $contract) {
+            return in_array($contract->getStatus(), [
+                Contract::STATUS_VALIDATED_BY_PROF,
+                Contract::STATUS_VALIDATED_BY_DDF,
+                Contract::STATUS_SIGNATURE_REQUESTED,
+                Contract::STATUS_SIGNED,
+            ], true);
         });
-
-        // 2. Filtrer les conventions actives/validées
         $activeContracts = $allCoordinatedContracts->filter(function (Contract $contract) {
-            return $contract->getStatus() === 'validated_by_prof';
+            return in_array($contract->getStatus(), [
+                Contract::STATUS_VALIDATED_BY_PROF,
+                Contract::STATUS_VALIDATED_BY_DDF,
+                Contract::STATUS_SIGNATURE_REQUESTED,
+            ], true);
         });
-
-        // 3. Filtrer les conventions terminées/archivées
         $pastContracts = $allCoordinatedContracts->filter(function (Contract $contract) {
-            return in_array($contract->getStatus(), ['completed', 'archived', 'refused']);
+            return in_array($contract->getStatus(), [
+                Contract::STATUS_SIGNED,
+                Contract::STATUS_REFUSED,
+            ], true);
         });
 
         return $this->render('professor/show.html.twig', [
             'professor' => $professor,
-            'students_count' => count($students),
-            'pending_validation_count' => $contractsToValidate->count(),
+            'students_count' => is_countable($students) ? count($students) : 0,
+            'pending_validation_count' => count($contractsToValidate),
+            'validated_collections_count' => $validatedCollections->count(),
             'active_contracts_count' => $activeContracts->count(),
             'past_contracts_count' => $pastContracts->count(),
             'contracts_to_validate' => $contractsToValidate,
+            'validated_collections' => $validatedCollections,
             'all_coordinated_contracts' => $allCoordinatedContracts,
         ]);
     }
 
     /**
      * VALIDATION DE CONVENTION (Via Workflow)
+     * ÉTAPE 3 : Le professeur valide ou refuse la convention
      * Cette méthode gère le lien reçu par email ET le bouton du dashboard.
      */
     #[Route('/contract/{id}/validate', name: 'app_professor_validate_contract', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_PROFESSOR')]
     public function validateContract(
         Contract $contract,
         Request $request,
@@ -103,23 +113,32 @@ final class ProfessorController extends AbstractController
         Registry $workflowRegistry
     ): Response
     {
-        // On récupère le workflow
+        if ($this->getUser() !== $contract->getCoordinator()) {
+            throw $this->createAccessDeniedException("Vous n'êtes pas autorise a valider cette convention.");
+        }
+
+        // On récupère le workflow associé à l'entité Contract
         $workflow = $workflowRegistry->get($contract);
 
         if ($request->isMethod('POST')) {
+            // SÉCURITÉ CSRF : Assure-toi que ton formulaire envoie bien un token
+            if (!$this->isCsrfTokenValid('validate_contract'.$contract->getId(), $request->request->get('_token'))) {
+                $this->addFlash('error', 'Jeton de sécurité invalide.');
+                return $this->redirectToRoute('app_home');
+            }
+
             $action = $request->request->get('action');
+            $rejectionReason = trim((string) $request->request->get('rejection_reason', ''));
 
             try {
                 if ($action === 'validate' && $workflow->can($contract, 'validate_by_prof')) {
-
+                    $contract->setProfessorRejectionReason(null);
                     $workflow->apply($contract, 'validate_by_prof');
-                    $this->addFlash('success', 'Le sujet de stage a été validé avec succès !');
-
+                    $this->addFlash('success', 'La convention a été validée pédagogiquement avec succès ! Elle part à la DDF.');
                 } elseif ($action === 'refuse' && $workflow->can($contract, 'refuse_subject')) {
-
+                    $contract->setProfessorRejectionReason($rejectionReason !== '' ? $rejectionReason : 'Le professeur référent a refusé la collecte. Merci de vérifier les informations saisies.');
                     $workflow->apply($contract, 'refuse_subject');
-                    $this->addFlash('warning', 'Le sujet de stage a été refusé.');
-
+                    $this->addFlash('warning', 'La collecte a été refusée. L\'étudiant verra le rejet et le motif sur sa convention.');
                 } else {
                     $this->addFlash('danger', 'Action impossible pour le statut actuel (' . $contract->getStatus() . ').');
                 }
@@ -134,13 +153,15 @@ final class ProfessorController extends AbstractController
                 return $this->redirectToRoute('app_professor_show', ['id' => $this->getUser()->getId()]);
             }
 
-            // Sinon (accès via mail sans être connecté), on reste sur la page ou on va à l'accueil
+            // Sinon on va à l'accueil
             return $this->redirectToRoute('app_home');
         }
 
-        // Si c'est un GET (clic sur le lien email), on affiche la page de confirmation
+        // Si c'est un GET, on affiche la page de confirmation (template: professor/validate.html.twig)
         return $this->render('professor/validate.html.twig', [
             'contract' => $contract,
+            'can_validate' => $workflow->can($contract, 'validate_by_prof'),
+            'can_refuse' => $workflow->can($contract, 'refuse_subject'),
         ]);
     }
 

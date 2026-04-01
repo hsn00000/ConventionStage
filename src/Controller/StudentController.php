@@ -85,6 +85,11 @@ final class StudentController extends AbstractController
             $endDate = $contract->getTokenExpDate();   // UTILISER LA VRAIE DATE DE FIN
             $status = $contract->getStatus();
 
+            if ($activeContract === null && $status === Contract::STATUS_REFUSED) {
+                $currentStatus = 'Collecte rejetee par le professeur';
+                continue;
+            }
+
             // 1. Conventions passées (terminées ou date de fin dans le passé)
             if ($status === 'completed' || ($endDate instanceof \DateTimeInterface && $endDate < $now)) {
                 $pastContractsCount++;
@@ -112,12 +117,20 @@ final class StudentController extends AbstractController
 
             // 3. Statut de convention future ou en cours de validation (uniquement si pas de contrat actif trouvé)
             if ($activeContract === null && $startDate instanceof \DateTimeInterface && $startDate > $now && $status !== 'completed' && $status !== 'cancelled') {
-                if ($status === 'Brouillon') {
-                    $currentStatus = 'Brouillon en cours';
-                } elseif ($status === 'En attente entreprise') {
-                    $currentStatus = 'Soumise, en attente de l\'entreprise';
-                } elseif ($status === 'En attente') {
-                    $currentStatus = 'En attente de validation Professeur';
+                if ($status === Contract::STATUS_COLLECTION_SENT) {
+                    $currentStatus = 'Collecte envoyee a l\'entreprise';
+                } elseif ($status === Contract::STATUS_FILLED_BY_COMPANY) {
+                    $currentStatus = 'Collecte remplie, validation etudiant attendue';
+                } elseif ($status === Contract::STATUS_VALIDATED_BY_STUDENT) {
+                    $currentStatus = 'Validation professeur en attente';
+                } elseif ($status === Contract::STATUS_VALIDATED_BY_PROF) {
+                    $currentStatus = 'Validation DDF en attente';
+                } elseif ($status === Contract::STATUS_SIGNATURE_REQUESTED) {
+                    $currentStatus = 'Signature en cours';
+                } elseif ($status === Contract::STATUS_SIGNED) {
+                    $currentStatus = 'Convention signee';
+                } elseif ($status === Contract::STATUS_REFUSED) {
+                    $currentStatus = 'Collecte rejetee par le professeur';
                 } else {
                     $currentStatus = 'Convention en préparation ou en attente';
                 }

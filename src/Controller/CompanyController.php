@@ -17,7 +17,7 @@ use Symfony\Component\Workflow\Registry;
 
 class CompanyController extends AbstractController
 {
-    private $workflowRegistry;
+    private Registry $workflowRegistry;
 
     public function __construct(Registry $workflowRegistry)
     {
@@ -39,40 +39,41 @@ class CompanyController extends AbstractController
             throw $this->createNotFoundException('Contrat non trouvé');
         }
 
+        $workflow = $this->workflowRegistry->get($contract);
+
+        if (!$workflow->can($contract, 'fill_by_company')) {
+            return $this->render('company/already_filled.html.twig', [
+                'contract' => $contract,
+            ]);
+        }
+
         $form = $this->createForm(CompanyFillContractType::class, $contract);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            // On récupère le workflow
-            $workflow = $this->workflowRegistry->get($contract);
-
-            // On vérifie si on peut passer à l'étape suivante
-            if ($workflow->can($contract, 'fill_by_company')) {
-                try {
-                    $workflow->apply($contract, 'fill_by_company');
-                } catch (\LogicException $e) {
-                    // Erreur silencieuse ou log
-                }
+            try {
+                $workflow->apply($contract, 'fill_by_company');
+            } catch (\LogicException $e) {
+                return $this->render('company/already_filled.html.twig', [
+                    'contract' => $contract,
+                ]);
             }
 
             $entityManager->persist($contract);
             $entityManager->flush();
 
-            // --- Envoi de l'email au Professeur ---
+            // Envoi de l'email à l'étudiant pour validation
             $student = $contract->getStudent();
-            $professor = $student ? $student->getProfReferent() : null;
 
-            if ($professor && $professor->getEmail()) {
+            if ($student && $student->getEmail()) {
                 $email = (new TemplatedEmail())
                     ->from(new Address('no-reply@lycee-faure.fr', 'Convention Stage'))
-                    ->to($professor->getEmail())
-                    ->subject('Validation requise : Stage de ' . $student->getFirstname() . ' ' . $student->getLastname())
-                    ->htmlTemplate('emails/professor_validation_request.html.twig')
+                    ->to($student->getEmail())
+                    ->subject('Votre convention a été complétée par l’entreprise')
+                    ->htmlTemplate('emails/student_validation_request.html.twig')
                     ->context([
                         'contract' => $contract,
-                        'professor' => $professor,
-                        'student' => $student
+                        'student' => $student,
                     ]);
 
                 $mailer->send($email);
