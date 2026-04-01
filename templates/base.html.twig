@@ -38,16 +38,13 @@
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
             }
-            .navbar-brand-dot {
-                width: 9px;
-                height: 9px;
-                border-radius: 50%;
+            .navbar-brand-icon {
+                font-size: 1.35rem;
                 background: linear-gradient(135deg, #0d6efd, #6ea8fe);
-                display: inline-block;
-                margin-right: 5px;
-                margin-bottom: 3px;
-                vertical-align: middle;
-                box-shadow: 0 2px 8px rgba(13, 110, 253, 0.45);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                filter: drop-shadow(0 2px 6px rgba(13, 110, 253, 0.35));
             }
 
             /* Liens de nav */
@@ -168,8 +165,8 @@
         <div class="container">
 
             {# LOGO #}
-            <a href="{{ path('app_home') }}" class="navbar-brand d-flex align-items-center">
-                <span class="navbar-brand-dot"></span>
+            <a href="{{ path('app_home') }}" class="navbar-brand d-flex align-items-center gap-1">
+                <i class="ph-bold ph-file-text navbar-brand-icon"></i>
                 <span class="navbar-brand-text">Conventio</span>
             </a>
 
