@@ -201,32 +201,86 @@
                                     </span>
                                 </td>
                                 <td>
+                                    <span class="text-muted small">Disponible après validation DDF</span>
+                                </td>
+                                <td>
+                                    <a href="{{ path('app_ddf_contract_validate', {'id': contract.id}) }}" class="btn-action btn-action-primary">
+                                        <i class="ph ph-eye"></i> Visualiser
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# ── SECTION 2 : VALIDÉES PAR LA DDF ─────────────────────────────────── #}
+    <div class="section-card">
+        <div class="section-header">
+            <span class="section-dot" style="background:#20c997"></span>
+            <h2>Conventions validées par la DDF</h2>
+            <span class="badge-count badge" style="background:rgba(32,201,151,0.12);color:#198754;">
+                {{ validated_contracts|length }}
+            </span>
+        </div>
+        <div class="card-body p-0">
+            {% if validated_contracts is empty %}
+                <div class="empty-state">
+                    <i class="ph ph-file-arrow-up" style="color:#20c997"></i>
+                    <p>Aucune convention validée en attente de génération.</p>
+                </div>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Étudiant</th>
+                                <th>Entreprise</th>
+                                <th>Professeur</th>
+                                <th>PDF</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for contract in validated_contracts %}
+                            <tr>
+                                <td><span class="id-badge">#{{ contract.id }}</span></td>
+                                <td>
+                                    <span class="student-name">
+                                        <i class="ph ph-student me-1 text-muted"></i>
+                                        {{ contract.student.firstname }} {{ contract.student.lastname }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="company-name">
+                                        <i class="ph ph-buildings me-1 text-muted"></i>
+                                        {{ contract.organisation.name }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="company-name">
+                                        <i class="ph ph-chalkboard-teacher me-1 text-muted"></i>
+                                        {{ contract.coordinator.firstname }} {{ contract.coordinator.lastname }}
+                                    </span>
+                                </td>
+                                <td>
                                     {% if contract.pdfUnsigned %}
-                                        <div class="d-flex gap-2 flex-wrap">
-                                            <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn-action btn-action-outline">
-                                                <i class="ph ph-eye"></i> Voir
-                                            </a>
-                                            <form method="post" action="{{ path('app_ddf_contract_generate_pdf', {'id': contract.id}) }}">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('ddf_generate_pdf_contract' ~ contract.id) }}">
-                                                <button class="btn-action btn-action-muted" type="submit">
-                                                    <i class="ph ph-arrow-clockwise"></i> Regénérer
-                                                </button>
-                                            </form>
-                                        </div>
+                                        <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn-action btn-action-outline">
+                                            <i class="ph ph-eye"></i> Voir
+                                        </a>
                                     {% else %}
-                                        <form method="post" action="{{ path('app_ddf_contract_generate_pdf', {'id': contract.id}) }}">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('ddf_generate_pdf_contract' ~ contract.id) }}">
-                                            <button class="btn-action btn-action-outline" type="submit">
-                                                <i class="ph ph-file-pdf"></i> Générer le PDF
-                                            </button>
-                                        </form>
+                                        <span class="text-muted small">À générer</span>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <form method="post" action="{{ path('app_ddf_contract_validate', {'id': contract.id}) }}">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('ddf_validate_contract' ~ contract.id) }}">
+                                    <form method="post" action="{{ path('app_ddf_contract_generate_and_send', {'id': contract.id}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('ddf_generate_and_send_contract' ~ contract.id) }}">
                                         <button class="btn-action btn-action-primary" type="submit">
-                                            <i class="ph ph-paper-plane-tilt"></i> Valider & envoyer
+                                            <i class="ph ph-paper-plane-tilt"></i> Générer & envoyer
                                         </button>
                                     </form>
                                 </td>
@@ -239,7 +293,7 @@
         </div>
     </div>
 
-    {# ── SECTION 2 : SIGNATURES EN COURS ─────────────────────────────────── #}
+    {# ── SECTION 3 : SIGNATURES EN COURS ─────────────────────────────────── #}
     <div class="section-card">
         <div class="section-header">
             <span class="section-dot" style="background:#0d6efd"></span>
@@ -287,20 +341,13 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="d-flex gap-2 flex-wrap">
-                                        {% if contract.pdfUnsigned %}
-                                            <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn-action btn-action-outline">
-                                                <i class="ph ph-eye"></i> Voir
-                                            </a>
-                                        {% endif %}
-                                        <form method="post" action="{{ path('app_ddf_contract_generate_pdf', {'id': contract.id}) }}">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('ddf_generate_pdf_contract' ~ contract.id) }}">
-                                            <button class="btn-action btn-action-muted" type="submit">
-                                                <i class="ph ph-arrow-clockwise"></i>
-                                                {{ contract.pdfUnsigned ? 'Regénérer' : 'Générer' }}
-                                            </button>
-                                        </form>
-                                    </div>
+                                    {% if contract.pdfUnsigned %}
+                                        <a href="{{ path('app_ddf_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn-action btn-action-outline">
+                                            <i class="ph ph-eye"></i> Voir
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted small">N/A</span>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {% if signature_status and signature_status.error is not defined %}

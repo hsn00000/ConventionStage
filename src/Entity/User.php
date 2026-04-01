@@ -71,9 +71,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->email;
     }
 
-    public function setEmail(string $email): static
+    public function setEmail(?string $email): static
     {
-        $this->email = $email;
+        $this->email = $email ?? '';
 
         return $this;
     }
@@ -147,9 +147,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->lastname;
     }
 
-    public function setLastname(string $lastname): static
+    public function setLastname(?string $lastname): static
     {
-        $this->lastname = strtoupper($lastname); // Optionnel : Met le nom en MAJUSCULES automatiquement
+        $this->lastname = strtoupper($lastname ?? ''); // Optionnel : Met le nom en MAJUSCULES automatiquement
         return $this;
     }
 
@@ -158,9 +158,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->firstname;
     }
 
-    public function setFirstname(string $firstname): static
+    public function setFirstname(?string $firstname): static
     {
-        $this->firstname = $firstname;
+        $this->firstname = $firstname ?? '';
         return $this;
     }
 

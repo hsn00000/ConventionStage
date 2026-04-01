@@ -33,27 +33,32 @@ class YouSignService
             throw new \RuntimeException('Le proviseur doit etre renseigne dans les parametres avant l envoi en signature.');
         }
 
+        $studentSigner = $this->buildSignerPayload(
+            'etudiant',
+            $contract->getStudent()->getFirstname(),
+            $contract->getStudent()->getLastname(),
+            $contract->getStudent()->getEmail(),
+        );
+
+        $organisationSigner = $this->buildSignerPayload(
+            'organisme',
+            $contract->getTutor()->getFirstname(),
+            $contract->getTutor()->getLastname(),
+            $contract->getTutor()->getEmail(),
+        );
+
         $signatureRequestId = $this->createSignatureRequestDraft($contract);
         $documentId = $this->uploadDocument($signatureRequestId, $pdfPath);
 
-        $this->addSigner($signatureRequestId, [
-            'first_name' => $contract->getStudent()->getFirstname(),
-            'last_name' => $contract->getStudent()->getLastname(),
-            'email' => $contract->getStudent()->getEmail(),
-        ]);
+        $this->addSigner($signatureRequestId, $studentSigner);
 
-        $this->addSigner($signatureRequestId, [
-            'first_name' => $contract->getTutor()->getFirstname(),
-            'last_name' => $contract->getTutor()->getLastname(),
-            'email' => $contract->getTutor()->getEmail(),
-        ]);
+        $this->addSigner($signatureRequestId, $organisationSigner);
 
         [$provisorLastName, $provisorFirstName] = $this->splitFullName($parameters->getProvisorName());
-        $this->addSigner($signatureRequestId, [
-            'first_name' => $provisorFirstName,
-            'last_name' => $provisorLastName,
-            'email' => $parameters->getProvisorEmail(),
-        ]);
+        $this->addSigner(
+            $signatureRequestId,
+            $this->buildSignerPayload('proviseur', $provisorFirstName, $provisorLastName, $parameters->getProvisorEmail())
+        );
 
         $this->activateSignatureRequest($signatureRequestId);
 
@@ -403,6 +408,34 @@ class YouSignService
             null => 'Indisponible',
             default => ucfirst(str_replace('_', ' ', $status)),
         };
+    }
+
+    /**
+     * @return array{first_name: string, last_name: string, email: string}
+     */
+    private function buildSignerPayload(string $role, ?string $firstName, ?string $lastName, ?string $email): array
+    {
+        $normalizedFirstName = trim((string) $firstName);
+        $normalizedLastName = trim((string) $lastName);
+        $normalizedEmail = trim((string) $email);
+
+        if ($normalizedFirstName === '') {
+            throw new \RuntimeException(sprintf('Le prenom du signataire "%s" est obligatoire avant envoi en signature.', $role));
+        }
+
+        if ($normalizedLastName === '') {
+            throw new \RuntimeException(sprintf('Le nom du signataire "%s" est obligatoire avant envoi en signature.', $role));
+        }
+
+        if ($normalizedEmail === '') {
+            throw new \RuntimeException(sprintf('L email du signataire "%s" est obligatoire avant envoi en signature.', $role));
+        }
+
+        return [
+            'first_name' => $normalizedFirstName,
+            'last_name' => $normalizedLastName,
+            'email' => $normalizedEmail,
+        ];
     }
 
     /**

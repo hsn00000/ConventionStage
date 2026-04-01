@@ -76,6 +76,42 @@ class ContractController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/modifier', name: 'app_contract_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_STUDENT')]
+    public function edit(Contract $contract, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->getUser() !== $contract->getStudent()) {
+            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à modifier cette convention.');
+        }
+
+        if (!in_array($contract->getStatus(), [Contract::STATUS_COLLECTION_SENT, Contract::STATUS_REFUSED], true)) {
+            $this->addFlash('error', 'Cette collecte ne peut plus etre modifiee a ce stade.');
+
+            return $this->redirectToRoute('app_student_show', ['id' => $contract->getStudent()->getId()]);
+        }
+
+        $form = $this->createForm(ContractType::class, $contract);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            if ($contract->getStatus() === Contract::STATUS_REFUSED) {
+                $contract->setStatus(Contract::STATUS_COLLECTION_SENT);
+                $contract->setProfessorRejectionReason(null);
+            }
+
+            $entityManager->flush();
+            $this->addFlash('success', 'La collecte a ete mise a jour avec succes.');
+
+            return $this->redirectToRoute('app_student_show', ['id' => $contract->getStudent()->getId()]);
+        }
+
+        return $this->render('contract/new.html.twig', [
+            'form' => $form,
+            'contract' => $contract,
+            'is_edit' => true,
+        ]);
+    }
+
     /**
      * Étape 2 : L'étudiant valide les informations saisies par l'entreprise
      */
@@ -121,6 +157,8 @@ class ContractController extends AbstractController
                 }
 
                 $this->addFlash('success', 'La convention a été validée avec succès et transmise à votre professeur.');
+
+                return $this->redirectToRoute('app_student_show', ['id' => $contract->getStudent()->getId()]);
             } else {
                 $this->addFlash('error', 'Impossible de valider cette convention dans son état actuel.');
             }

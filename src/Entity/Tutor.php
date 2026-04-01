@@ -32,9 +32,9 @@ class Tutor extends User
         return $this->telMobile;
     }
 
-    public function setTelMobile(string $telMobile): static
+    public function setTelMobile(?string $telMobile): static
     {
-        $this->telMobile = $telMobile;
+        $this->telMobile = $telMobile ?? '';
 
         return $this;
     }
@@ -44,9 +44,9 @@ class Tutor extends User
         return $this->telOther;
     }
 
-    public function setTelOther(string $telOther): static
+    public function setTelOther(?string $telOther): static
     {
-        $this->telOther = $telOther;
+        $this->telOther = $telOther ?? '';
 
         return $this;
     }

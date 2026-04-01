@@ -73,12 +73,18 @@ class DdfController extends AbstractController
         return $this->redirectToRoute('app_ddf_contract_index');
     }
 
-    #[Route('/{id}/validate', name: 'app_ddf_contract_validate', methods: ['POST'])]
+    #[Route('/{id}/validate', name: 'app_ddf_contract_validate', methods: ['GET', 'POST'])]
     public function validate(
         Contract $contract,
         Request $request,
         ContractSignatureService $contractSignatureService,
     ): Response {
+        if ($request->isMethod('GET')) {
+            return $this->render('ddf/validate.html.twig', [
+                'contract' => $contract,
+            ]);
+        }
+
         if (!$this->isCsrfTokenValid('ddf_validate_contract' . $contract->getId(), $request->request->get('_token'))) {
             $this->addFlash('error', 'Jeton CSRF invalide.');
 

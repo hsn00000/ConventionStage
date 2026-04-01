@@ -78,9 +78,9 @@ class Organisation
         return $this->name;
     }
 
-    public function setName(string $name): static
+    public function setName(?string $name): static
     {
-        $this->name = $name;
+        $this->name = $name ?? '';
 
         return $this;
     }
@@ -90,9 +90,9 @@ class Organisation
         return $this->addressHq;
     }
 
-    public function setAddressHq(string $addressHq): static
+    public function setAddressHq(?string $addressHq): static
     {
-        $this->addressHq = $addressHq;
+        $this->addressHq = $addressHq ?? '';
 
         return $this;
     }
@@ -102,9 +102,9 @@ class Organisation
         return $this->postalCodeHq;
     }
 
-    public function setPostalCodeHq(string $postalCodeHq): static
+    public function setPostalCodeHq(?string $postalCodeHq): static
     {
-        $this->postalCodeHq = $postalCodeHq;
+        $this->postalCodeHq = $postalCodeHq ?? '';
 
         return $this;
     }
@@ -114,9 +114,9 @@ class Organisation
         return $this->cityHq;
     }
 
-    public function setCityHq(string $cityHq): static
+    public function setCityHq(?string $cityHq): static
     {
-        $this->cityHq = $cityHq;
+        $this->cityHq = $cityHq ?? '';
 
         return $this;
     }
@@ -126,9 +126,9 @@ class Organisation
         return $this->addressInternship;
     }
 
-    public function setAddressInternship(string $addressInternship): static
+    public function setAddressInternship(?string $addressInternship): static
     {
-        $this->addressInternship = $addressInternship;
+        $this->addressInternship = $addressInternship ?? '';
 
         return $this;
     }
@@ -138,9 +138,9 @@ class Organisation
         return $this->postalCodeInternship;
     }
 
-    public function setPostalCodeInternship(string $postalCodeInternship): static
+    public function setPostalCodeInternship(?string $postalCodeInternship): static
     {
-        $this->postalCodeInternship = $postalCodeInternship;
+        $this->postalCodeInternship = $postalCodeInternship ?? '';
 
         return $this;
     }
@@ -150,9 +150,9 @@ class Organisation
         return $this->cityInternship;
     }
 
-    public function setCityInternship(string $cityInternship): static
+    public function setCityInternship(?string $cityInternship): static
     {
-        $this->cityInternship = $cityInternship;
+        $this->cityInternship = $cityInternship ?? '';
 
         return $this;
     }
@@ -174,9 +174,9 @@ class Organisation
         return $this->respName;
     }
 
-    public function setRespName(string $respName): static
+    public function setRespName(?string $respName): static
     {
-        $this->respName = $respName;
+        $this->respName = $respName ?? '';
 
         return $this;
     }
@@ -186,9 +186,9 @@ class Organisation
         return $this->respFunction;
     }
 
-    public function setRespFunction(string $respFunction): static
+    public function setRespFunction(?string $respFunction): static
     {
-        $this->respFunction = $respFunction;
+        $this->respFunction = $respFunction ?? '';
 
         return $this;
     }
@@ -198,9 +198,9 @@ class Organisation
         return $this->respEmail;
     }
 
-    public function setRespEmail(string $respEmail): static
+    public function setRespEmail(?string $respEmail): static
     {
-        $this->respEmail = $respEmail;
+        $this->respEmail = $respEmail ?? '';
 
         return $this;
     }
@@ -210,9 +210,9 @@ class Organisation
         return $this->respPhone;
     }
 
-    public function setRespPhone(string $respPhone): static
+    public function setRespPhone(?string $respPhone): static
     {
-        $this->respPhone = $respPhone;
+        $this->respPhone = $respPhone ?? '';
 
         return $this;
     }
@@ -222,9 +222,9 @@ class Organisation
         return $this->insuranceName;
     }
 
-    public function setInsuranceName(string $insuranceName): static
+    public function setInsuranceName(?string $insuranceName): static
     {
-        $this->insuranceName = $insuranceName;
+        $this->insuranceName = $insuranceName ?? '';
 
         return $this;
     }
@@ -234,9 +234,9 @@ class Organisation
         return $this->insuranceContract;
     }
 
-    public function setInsuranceContract(string $insuranceContract): static
+    public function setInsuranceContract(?string $insuranceContract): static
     {
-        $this->insuranceContract = $insuranceContract;
+        $this->insuranceContract = $insuranceContract ?? '';
 
         return $this;
     }

@@ -107,6 +107,16 @@
     .status-dot { width: 7px; height: 7px; border-radius: 50%; }
 
     .contract-actions { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
+    .contract-note {
+        margin-top: 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+    .contract-note-locked { color: #b02a37; }
+    .contract-note-editable { color: #0f5132; }
 
     .btn-view {
         display: inline-flex; align-items: center; gap: 5px;
@@ -254,6 +264,10 @@
                             <span class="status-chip" style="background:#fff3cd;color:#856404;">
                                 <span class="status-dot" style="background:#ffc107;"></span>{{ contract.statusLabel }}
                             </span>
+                        {% elseif contract.status == 'validated_by_student' %}
+                            <span class="status-chip" style="background:#e7f1ff;color:#084298;">
+                                <span class="status-dot" style="background:#0d6efd;"></span>{{ contract.statusLabel }}
+                            </span>
                         {% elseif contract.status == 'validated_by_prof' %}
                             <span class="status-chip" style="background:#cff4fc;color:#055160;">
                                 <span class="status-dot" style="background:#0dcaf0;"></span>{{ contract.statusLabel }}
@@ -278,7 +292,11 @@
                     </div>
 
                     <div class="contract-actions">
-                        {% if contract.status == 'filled_by_company' %}
+                        {% if contract.status == 'collection_sent' or contract.status == 'refused' %}
+                            <a href="{{ path('app_contract_edit', {'id': contract.id}) }}" class="btn-view btn-view-outline">
+                                <i class="ph ph-pencil-simple"></i> Modifier la collecte
+                            </a>
+                        {% elseif contract.status == 'filled_by_company' %}
                             <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="btn-view btn-view-primary">
                                 <i class="ph-bold ph-clipboard-text"></i> Vérifier et valider
                             </a>
@@ -288,6 +306,43 @@
                             </a>
                         {% endif %}
                     </div>
+
+                    {% if contract.status == 'collection_sent' or contract.status == 'refused' %}
+                        <div class="contract-note contract-note-editable">
+                            <i class="ph ph-info"></i>
+                            Cette collecte peut encore être modifiée par l'étudiant.
+                        </div>
+                    {% elseif contract.status == 'validated_by_student' %}
+                        <div class="contract-note">
+                            <i class="ph ph-hourglass-medium"></i>
+                            Vous avez déjà validé cette convention. Elle est en attente de validation par le professeur.
+                        </div>
+                    {% elseif contract.status == 'validated_by_prof' %}
+                        <div class="contract-note">
+                            <i class="ph ph-hourglass-medium"></i>
+                            La convention est en attente de validation par la DDF.
+                        </div>
+                    {% elseif contract.status == 'validated_by_ddf' %}
+                        <div class="contract-note">
+                            <i class="ph ph-file-arrow-up"></i>
+                            La convention a été validée par la DDF. La génération et l'envoi en signature suivent ce statut.
+                        </div>
+                    {% elseif contract.status == 'signature_requested' %}
+                        <div class="contract-note">
+                            <i class="ph ph-pen-nib"></i>
+                            La convention est partie en signature. L'étudiant ne peut plus la modifier.
+                        </div>
+                    {% elseif contract.status == 'signed' %}
+                        <div class="contract-note">
+                            <i class="ph ph-check-circle"></i>
+                            La convention est signée et finalisée.
+                        </div>
+                    {% else %}
+                        <div class="contract-note contract-note-locked">
+                            <i class="ph ph-lock"></i>
+                            Une fois validée ou transmise, cette collecte n'est plus modifiable par l'étudiant.
+                        </div>
+                    {% endif %}
 
                     {% if contract.status == 'refused' %}
                         <div class="refusal-block">
