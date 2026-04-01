@@ -2,51 +2,137 @@
 
 {% block title %}Demande envoyée{% endblock %}
 
-{% block back_button %}
-    <div class="container pt-3">
-        <button onclick="history.back()" class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center" style="width:2rem;height:2rem;padding:0;">
-            <i class="ph ph-arrow-left" style="font-size:1.1rem;"></i>
-        </button>
-    </div>
-{% endblock %}
-
 {% block body %}
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="card shadow-sm rounded-4 border-0 text-center">
-                    <div class="card-body p-5">
+<style>
+    .success-wrapper {
+        min-height: calc(100vh - 80px);
+        display: flex; align-items: center; justify-content: center;
+        padding: 2.5rem 1rem;
+    }
+    .success-card {
+        background: #fff;
+        border-radius: 24px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+        overflow: hidden;
+        max-width: 520px;
+        width: 100%;
+        text-align: center;
+    }
+    /* Bande verte en haut avec pattern */
+    .success-top {
+        background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+        padding: 2.5rem 2rem 2rem;
+        position: relative; overflow: hidden;
+    }
+    .success-top::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px);
+        background-size: 20px 20px;
+        pointer-events: none;
+    }
+    .success-top > * { position: relative; z-index: 1; }
+    .success-icon-wrap {
+        width: 72px; height: 72px;
+        background: rgba(255,255,255,0.2);
+        border: 2.5px solid rgba(255,255,255,0.4);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 1.25rem;
+        font-size: 2rem; color: #fff;
+    }
+    .success-top h1 {
+        font-size: 1.4rem; font-weight: 800;
+        color: #fff; margin: 0 0 0.35rem;
+        letter-spacing: -0.02em;
+    }
+    .success-top p {
+        color: rgba(255,255,255,0.8);
+        font-size: 0.875rem; margin: 0;
+    }
+    /* Corps */
+    .success-body { padding: 2rem 2.25rem 2.25rem; }
 
-                        <div class="mb-4 text-success">
-                            {# Icône SVG "Validé" (Check circle fill) #}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
-                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-                            </svg>
-                        </div>
+    .steps-list { display: flex; flex-direction: column; gap: 0; margin-bottom: 1.75rem; }
+    .step-row {
+        display: flex; align-items: flex-start; gap: 1rem;
+        padding: 0.9rem 0;
+        border-bottom: 1px solid #f1f3f5;
+        text-align: left;
+    }
+    .step-row:last-child { border-bottom: none; }
+    .step-num {
+        width: 30px; height: 30px; flex-shrink: 0;
+        background: linear-gradient(135deg, #198754, #20c997);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.75rem; font-weight: 800; color: #fff;
+        margin-top: 1px;
+    }
+    .step-content strong { display: block; font-size: 0.875rem; font-weight: 700; color: #1a1a2e; }
+    .step-content span   { font-size: 0.8rem; color: #6c757d; }
 
-                        <h1 class="h3 mb-3 text-dark">Demande envoyée avec succès !</h1>
+    .btn-home {
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 0.75rem 2rem; border-radius: 50px;
+        background: linear-gradient(135deg, #198754, #20c997);
+        color: #fff; font-size: 0.9rem; font-weight: 700;
+        border: none; text-decoration: none;
+        box-shadow: 0 6px 20px rgba(25,135,84,0.35);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn-home:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(25,135,84,0.4); color: #fff; }
+</style>
 
-                        <p class="text-muted mb-4">
-                            Un email contenant le lien sécurisé a été envoyé au responsable de l'entreprise.
-                        </p>
+<div class="success-wrapper">
+    <div class="success-card">
 
-                        <div class="alert alert-light border text-start mb-4 bg-light">
-                            <h6 class="fw-bold mb-3"><i class="fas fa-hourglass-half me-2"></i> Prochaines étapes :</h6>
-                            <ul class="mb-0 ps-3 text-secondary" style="list-style-type: none;">
-                                <li class="mb-2">📧 <strong>1.</strong> Le tuteur reçoit l'email et clique sur le lien.</li>
-                                <li class="mb-2">📝 <strong>2.</strong> Il remplit les informations administratives et les horaires.</li>
-                                <li class="mb-2">✅ <strong>3.</strong> Une fois validé, votre professeur référent recevra une notification.</li>
-                                <li>📄 <strong>4.</strong> La convention finale sera générée pour signature.</li>
-                            </ul>
-                        </div>
+        <div class="success-top">
+            <div class="success-icon-wrap">
+                <i class="ph-bold ph-paper-plane-tilt"></i>
+            </div>
+            <h1>Demande envoyée !</h1>
+            <p>Un email sécurisé a été transmis au responsable de l'entreprise.</p>
+        </div>
 
-                        <a href="{{ path('app_home') }}" class="btn btn-outline-primary px-4">
-                            Retour à l'accueil
-                        </a>
+        <div class="success-body">
 
+            <div class="steps-list">
+                <div class="step-row">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <strong>Le tuteur reçoit l'email</strong>
+                        <span>Il clique sur le lien sécurisé pour accéder au formulaire.</span>
+                    </div>
+                </div>
+                <div class="step-row">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <strong>Il complète les informations</strong>
+                        <span>Données administratives, horaires, logistique du stage.</span>
+                    </div>
+                </div>
+                <div class="step-row">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <strong>Votre professeur est notifié</strong>
+                        <span>Il reçoit une demande de validation pédagogique.</span>
+                    </div>
+                </div>
+                <div class="step-row">
+                    <div class="step-num">4</div>
+                    <div class="step-content">
+                        <strong>Convention générée & signée</strong>
+                        <span>La convention finale est envoyée à la signature électronique.</span>
                     </div>
                 </div>
             </div>
+
+            <a href="{{ path('app_student_show', {'id': app.user.id}) }}" class="btn-home">
+                <i class="ph ph-house"></i> Mon tableau de bord
+            </a>
+
         </div>
     </div>
+</div>
 {% endblock %}
