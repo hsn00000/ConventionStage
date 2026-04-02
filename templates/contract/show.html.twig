@@ -172,6 +172,32 @@
         text-decoration: none;
     }
     .btn-validate:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(25,135,84,0.4); color: #fff; }
+    .cv-final-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    .btn-edit-contract {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        background: #fff;
+        color: #0d6efd;
+        font-size: 0.95rem;
+        font-weight: 700;
+        border: 1px solid rgba(13,110,253,0.25);
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 6px 18px rgba(13,110,253,0.12);
+    }
+    .btn-edit-contract:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(13,110,253,0.18);
+        color: #0a58ca;
+    }
 </style>
 
 <main class="container py-5">
@@ -443,12 +469,17 @@
             <p>Si toutes les informations sont correctes, transmettez la convention à votre professeur référent pour validation pédagogique.</p>
         </div>
         {% if contract.status == 'filled_by_company' %}
-            <form method="post" action="{{ path('app_contract_validate_by_student', {'id': contract.id}) }}">
-                <input type="hidden" name="_token" value="{{ csrf_token('validate_by_student' ~ contract.id) }}">
-                <button class="btn-validate" type="submit">
-                    <i class="ph-bold ph-paper-plane-tilt"></i> Valider et transmettre au professeur
-                </button>
-            </form>
+            <div class="cv-final-actions">
+                <a href="{{ path('app_contract_edit', {'id': contract.id}) }}" class="btn-edit-contract">
+                    <i class="ph ph-pencil-simple"></i> Modifier la convention
+                </a>
+                <form method="post" action="{{ path('app_contract_validate_by_student', {'id': contract.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('validate_by_student' ~ contract.id) }}">
+                    <button class="btn-validate" type="submit">
+                        <i class="ph-bold ph-paper-plane-tilt"></i> Valider et transmettre au professeur
+                    </button>
+                </form>
+            </div>
         {% else %}
             <span style="background:#e9ecef;color:#6c757d;padding:0.6em 1.2em;border-radius:50px;font-size:0.875rem;font-weight:600;">
                 {{ contract.statusLabel }}

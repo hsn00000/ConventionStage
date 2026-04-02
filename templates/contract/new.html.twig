@@ -33,10 +33,20 @@
                         <h5 class="text-secondary border-bottom pb-2 mb-3">🏢 L'Entreprise</h5>
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                {{ form_row(form.organisation, {'attr': {'class': 'form-select'}}) }}
+                                {% if form.organisation.vars.disabled %}
+                                    <label class="form-label">{{ form.organisation.vars.label }}</label>
+                                    <input type="text" class="form-control" value="{{ contract.organisation ? contract.organisation.name : '' }}" disabled>
+                                {% else %}
+                                    {{ form_row(form.organisation, {'attr': {'class': 'form-select'}}) }}
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
-                                {{ form_row(form.tutor, {'attr': {'class': 'form-select'}}) }}
+                                {% if form.tutor.vars.disabled %}
+                                    <label class="form-label">{{ form.tutor.vars.label }}</label>
+                                    <input type="text" class="form-control" value="{{ contract.tutor ? (contract.tutor.firstname ~ ' ' ~ contract.tutor.lastname)|trim : '' }}" disabled>
+                                {% else %}
+                                    {{ form_row(form.tutor, {'attr': {'class': 'form-select'}}) }}
+                                {% endif %}
                             </div>
                         </div>
 

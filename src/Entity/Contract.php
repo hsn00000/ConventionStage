@@ -305,9 +305,9 @@ class Contract
         return $this->plannedActivities;
     }
 
-    public function setPlannedActivities(string $plannedActivities): static
+    public function setPlannedActivities(?string $plannedActivities): static
     {
-        $this->plannedActivities = $plannedActivities;
+        $this->plannedActivities = $plannedActivities ?? '';
 
         return $this;
     }

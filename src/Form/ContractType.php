@@ -18,6 +18,8 @@ class ContractType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $lockCompanyFields = $options['lock_company_fields'];
+
         $builder
             ->add('organisation', EntityType::class, [
                 'class' => Organisation::class,
@@ -25,6 +27,7 @@ class ContractType extends AbstractType
                 'label' => 'Entreprise d\'accueil',
                 'placeholder' => 'Sélectionnez une entreprise',
                 'required' => true,
+                'disabled' => $lockCompanyFields,
             ])
             ->add('tutor', EntityType::class, [
                 'class' => Tutor::class,
@@ -34,6 +37,7 @@ class ContractType extends AbstractType
                 'label' => 'Tuteur de stage',
                 'placeholder' => 'Sélectionnez un tuteur',
                 'required' => true,
+                'disabled' => $lockCompanyFields,
             ])
             ->add('plannedActivities', TextareaType::class, [
                 'label' => 'Activités prévues (Sujet du stage)',
@@ -74,6 +78,7 @@ class ContractType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Contract::class,
+            'lock_company_fields' => false,
         ]);
     }
 }

@@ -39,7 +39,9 @@ class ContractController extends AbstractController
         }
 
         // 3. Création et traitement du formulaire
-        $form = $this->createForm(ContractType::class, $contract);
+        $form = $this->createForm(ContractType::class, $contract, [
+            'lock_company_fields' => true,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -85,13 +87,15 @@ class ContractController extends AbstractController
             throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à modifier cette convention.');
         }
 
-        if (!in_array($contract->getStatus(), [Contract::STATUS_COLLECTION_SENT, Contract::STATUS_REFUSED], true)) {
+        if (!in_array($contract->getStatus(), [Contract::STATUS_COLLECTION_SENT, Contract::STATUS_FILLED_BY_COMPANY, Contract::STATUS_REFUSED], true)) {
             $this->addFlash('error', 'Cette collecte ne peut plus etre modifiee a ce stade.');
 
             return $this->redirectToRoute('app_student_show', ['id' => $contract->getStudent()->getId()]);
         }
 
-        $form = $this->createForm(ContractType::class, $contract);
+        $form = $this->createForm(ContractType::class, $contract, [
+            'lock_company_fields' => true,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

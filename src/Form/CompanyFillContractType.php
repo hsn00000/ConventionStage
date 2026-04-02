@@ -72,6 +72,7 @@ class CompanyFillContractType extends AbstractType
                     'placeholder' => 'Décrivez ici les missions principales qui seront confiées au stagiaire...'
                 ],
                 'required' => true,
+                'empty_data' => '',
             ])
         ;
     }
