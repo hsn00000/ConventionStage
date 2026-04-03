@@ -70,7 +70,6 @@ final class ProfessorController extends AbstractController
             return in_array($contract->getStatus(), [
                 Contract::STATUS_VALIDATED_BY_PROF,
                 Contract::STATUS_VALIDATED_BY_DDF,
-                Contract::STATUS_SIGNATURE_REQUESTED,
                 Contract::STATUS_SIGNED,
             ], true);
         });

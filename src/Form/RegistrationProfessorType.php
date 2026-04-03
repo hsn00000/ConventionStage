@@ -41,9 +41,7 @@ class RegistrationProfessorType extends AbstractType
                 'choice_label' => 'levelName',
                 'multiple' => true,
                 'expanded' => true,
-                'label' => 'Quelles classes gérez-vous ?', // Libellé plus accueillant
-                'label_attr' => ['class' => 'fw-bold mb-2'], // Style du titre
-                // C'est ici qu'on prépare le terrain pour le CSS
+                'label' => 'Quelles classes gérez-vous ?',
                 'row_attr' => ['class' => 'mb-3'],
             ])
 

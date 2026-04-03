@@ -55,8 +55,8 @@ class RegistrationStudentType extends AbstractType
             ->add('level', EntityType::class, [
                 'class' => Level::class,
                 'label' => 'Votre Classe',
-                'placeholder' => 'Choisir une classe',
-                // Symfony utilisera automatiquement votre méthode __toString() de Level
+                'expanded' => true,
+                'multiple' => false,
             ])
 
             // 4. Consentement (Obligatoire pour le RGPD)

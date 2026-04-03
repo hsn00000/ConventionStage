@@ -10,6 +10,148 @@
     </div>
 {% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .class-picker { margin-bottom: 1.5rem; }
+        .class-picker-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #6c757d;
+            margin-bottom: 0.4rem;
+        }
+        .class-picker-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            border: 1.5px solid rgba(0,0,0,0.12);
+            border-radius: 10px;
+            background: #fafafa;
+            font-size: 0.9rem;
+            color: #6c757d;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s, border-radius 0.2s;
+        }
+        .class-picker-btn.open {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 3px rgba(13,110,253,0.1);
+            border-radius: 10px 10px 0 0;
+            background: #fff;
+            color: #1a1a2e;
+        }
+        .class-picker-btn .arrow {
+            transition: transform 0.25s ease;
+            color: #adb5bd;
+            font-size: 0.8rem;
+        }
+        .class-picker-btn.open .arrow { transform: rotate(180deg); color: #0d6efd; }
+
+        .class-picker-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            border: 1.5px solid #0d6efd;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            background: #fff;
+            box-shadow: 0 8px 24px rgba(13,110,253,0.1);
+            padding: 0 1rem;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.3s ease, opacity 0.25s ease, padding 0.3s ease;
+        }
+        .class-picker-panel.open {
+            max-height: 300px;
+            opacity: 1;
+            padding: 1rem;
+        }
+
+        /* Cache les inputs natifs */
+        .class-picker-panel input[type="checkbox"] { display: none; }
+
+        .class-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 50px;
+            border: 1.5px solid rgba(13,110,253,0.25);
+            background: #f0f4ff;
+            color: #0d6efd;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .class-chip:hover { background: #dce8ff; border-color: #0d6efd; }
+        .class-chip.selected {
+            background: linear-gradient(135deg, #0d6efd, #6ea8fe);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(13,110,253,0.3);
+        }
+        .class-picker-summary {
+            font-size: 0.85rem;
+            color: #1a1a2e;
+            font-weight: 500;
+        }
+
+        /* ── CHECKBOX CONDITIONS ── */
+        .agree-terms-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .agree-checkbox { display: none; }
+        .agree-box {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+            border: 2px solid #d0d7e3;
+            border-radius: 6px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .agree-check {
+            width: 12px;
+            height: 10px;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+        .agree-checkbox:checked ~ .agree-box {
+            background: linear-gradient(135deg, #0d6efd, #6ea8fe);
+            border-color: transparent;
+            box-shadow: 0 3px 10px rgba(13,110,253,0.35);
+        }
+        .agree-checkbox:checked ~ .agree-box .agree-check {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .agree-text {
+            font-size: 0.875rem;
+            color: #495057;
+        }
+        .agree-link {
+            color: #0d6efd;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .agree-link:hover { text-decoration: underline; }
+    </style>
+{% endblock %}
+
 {% block body %}
     <main class="container-fluid d-flex align-items-center justify-content-center min-vh-100 py-5">
         {# Conteneur principal agrandi, coins arrondis (rounded-4) #}
@@ -60,40 +202,36 @@
                         }) }}
                     </div>
 
-                    {# --- DÉBUT MODIFICATION : SECTIONS STYLISÉES --- #}
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">{{ form_label(registrationForm.sections) }}</label>
+                    <div class="class-picker">
+                        <span class="class-picker-label">Quelles classes gérez-vous ?</span>
 
-                        {# Conteneur grille pour les options (Chips / Boutons) #}
-                        <div class="d-flex flex-wrap gap-2">
+                        <button type="button" class="class-picker-btn" id="classBtnProf">
+                            <span class="class-picker-summary" id="classSummaryProf">Choisir une ou plusieurs classes</span>
+                            <i class="ph ph-caret-down arrow"></i>
+                        </button>
+
+                        <div class="class-picker-panel" id="classPanelProf">
                             {% for child in registrationForm.sections %}
-                                <div class="position-relative">
-                                    {# La classe 'btn-check' cache la checkbox native de Bootstrap #}
-                                    {{ form_widget(child, {'attr': {'class': 'btn-check'}}) }}
-
-                                    {# On style le label pour qu'il ressemble à un bouton #}
-                                    {{ form_label(child, null, {
-                                        'label_attr': {'class': 'btn btn-outline-primary rounded-pill px-3 py-2 border-2 fw-semibold'}
-                                    }) }}
-                                </div>
+                                {{ form_widget(child) }}
+                                <label class="class-chip" for="{{ child.vars.id }}">
+                                    {{ child.vars.label }}
+                                </label>
                             {% endfor %}
                         </div>
-
-                        {# Affichage des erreurs éventuelles pour ce champ #}
-                        <div class="text-danger small mt-1">
-                            {{ form_errors(registrationForm.sections) }}
-                        </div>
-                        <small class="text-muted d-block mt-2">
-                            <i class="fas fa-info-circle me-1"></i>Sélectionnez les classes dont vous êtes responsable.
-                        </small>
+                        {{ form_errors(registrationForm.sections) }}
                     </div>
-                    {# --- FIN MODIFICATION --- #}
 
                     <div class="mb-3 mt-4">
-                        {# Termes et conditions #}
-                        {{ form_row(registrationForm.agreeTerms, {
-                            'label': 'J\'accepte les conditions d\'utilisation'
-                        }) }}
+                        <label class="agree-terms-row" for="{{ registrationForm.agreeTerms.vars.id }}">
+                            {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'agree-checkbox'}}) }}
+                            <span class="agree-box">
+                                <svg class="agree-check" viewBox="0 0 12 10" fill="none">
+                                    <polyline points="1,5 4.5,9 11,1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                            <span class="agree-text">J'accepte les <a href="#" class="agree-link">conditions d'utilisation</a></span>
+                        </label>
+                        {{ form_errors(registrationForm.agreeTerms) }}
                     </div>
 
                     <button type="submit" class="btn btn-lg btn-primary w-100 mt-4">S'inscrire</button>
@@ -104,6 +242,43 @@
                     <p class="text-muted">Déjà inscrit ? <a href="{{ path('app_login') }}" class="text-decoration-none">Connexion</a></p>
                 </div>
             </div>
+
+    <script>
+        (function () {
+            const btn = document.getElementById('classBtnProf');
+            const panel = document.getElementById('classPanelProf');
+            const summary = document.getElementById('classSummaryProf');
+            const chips = panel.querySelectorAll('.class-chip');
+            const checkboxes = panel.querySelectorAll('input[type="checkbox"]');
+
+            function updateSummary() {
+                const selected = [...checkboxes].filter(c => c.checked).map(c => {
+                    return panel.querySelector('label[for="' + c.id + '"]').textContent.trim();
+                });
+                summary.textContent = selected.length ? selected.join(', ') : 'Choisir une ou plusieurs classes';
+            }
+
+            btn.addEventListener('click', function () {
+                const isOpen = panel.classList.toggle('open');
+                btn.classList.toggle('open', isOpen);
+            });
+
+            chips.forEach(function (chip) {
+                chip.addEventListener('click', function () {
+                    const cb = document.getElementById(chip.getAttribute('for'));
+                    chip.classList.toggle('selected', cb.checked);
+                    updateSummary();
+                });
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!btn.contains(e.target) && !panel.contains(e.target)) {
+                    panel.classList.remove('open');
+                    btn.classList.remove('open');
+                }
+            });
+        })();
+    </script>
 
             {# ----------------------------------------------------- #}
             {# COLONNE 2 : L'Image/Illustration (Droite) #}

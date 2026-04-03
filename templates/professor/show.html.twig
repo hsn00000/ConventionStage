@@ -257,9 +257,15 @@
                                 <div class="cell-name"><i class="ph ph-buildings me-1 text-muted"></i>{{ contract.organisation.name }}</div>
                             </td>
                             <td>
-                                <span class="s-chip" style="background:#f8d7da;color:#842029;">
-                                    <span class="s-dot" style="background:#dc3545;"></span> Action requise
-                                </span>
+                                {% if contract.status == 'signature_requested' %}
+                                    <span class="s-chip" style="background:#fff3cd;color:#856404;">
+                                        <span class="s-dot" style="background:#ffc107;"></span> En attente de signature
+                                    </span>
+                                {% else %}
+                                    <span class="s-chip" style="background:#f8d7da;color:#842029;">
+                                        <span class="s-dot" style="background:#dc3545;"></span> À valider
+                                    </span>
+                                {% endif %}
                             </td>
                             <td>
                                 <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn-dash btn-dash-primary">
@@ -345,7 +351,8 @@
     {# ══════════════════════════════════════════════════ #}
     {# SECTION 3 — EN SUIVI                              #}
     {# ══════════════════════════════════════════════════ #}
-    {% set pending_follow_up = all_coordinated_contracts|filter(c => c.status in ['collection_sent','filled_by_company','validated_by_prof','validated_by_ddf','signature_requested']) %}
+    {% set pending_follow_up = all_coordinated_contracts|filter(c => c.status in ['collection_sent','filled_by_company']) %}
+    {% set refused_contracts = all_coordinated_contracts|filter(c => c.status == 'refused') %}
     <div class="dash-section">
         <div class="dash-section-header">
             <span class="section-dot" style="background:#fd7e14;"></span>
@@ -410,6 +417,47 @@
             </div>
         {% endif %}
     </div>
+
+    {# ══════════════════════════════════════════════════ #}
+    {# SECTION 4 — REFUSÉES                              #}
+    {# ══════════════════════════════════════════════════ #}
+    {% if refused_contracts is not empty %}
+    <div class="dash-section">
+        <div class="dash-section-header">
+            <span class="section-dot" style="background:#6c757d;"></span>
+            <h2>Conventions refusées</h2>
+            <span class="section-count" style="background:rgba(108,117,125,0.1);color:#6c757d;">
+                {{ refused_contracts|length }}
+            </span>
+        </div>
+        <div class="table-responsive">
+            <table class="dash-table table mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Étudiant</th>
+                        <th>Entreprise</th>
+                        <th>Accès</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for contract in refused_contracts %}
+                    <tr>
+                        <td><span class="id-pill">#{{ contract.id }}</span></td>
+                        <td><div class="cell-name"><i class="ph ph-student me-1 text-muted"></i>{{ contract.student.firstname }} {{ contract.student.lastname }}</div></td>
+                        <td><div class="cell-name"><i class="ph ph-buildings me-1 text-muted"></i>{{ contract.organisation.name }}</div></td>
+                        <td>
+                            <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn-dash btn-dash-muted">
+                                <i class="ph ph-eye"></i> Voir
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
 
     {# ── PROFIL ── #}
     <div class="profile-card">

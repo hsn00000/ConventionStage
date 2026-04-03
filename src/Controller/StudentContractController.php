@@ -37,27 +37,28 @@ class StudentContractController extends AbstractController
         $level = $student?->getLevel();
 
         if (!$level) {
-            $this->addFlash('error', 'Aucune classe n est rattachee a votre compte. Impossible de vous proposer un planning.');
-
-            return $this->redirectToRoute('app_student_show', ['id' => $student->getId()]);
+            return $this->render('student_contract/init.html.twig', [
+                'form' => null,
+                'blocking_error' => 'Aucune classe n\'est rattachée à votre compte. Impossible de vous proposer un planning de stage.',
+            ]);
         }
 
         $internshipSchedules = $internshipScheduleRepository->findActiveForLevel($level);
 
         if ($internshipSchedules === []) {
-            $this->addFlash('error', 'Aucun planning de stage actif n est ouvert pour votre classe. Veuillez contacter la DDF.');
-
-            return $this->redirectToRoute('app_student_show', ['id' => $student->getId()]);
+            return $this->render('student_contract/init.html.twig', [
+                'form' => null,
+                'blocking_error' => 'Aucun planning de stage actif n\'est ouvert pour votre classe. Contactez la DDF pour qu\'elle en crée un.',
+            ]);
         }
 
-        $form = $this->createForm(InitiateContractType::class, null, [
-            'internship_schedule_choices' => $internshipSchedules,
-        ]);
+        $internshipSchedule = $internshipSchedules[0];
+
+        $form = $this->createForm(InitiateContractType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            $internshipSchedule = $data['internshipSchedule'];
 
             // --- 1. Gestion du Tuteur ---
             $tutorEmail = $data['tutorEmail'];
@@ -132,10 +133,10 @@ class StudentContractController extends AbstractController
 
             // c. Si toujours personne, on bloque l'enregistrement pour éviter l'erreur SQL
             if (!$coordinator) {
-                // Modification du message d'erreur pour l'utilisateur
-                $this->addFlash('error', 'Aucun professeur n\'est assigné à votre classe pour le moment. Veuillez patienter avant de refaire votre demande ou contacter l\'administration.');
-
-                return $this->redirectToRoute('app_student_contract_init');
+                return $this->render('student_contract/init.html.twig', [
+                    'form' => $form->createView(),
+                    'blocking_error' => 'Aucun professeur n\'est assigné à votre classe. Contactez l\'administration avant de refaire une demande.',
+                ]);
             }
 
             // On assigne le prof trouvé
@@ -165,6 +166,7 @@ class StudentContractController extends AbstractController
 
         return $this->render('student_contract/init.html.twig', [
             'form' => $form->createView(),
+            'blocking_error' => null,
         ]);
     }
 

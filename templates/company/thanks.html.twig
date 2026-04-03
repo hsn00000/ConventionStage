@@ -5,40 +5,145 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Merci - Dossier Enregistré</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>✅</text></svg>">
-
-    {# On charge le CSS de l'application (Bootstrap) #}
     {% block stylesheets %}
         {{ importmap('app') }}
     {% endblock %}
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .success-card {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 8px 48px rgba(13,110,253,0.12);
+            padding: 3rem 2.5rem;
+            max-width: 560px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .icon-wrapper {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #0d6efd, #6ea8fe);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.75rem;
+            box-shadow: 0 8px 24px rgba(13,110,253,0.35);
+        }
+
+        .success-card h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #1a1a2e;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .success-card .subtitle {
+            font-size: 0.9rem;
+            color: #6c757d;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        .steps-box {
+            background: #f8faff;
+            border: 1.5px solid #dce8ff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+
+        .steps-box .steps-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #0d6efd;
+            margin-bottom: 1rem;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.85rem;
+            margin-bottom: 0.85rem;
+        }
+        .step-item:last-child { margin-bottom: 0; }
+
+        .step-num {
+            width: 26px;
+            height: 26px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #0d6efd, #6ea8fe);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #fff;
+            margin-top: 1px;
+        }
+
+        .step-text {
+            font-size: 0.85rem;
+            color: #495057;
+            line-height: 1.5;
+        }
+        .step-text strong { color: #1a1a2e; }
+
+        .close-hint {
+            font-size: 0.8rem;
+            color: #adb5bd;
+        }
+    </style>
 </head>
-<body class="bg-light d-flex align-items-center justify-content-center vh-100">
+<body>
 
-<div class="container text-center">
-    <div class="card shadow border-0 rounded-4 p-5 mx-auto" style="max-width: 600px;">
+<div class="success-card">
 
-        <div class="mb-4 text-success">
-            {# Icône SVG "Check" #}
-            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
-                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-            </svg>
-        </div>
-
-        <h1 class="h3 mb-3 fw-bold text-dark">Informations enregistrées !</h1>
-
-        <p class="text-muted mb-4">
-            Merci d'avoir pris le temps de compléter ce dossier.<br>
-            Toutes les informations administratives et pédagogiques ont bien été transmises au lycée.
-        </p>
-
-        <div class="alert alert-light border text-start bg-light mb-4 p-3 rounded-3">
-            <h6 class="fw-bold mb-2 text-dark"><i class="fas fa-info-circle me-2"></i> Suite du processus :</h6>
-            <p class="small text-secondary mb-0">
-                La convention de stage officielle sera générée automatiquement et vous sera envoyée par email pour <strong>signature électronique</strong> dans les prochains jours.
-            </p>
-        </div>
-
-        <p class="text-muted small mt-2">Vous pouvez fermer cette fenêtre en toute sécurité.</p>
+    <div class="icon-wrapper">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg>
     </div>
+
+    <h1>Dossier enregistré !</h1>
+    <p class="subtitle">
+        Merci d'avoir complété les informations.<br>
+        Elles ont bien été transmises au lycée Gabriel Fauré.
+    </p>
+
+    <div class="steps-box">
+        <div class="steps-title">Suite du processus</div>
+
+        <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text"><strong>Validation pédagogique</strong> — Le professeur référent de l'étudiant examine la convention.</div>
+        </div>
+        <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text"><strong>Validation administrative</strong> — La DDF vérifie et valide les informations.</div>
+        </div>
+        <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text"><strong>Signature électronique</strong> — Vous recevrez la convention finale par email pour la signer.</div>
+        </div>
+    </div>
+
+    <p class="close-hint">Vous pouvez fermer cette fenêtre en toute sécurité.</p>
+
 </div>
 
 </body>

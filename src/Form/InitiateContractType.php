@@ -2,8 +2,6 @@
 
 namespace App\Form;
 
-use App\Entity\InternshipSchedule;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -16,24 +14,6 @@ class InitiateContractType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('internshipSchedule', EntityType::class, [
-                'class' => InternshipSchedule::class,
-                'choices' => $options['internship_schedule_choices'],
-                'choice_label' => static function (InternshipSchedule $internshipSchedule): string {
-                    $levelName = $internshipSchedule->getLevel()?->getLevelName() ?? 'Classe non renseignée';
-                    $periods = $internshipSchedule->getPeriodsLabel();
-
-                    if ($periods === '') {
-                        return sprintf('%s - %s', $internshipSchedule->getName(), $levelName);
-                    }
-
-                    return sprintf('%s - %s (%s)', $internshipSchedule->getName(), $levelName, $periods);
-                },
-                'label' => 'Planning de stage',
-                'placeholder' => 'Choisissez un planning',
-                'help' => 'Les périodes sont définies par la DDF pour votre classe.',
-                'constraints' => [new NotBlank(['message' => 'Veuillez sélectionner un planning de stage.'])],
-            ])
             ->add('companyName', TextType::class, [
                 'label' => 'Nom de l\'entreprise (pour référence)',
                 'attr' => ['placeholder' => 'Ex: Capgemini, Mairie de...'],
@@ -50,9 +30,6 @@ class InitiateContractType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults([
-            'internship_schedule_choices' => [],
-        ]);
-        $resolver->setAllowedTypes('internship_schedule_choices', 'array');
+        $resolver->setDefaults([]);
     }
 }

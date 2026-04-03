@@ -47,6 +47,20 @@
             padding: 4rem 0 6rem;
             color: white;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.18) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+        }
+        .header-bg > * {
+            position: relative;
+            z-index: 1;
         }
 
         .user-badge {

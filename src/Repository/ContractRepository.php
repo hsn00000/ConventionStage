@@ -24,9 +24,12 @@ class ContractRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('c')
             ->andWhere('c.coordinator = :professor')
-            ->andWhere('c.status = :status')
+            ->andWhere('c.status IN (:statuses)')
             ->setParameter('professor', $professor)
-            ->setParameter('status', Contract::STATUS_VALIDATED_BY_STUDENT)
+            ->setParameter('statuses', [
+                Contract::STATUS_VALIDATED_BY_STUDENT,
+                Contract::STATUS_SIGNATURE_REQUESTED,
+            ])
             ->orderBy('c.id', 'DESC')
             ->getQuery()
             ->getResult();

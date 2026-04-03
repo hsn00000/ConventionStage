@@ -11,6 +11,37 @@
 {% endblock %}
 
 {% block body %}
+
+{% if blocking_error %}
+<div class="modal fade" id="modalBlockingError" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width:44px;height:44px;background:#fff3cd;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="ph ph-warning" style="font-size:1.4rem;color:#e6a817;"></i>
+                    </div>
+                    <h5 class="modal-title fw-bold mb-0">Convention impossible</h5>
+                </div>
+            </div>
+            <div class="modal-body px-4 pt-3 pb-2">
+                <p class="text-muted mb-0" style="font-size:0.9rem;">{{ blocking_error }}</p>
+            </div>
+            <div class="modal-footer border-0 px-4 pb-4 pt-2">
+                <a href="{{ path('app_student_show', {'id': app.user.id}) }}" class="btn btn-primary rounded-pill px-4 fw-bold">
+                    Retour à mon espace
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        new bootstrap.Modal(document.getElementById('modalBlockingError')).show();
+    });
+</script>
+{% endif %}
+
 <style>
     .init-wrapper {
         min-height: calc(100vh - 80px);
@@ -178,26 +209,20 @@
             <div class="col-md-7">
                 <div class="init-form-panel">
                     <h1><i class="ph ph-buildings me-2" style="color:#0d6efd;"></i>Nouvelle convention</h1>
-                    <p class="subtitle">Choisissez votre planning de stage, puis indiquez l'entreprise et le mail du tuteur.</p>
+                    <p class="subtitle">Indiquez l'entreprise et l'email de votre tuteur — le planning est assigné automatiquement par la DDF.</p>
 
                     <div class="info-box">
                         <i class="ph ph-info"></i>
-                        <span>La DDF définit les dates par classe. Vous choisissez ici le planning actif qui vous concerne.</span>
+                        <span>Le planning de stage actif pour votre classe a été défini par la DDF et sera automatiquement associé à votre convention.</span>
                     </div>
 
-                    {% if form.vars.errors|length > 0 %}
+                    {% if form is not null and form.vars.errors|length > 0 %}
                         <div class="alert alert-danger border-0 rounded-3 mb-3" style="font-size:0.875rem;">
                             <i class="ph ph-warning me-2"></i>{{ form_errors(form) }}
                         </div>
                     {% endif %}
 
                     {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-
-                    <div class="field-group">
-                        {{ form_label(form.internshipSchedule) }}
-                        {{ form_widget(form.internshipSchedule, {'attr': {'class': 'form-control'}}) }}
-                        {{ form_errors(form.internshipSchedule) }}
-                    </div>
 
                     <div class="field-group">
                         {{ form_label(form.companyName) }}
