@@ -315,6 +315,12 @@
                                 <i class="ph ph-eye"></i> Voir la convention
                             </a>
                         {% endif %}
+
+                        {% if contract.pdfSigned or contract.pdfUnsigned %}
+                            <a href="{{ path('app_student_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn-view btn-view-primary">
+                                <i class="ph ph-file-pdf"></i> Ouvrir le PDF
+                            </a>
+                        {% endif %}
                     </div>
 
                     {% if contract.status == 'collection_sent' or contract.status == 'refused' %}
