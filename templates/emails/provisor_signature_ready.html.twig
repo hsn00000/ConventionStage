@@ -1,0 +1,42 @@
+{% extends 'emails/layout.html.twig' %}
+
+{% block title %}Convention prête à être signée – Conventio{% endblock %}
+{% block icon %}<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 5-3.5 8.5-7 9-3.5-.5-7-4-7-9V7l7-4z"/><path d="M9 12l2 2 4-4"/></svg>{% endblock %}
+{% block badge %}Signature électronique{% endblock %}
+{% block heading %}Une convention est prête<br>à être signée{% endblock %}
+
+{% block body %}
+    <p style="margin:0 0 16px;font-size:15px;color:#495057;line-height:1.7;">
+        Bonjour <strong style="color:#1a1a2e;">{{ provisorName }}</strong>,
+    </p>
+
+    <p style="margin:0 0 24px;font-size:15px;color:#495057;line-height:1.7;">
+        La DDF vient d'envoyer une convention en signature électronique. Un nouveau document est désormais en attente dans votre circuit de signature.
+    </p>
+
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
+        <tr>
+            <td style="background:#f0f4ff;border-radius:12px;padding:20px 24px;">
+                <p style="margin:0 0 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6ea8fe;">
+                    Convention concernée
+                </p>
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        <td width="50%" style="padding:8px 0;border-bottom:1px solid #dde6ff;">
+                            <p style="margin:0 0 3px;font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.05em;">Étudiant</p>
+                            <p style="margin:0;font-size:14px;font-weight:700;color:#1a1a2e;">{{ contract.student.firstname }} {{ contract.student.lastname }}</p>
+                        </td>
+                        <td width="50%" style="padding:8px 0 8px 20px;border-bottom:1px solid #dde6ff;">
+                            <p style="margin:0 0 3px;font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.05em;">Entreprise</p>
+                            <p style="margin:0;font-size:14px;font-weight:700;color:#1a1a2e;">{{ contract.organisation.name }}</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <p style="margin:0 0 8px;font-size:15px;color:#495057;line-height:1.7;">
+        Vous recevrez également l'invitation de signature envoyée par YouSign pour accéder au document et le signer.
+    </p>
+{% endblock %}

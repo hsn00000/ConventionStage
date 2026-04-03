@@ -15,6 +15,8 @@ use Twig\Environment;
 class ContractPdfService
 {
     private const DOCX_TEMPLATE = 'Conventions de stage-template-fr.docx';
+    private const SIGNATURE_ANCHOR_WIDTH = 150;
+    private const SIGNATURE_ANCHOR_HEIGHT = 65;
 
     public function __construct(
         #[Autowire('%kernel.project_dir%')] private readonly string $projectDir,
@@ -142,6 +144,7 @@ class ContractPdfService
         }
 
         $updatedDocumentXml = $this->replacePlaceholdersInXml($documentXml, $replacements);
+        $updatedDocumentXml = $this->normalizeSignatureAnchors($updatedDocumentXml);
         $zip->addFromString('word/document.xml', $updatedDocumentXml);
         $zip->close();
     }
@@ -164,6 +167,20 @@ class ContractPdfService
         }
 
         return $xml;
+    }
+
+    private function normalizeSignatureAnchors(string $xml): string
+    {
+        return preg_replace_callback(
+            '/\{\{s([1-9]\d*)\|signature\|\d+\|\d+\}\}/',
+            fn (array $matches): string => sprintf(
+                '{{s%s|signature|%d|%d}}',
+                $matches[1],
+                self::SIGNATURE_ANCHOR_WIDTH,
+                self::SIGNATURE_ANCHOR_HEIGHT
+            ),
+            $xml
+        ) ?? $xml;
     }
 
     private function buildBrokenPlaceholderPattern(string $placeholder): string

@@ -14,6 +14,7 @@ class ContractSignatureService
     public function __construct(
         private readonly ContractPdfService $contractPdfService,
         private readonly YouSignService $youSignService,
+        private readonly ProvisorNotificationService $provisorNotificationService,
         private readonly Registry $workflowRegistry,
         private readonly EntityManagerInterface $entityManager,
         private readonly ContractRepository $contractRepository,
@@ -61,6 +62,7 @@ class ContractSignatureService
 
         $workflow->apply($contract, 'request_signature');
         $this->entityManager->flush();
+        $this->provisorNotificationService->sendSignatureReadyNotification($contract);
     }
 
     public function synchronizeBySignatureRequestId(string $signatureRequestId): bool
@@ -72,6 +74,15 @@ class ContractSignatureService
         }
 
         return $this->synchronizeSignedDocument($contract);
+    }
+
+    public function resendSignatureNotifications(Contract $contract): int
+    {
+        if (!$contract->getYousignSignatureRequestId()) {
+            throw new \RuntimeException('Aucune demande de signature YouSign n est associee a cette convention.');
+        }
+
+        return $this->youSignService->sendManualReminders($contract->getYousignSignatureRequestId());
     }
 
     public function synchronizeSignedDocument(Contract $contract): bool
