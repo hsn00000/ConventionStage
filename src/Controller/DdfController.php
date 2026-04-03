@@ -83,11 +83,11 @@ class DdfController extends AbstractController
             $pdfPath = $contractPdfService->generateUnsignedPdf($contract);
             $contract->setPdfUnsigned($pdfPath);
             $entityManager->flush();
+
+            return $this->buildInlinePdfResponse($pdfPath);
         } catch (\Throwable $exception) {
             throw $this->createNotFoundException('Impossible de generer le PDF de previsualisation : ' . $exception->getMessage());
         }
-
-        return $this->buildInlinePdfResponse($pdfPath);
     }
 
     #[Route('/{id}/validate', name: 'app_ddf_contract_validate', methods: ['GET', 'POST'])]

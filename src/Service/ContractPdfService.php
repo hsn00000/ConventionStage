@@ -6,6 +6,7 @@ use App\Entity\Contract;
 use App\Entity\InternshipDate;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -56,18 +57,26 @@ class ContractPdfService
             'printBackground' => 'true',
         ]);
 
-        $response = $this->httpClient->request('POST', rtrim($this->gotenbergUrl, '/') . '/forms/chromium/convert/html', [
-            'headers' => array_merge($formData->getPreparedHeaders()->toArray(), [
-                'Gotenberg-Output-Filename' => sprintf('contract-%d', $contract->getId()),
-            ]),
-            'body' => $formData->bodyToIterable(),
-        ]);
-
-        if ($response->getStatusCode() !== 200) {
-            throw new \RuntimeException('Erreur Gotenberg lors de la generation du PDF : ' . $response->getContent(false));
+        try {
+            $response = $this->httpClient->request('POST', rtrim($this->gotenbergUrl, '/') . '/forms/chromium/convert/html', [
+                'headers' => array_merge($formData->getPreparedHeaders()->toArray(), [
+                    'Gotenberg-Output-Filename' => sprintf('contract-%d', $contract->getId()),
+                ]),
+                'body' => $formData->bodyToIterable(),
+            ]);
+        } catch (TransportException $exception) {
+            throw $this->createUnavailableGotenbergException($exception);
         }
 
-        $this->filesystem->dumpFile($path, $response->getContent());
+        try {
+            if ($response->getStatusCode() !== 200) {
+                throw new \RuntimeException('Erreur Gotenberg lors de la generation du PDF : ' . $response->getContent(false));
+            }
+
+            $this->filesystem->dumpFile($path, $response->getContent());
+        } catch (TransportException $exception) {
+            throw $this->createUnavailableGotenbergException($exception);
+        }
 
         return $path;
     }
@@ -81,20 +90,37 @@ class ContractPdfService
             'files' => DataPart::fromPath($docxPath, basename($docxPath), 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
         ]);
 
-        $response = $this->httpClient->request('POST', rtrim($this->gotenbergUrl, '/') . '/forms/libreoffice/convert', [
-            'headers' => array_merge($formData->getPreparedHeaders()->toArray(), [
-                'Gotenberg-Output-Filename' => sprintf('contract-%d', $contract->getId()),
-            ]),
-            'body' => $formData->bodyToIterable(),
-        ]);
-
-        if ($response->getStatusCode() !== 200) {
-            throw new \RuntimeException('Erreur Gotenberg lors de la conversion du DOCX : ' . $response->getContent(false));
+        try {
+            $response = $this->httpClient->request('POST', rtrim($this->gotenbergUrl, '/') . '/forms/libreoffice/convert', [
+                'headers' => array_merge($formData->getPreparedHeaders()->toArray(), [
+                    'Gotenberg-Output-Filename' => sprintf('contract-%d', $contract->getId()),
+                ]),
+                'body' => $formData->bodyToIterable(),
+            ]);
+        } catch (TransportException $exception) {
+            throw $this->createUnavailableGotenbergException($exception);
         }
 
-        $this->filesystem->dumpFile($pdfPath, $response->getContent());
+        try {
+            if ($response->getStatusCode() !== 200) {
+                throw new \RuntimeException('Erreur Gotenberg lors de la conversion du DOCX : ' . $response->getContent(false));
+            }
+
+            $this->filesystem->dumpFile($pdfPath, $response->getContent());
+        } catch (TransportException $exception) {
+            throw $this->createUnavailableGotenbergException($exception);
+        }
 
         return $pdfPath;
+    }
+
+    private function createUnavailableGotenbergException(TransportException $exception): \RuntimeException
+    {
+        return new \RuntimeException(sprintf(
+            'Service Gotenberg indisponible sur %s. Demarrez Gotenberg ou configurez GOTENBERG_URL. Detail: %s',
+            rtrim($this->gotenbergUrl, '/'),
+            $exception->getMessage()
+        ), previous: $exception);
     }
 
     /**

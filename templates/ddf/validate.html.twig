@@ -20,11 +20,16 @@
                     La DDF relit ici la convention avant de valider les informations. Une fois validée, la convention pourra être générée puis envoyée à la signature.
                 </div>
 
-                <div class="d-flex flex-wrap gap-2 mb-4">
-                    <a href="{{ path('app_ddf_contract_preview_pdf', {'id': contract.id}) }}" target="_blank" class="btn btn-outline-primary rounded-pill px-4">
-                        <i class="ph ph-file-pdf me-1"></i>Prévisualiser le PDF
-                    </a>
-                    <span class="text-muted small align-self-center">Cet aperçu n'effectue aucune validation.</span>
+                <div class="bg-primary-subtle border border-primary-subtle rounded-4 p-4 mb-4">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+                        <div>
+                            <p class="text-primary text-uppercase small fw-bold mb-1">Vérification finale</p>
+                            <p class="mb-0 text-muted">Ouvrez la convention telle qu'elle sera générée à partir du modèle officiel avant validation.</p>
+                        </div>
+                        <a href="{{ path('app_ddf_contract_preview_pdf', {'id': contract.id}) }}" target="_blank" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm fw-semibold">
+                            <i class="ph ph-file-pdf me-2"></i>Prévisualiser le PDF
+                        </a>
+                    </div>
                 </div>
 
                 <div class="row g-4 mb-4">
