@@ -323,9 +323,16 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn-dash btn-dash-muted">
-                                    <i class="ph ph-eye"></i> Voir
-                                </a>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn-dash btn-dash-muted">
+                                        <i class="ph ph-eye"></i> Voir
+                                    </a>
+                                    {% if contract.pdfSigned or contract.pdfUnsigned %}
+                                        <a href="{{ path('app_professor_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn-dash btn-dash-outline">
+                                            <i class="ph ph-file-pdf"></i> PDF
+                                        </a>
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                     {% endfor %}
@@ -385,9 +392,16 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn-dash btn-dash-muted">
-                                    <i class="ph ph-eye"></i> Voir
-                                </a>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="{{ path('app_professor_validate_contract', {'id': contract.id}) }}" class="btn-dash btn-dash-muted">
+                                        <i class="ph ph-eye"></i> Voir
+                                    </a>
+                                    {% if contract.pdfSigned or contract.pdfUnsigned %}
+                                        <a href="{{ path('app_professor_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn-dash btn-dash-outline">
+                                            <i class="ph ph-file-pdf"></i> PDF
+                                        </a>
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                     {% endfor %}

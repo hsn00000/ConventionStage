@@ -8,8 +8,10 @@ use App\Form\StudentType;
 use App\Repository\StudentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -96,6 +98,23 @@ final class StudentController extends AbstractController
         ]);
     }
 
+    #[Route('/contracts/{id}/pdf', name: 'app_student_contract_pdf', methods: ['GET'])]
+    #[IsGranted('ROLE_STUDENT')]
+    public function viewContractPdf(Contract $contract): Response
+    {
+        if ($this->getUser() === null || $this->getUser()->getId() !== $contract->getStudent()?->getId()) {
+            throw $this->createAccessDeniedException("Vous n'êtes pas autorisé à accéder à ce document.");
+        }
+
+        $pdfPath = $contract->getPdfSigned() ?: $contract->getPdfUnsigned();
+
+        if (!$pdfPath || !is_file($pdfPath)) {
+            throw $this->createNotFoundException("Le PDF de cette convention n'est pas encore disponible.");
+        }
+
+        return $this->buildInlinePdfResponse($pdfPath);
+    }
+
     /**
      * @return array{0: ?\DateTimeInterface, 1: ?\DateTimeInterface}
      */
@@ -158,6 +177,12 @@ final class StudentController extends AbstractController
         }
 
         return 'Convention signee';
+    }
+
+    private function buildInlinePdfResponse(string $pdfPath): BinaryFileResponse
+    {
+        return (new BinaryFileResponse($pdfPath))
+            ->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE, basename($pdfPath));
     }
 
     #[Route('/{id}/edit', name: 'app_student_edit', methods: ['GET', 'POST'])]
