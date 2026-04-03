@@ -108,6 +108,27 @@ class DdfController extends AbstractController
             return $this->redirectToRoute('app_ddf_contract_index');
         }
 
+        $action = $request->request->get('_action', 'validate');
+
+        if ($action === 'refuse') {
+            $reason = trim((string) $request->request->get('ddf_rejection_reason', ''));
+
+            if ($reason === '') {
+                $this->addFlash('error', 'Le motif du refus est obligatoire.');
+
+                return $this->redirectToRoute('app_ddf_contract_validate', ['id' => $contract->getId()]);
+            }
+
+            try {
+                $contractSignatureService->refuseByDdf($contract, $reason);
+                $this->addFlash('warning', 'La convention a ete refusee par la DDF.');
+            } catch (\Throwable $exception) {
+                $this->addFlash('error', 'Echec du refus DDF : ' . $exception->getMessage());
+            }
+
+            return $this->redirectToRoute('app_ddf_contract_index');
+        }
+
         try {
             $contractSignatureService->validateByDdf($contract);
             $this->addFlash('success', 'Les informations de la convention ont ete validees par la DDF.');

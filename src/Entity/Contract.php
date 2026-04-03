@@ -54,6 +54,9 @@ class Contract
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $professorRejectionReason = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $ddfRejectionReason = null;
+
     #[ORM\Column(length: 255)]
     private ?string $sharingToken = null;
 
@@ -320,6 +323,18 @@ class Contract
     public function setProfessorRejectionReason(?string $professorRejectionReason): static
     {
         $this->professorRejectionReason = $professorRejectionReason;
+
+        return $this;
+    }
+
+    public function getDdfRejectionReason(): ?string
+    {
+        return $this->ddfRejectionReason;
+    }
+
+    public function setDdfRejectionReason(?string $ddfRejectionReason): static
+    {
+        $this->ddfRejectionReason = $ddfRejectionReason;
 
         return $this;
     }

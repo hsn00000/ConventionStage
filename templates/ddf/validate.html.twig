@@ -149,14 +149,56 @@
                         Retour a la liste DDF
                     </a>
 
-                    <form method="post" action="{{ path('app_ddf_contract_validate', {'id': contract.id}) }}">
-                        <input type="hidden" name="_token" value="{{ csrf_token('ddf_validate_contract' ~ contract.id) }}">
-                        <button type="submit" class="btn btn-success btn-lg px-5 rounded-pill shadow-sm">
-                            Valider les informations
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-danger btn-lg px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#modalRefusDdf">
+                            <i class="ph ph-x-circle me-1"></i>Refuser
                         </button>
-                    </form>
+                        <form method="post" action="{{ path('app_ddf_contract_validate', {'id': contract.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('ddf_validate_contract' ~ contract.id) }}">
+                            <input type="hidden" name="_action" value="validate">
+                            <button type="submit" class="btn btn-success btn-lg px-5 rounded-pill shadow-sm">
+                                <i class="ph ph-check-circle me-1"></i>Valider les informations
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
+
+    {# Modal refus DDF #}
+    <div class="modal fade" id="modalRefusDdf" tabindex="-1" aria-labelledby="modalRefusDdfLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header bg-danger text-white rounded-top-4 border-0">
+                    <h5 class="modal-title fw-bold" id="modalRefusDdfLabel">
+                        <i class="ph ph-warning me-2"></i>Refuser la convention
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="post" action="{{ path('app_ddf_contract_validate', {'id': contract.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('ddf_validate_contract' ~ contract.id) }}">
+                    <input type="hidden" name="_action" value="refuse">
+                    <div class="modal-body p-4">
+                        <p class="text-muted mb-3">Le refus est irréversible. L'étudiant sera informé du motif.</p>
+                        <label for="ddf_rejection_reason" class="form-label fw-semibold">
+                            Motif du refus <span class="text-danger">*</span>
+                        </label>
+                        <textarea
+                            id="ddf_rejection_reason"
+                            name="ddf_rejection_reason"
+                            class="form-control rounded-3"
+                            rows="4"
+                            required
+                            placeholder="Décrivez précisément le problème constaté…"
+                        ></textarea>
+                    </div>
+                    <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">Confirmer le refus</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock %}

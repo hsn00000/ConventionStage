@@ -51,3 +51,7 @@ framework:
                         - filled_by_company
                         - validated_by_student
                     to: refused
+
+                refuse_by_ddf:
+                    from: validated_by_prof
+                    to: refused

@@ -41,6 +41,19 @@ class ContractSignatureService
         $this->entityManager->flush();
     }
 
+    public function refuseByDdf(Contract $contract, string $reason): void
+    {
+        $workflow = $this->workflowRegistry->get($contract);
+
+        if (!$workflow->can($contract, 'refuse_by_ddf')) {
+            throw new \RuntimeException('Cette convention ne peut pas etre refusee par la DDF dans son etat actuel.');
+        }
+
+        $contract->setDdfRejectionReason($reason);
+        $workflow->apply($contract, 'refuse_by_ddf');
+        $this->entityManager->flush();
+    }
+
     public function generatePdfAndRequestSignature(Contract $contract): void
     {
         $workflow = $this->workflowRegistry->get($contract);
