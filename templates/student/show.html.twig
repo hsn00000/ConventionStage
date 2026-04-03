@@ -382,24 +382,24 @@
     {% endmacro %}
 
     {# ─────────────────────────────────────────────────── #}
-    {# BLOC 1 — En attente de la saisie du tuteur          #}
+    {# BLOC 1 — En attente de la saisie du tuteur de stage  #}
     {{ _self.section(
-        '#0d6efd', 'En attente de la saisie du tuteur',
+        '#0d6efd', 'En attente de la saisie du tuteur de stage',
         'rgba(13,110,253,0.1)', '#0d6efd',
         c_waiting_tutor,
         'envelope-simple-open', 'Aucune convention en attente du tuteur.',
-        false,
+        true,
         'Un email a été envoyé à votre tuteur. Il doit remplir les informations de l\'entreprise.',
         'envelope-open'
     ) }}
 
-    {# BLOC 2 — À valider par vous                         #}
+    {# BLOC 2 — En attente de votre revalidation           #}
     {{ _self.section(
-        '#ffc107', 'À valider par vous',
+        '#ffc107', 'En attente de votre revalidation',
         'rgba(255,193,7,0.15)', '#856404',
         c_to_validate,
-        'clipboard-text', 'Aucune convention à valider.',
-        false,
+        'clipboard-text', 'Aucune convention en attente de votre revalidation.',
+        true,
         'Le tuteur a rempli les informations. Vérifiez et validez avant envoi au professeur.',
         'info'
     ) }}
@@ -410,7 +410,7 @@
         'rgba(110,168,254,0.15)', '#084298',
         c_waiting_prof,
         'chalkboard-teacher', 'Aucune convention en attente du professeur.',
-        false,
+        true,
         'Vous avez validé. Votre professeur référent doit maintenant valider la convention.',
         'hourglass-medium'
     ) }}
@@ -421,18 +421,18 @@
         'rgba(13,202,240,0.12)', '#055160',
         c_waiting_ddf,
         'buildings', 'Aucune convention en attente de la DDF.',
-        false,
+        true,
         'Le professeur a validé. La direction des formations finalise la vérification administrative.',
         'hourglass-medium'
     ) }}
 
     {# BLOC 5 — En attente des signatures                  #}
     {{ _self.section(
-        '#6f42c1', 'En attente des signatures',
+        '#6f42c1', 'En attente de la signature des parties',
         'rgba(111,66,193,0.1)', '#6f42c1',
         c_signing,
         'pen-nib', 'Aucune convention en cours de signature.',
-        false,
+        true,
         'La convention a été envoyée aux signataires (étudiant, tuteur, professeur, proviseur).',
         'pen-nib'
     ) }}
@@ -441,7 +441,7 @@
     <div class="contracts-section">
         <div class="contracts-header">
             <span class="section-dot" style="background:#198754;"></span>
-            <h2>Convention finalisée — tout le monde a signé</h2>
+            <h2>Tout le monde a signé — téléchargement du PDF</h2>
             <span class="badge-count badge" style="background:rgba(25,135,84,0.1);color:#198754;">{{ c_signed|length }}</span>
         </div>
         {% if c_signed is empty %}
