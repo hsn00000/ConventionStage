@@ -10,7 +10,18 @@
         padding: 2rem 2.25rem;
         color: #fff;
         margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
     }
+    .campaign-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(rgba(255,255,255,0.18) 1px, transparent 1px);
+        background-size: 20px 20px;
+        pointer-events: none;
+    }
+    .campaign-hero > * { position: relative; z-index: 1; }
     .campaign-card {
         border: none;
         border-radius: 16px;
@@ -55,9 +66,13 @@
             <h1 class="h3 mb-2"><i class="ph-bold ph-calendar-plus me-2"></i>Plannings de stage</h1>
             <p class="mb-0" style="opacity:0.85;">La DDF définit ici les périodes de convention par classe.</p>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{{ path('app_ddf_contract_index') }}" class="btn btn-light btn-sm">Retour aux conventions</a>
-            <a href="{{ path('app_ddf_campaign_new') }}" class="btn btn-dark btn-sm">Nouveau planning</a>
+        <div class="d-flex gap-2 align-items-center">
+            <a href="{{ path('app_ddf_contract_index') }}" class="btn btn-light btn-sm rounded-pill px-3">
+                <i class="ph ph-arrow-left me-1"></i>Dashboard DDF
+            </a>
+            <a href="{{ path('app_ddf_campaign_new') }}" class="btn btn-dark btn-sm rounded-pill px-3">
+                <i class="ph ph-plus me-1"></i>Nouveau planning
+            </a>
         </div>
     </div>
 

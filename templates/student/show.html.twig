@@ -78,21 +78,29 @@
     .stat-value { font-size: 1.75rem; font-weight: 800; line-height: 1; color: #1a1a2e; }
     .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6c757d; margin-top: 3px; }
 
-    /* ── CONVENTION LIST ──────────────────────────────────────────────── */
+    /* ── SECTION BLOCKS ──────────────────────────────────────────────── */
     .contracts-section {
         background: #fff;
         border-radius: 16px;
         border: 1px solid rgba(0,0,0,0.06);
         box-shadow: 0 2px 16px rgba(0,0,0,0.06);
         overflow: hidden;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
     }
     .contracts-header {
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 1rem 1.5rem;
+        display: flex; align-items: center; gap: 0.6rem;
+        padding: 0.9rem 1.5rem;
         border-bottom: 1px solid rgba(0,0,0,0.06);
     }
-    .contracts-header h2 { font-size: 0.95rem; font-weight: 700; margin: 0; color: #1a1a2e; }
+    .contracts-header .section-dot {
+        width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .contracts-header h2 { font-size: 0.92rem; font-weight: 700; margin: 0; color: #1a1a2e; }
+    .contracts-header .badge-count {
+        margin-left: auto;
+        font-size: 0.73rem; padding: 0.22em 0.65em;
+        border-radius: 20px; font-weight: 700;
+    }
 
     .contract-item {
         padding: 1.25rem 1.5rem;
@@ -233,30 +241,224 @@
 
     </div>
 
-    {# ── LISTE DES CONVENTIONS ── #}
+    {# ── MACRO contenu d'une convention ── #}
+    {% macro contract_row(contract) %}
+        <div class="contract-item">
+            <div class="contract-top">
+                <div>
+                    <div>
+                        <span class="contract-company">
+                            <i class="ph ph-buildings me-1 text-muted"></i>
+                            {{ contract.organisation is defined and contract.organisation.name is defined ? contract.organisation.name : 'Entreprise inconnue' }}
+                        </span>
+                        <span class="contract-id">#{{ contract.id }}</span>
+                    </div>
+                    <div class="contract-dates">
+                        <i class="ph ph-calendar-blank"></i>
+                        {{ contract.stageStartDate ? contract.stageStartDate|date('d/m/Y') : 'N/A' }}
+                        <i class="ph ph-arrow-right" style="font-size:0.65rem;"></i>
+                        {{ contract.stageEndDate ? contract.stageEndDate|date('d/m/Y') : 'N/A' }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="contract-actions">
+                {% if contract.status == 'collection_sent' %}
+                    <a href="{{ path('app_contract_edit', {'id': contract.id}) }}" class="btn-view btn-view-outline">
+                        <i class="ph ph-pencil-simple"></i> Modifier la collecte
+                    </a>
+                {% elseif contract.status == 'filled_by_company' %}
+                    <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="btn-view btn-view-primary">
+                        <i class="ph-bold ph-clipboard-text"></i> Vérifier et valider
+                    </a>
+                {% elseif contract.status == 'refused' %}
+                    <a href="{{ path('app_contract_edit', {'id': contract.id}) }}" class="btn-view btn-view-outline">
+                        <i class="ph ph-pencil-simple"></i> Modifier la collecte
+                    </a>
+                {% else %}
+                    <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="btn-view btn-view-outline">
+                        <i class="ph ph-eye"></i> Voir la convention
+                    </a>
+                {% endif %}
+                {% if contract.pdfSigned or contract.pdfUnsigned %}
+                    <a href="{{ path('app_student_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn-view btn-view-primary">
+                        <i class="ph ph-file-pdf"></i> Ouvrir le PDF
+                    </a>
+                {% endif %}
+            </div>
+
+            {% if contract.status == 'refused' %}
+                <div class="refusal-block">
+                    <strong><i class="ph ph-x-circle me-1"></i>Convention refusée.</strong>
+                    {% if contract.professorRejectionReason %}
+                        <div class="mt-1">{{ contract.professorRejectionReason|nl2br }}</div>
+                    {% elseif contract.ddfRejectionReason %}
+                        <div class="mt-1">{{ contract.ddfRejectionReason|nl2br }}</div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    {% endmacro %}
+
+    {# ── FILTRAGE PAR STATUT ── #}
+    {% set c_waiting_tutor  = contracts|filter(c => c.status == 'collection_sent') %}
+    {% set c_to_validate    = contracts|filter(c => c.status == 'filled_by_company') %}
+    {% set c_waiting_prof   = contracts|filter(c => c.status == 'validated_by_student') %}
+    {% set c_waiting_ddf    = contracts|filter(c => c.status in ['validated_by_prof', 'validated_by_ddf']) %}
+    {% set c_signing        = contracts|filter(c => c.status == 'signature_requested') %}
+    {% set c_signed         = contracts|filter(c => c.status == 'signed') %}
+    {% set c_refused        = contracts|filter(c => c.status == 'refused') %}
+
+    {# ── HELPER MACRO : ligne convention ── #}
+    {% macro row(contract, note, noteIcon) %}
+        <div class="contract-item">
+            <div class="contract-top">
+                <div>
+                    <span class="contract-company">
+                        <i class="ph ph-buildings me-1 text-muted"></i>
+                        {{ contract.organisation is defined and contract.organisation.name is defined ? contract.organisation.name : 'Entreprise inconnue' }}
+                    </span>
+                    <span class="contract-id">#{{ contract.id }}</span>
+                    <div class="contract-dates">
+                        <i class="ph ph-calendar-blank"></i>
+                        {{ contract.stageStartDate ? contract.stageStartDate|date('d/m/Y') : 'N/A' }}
+                        <i class="ph ph-arrow-right" style="font-size:0.65rem;"></i>
+                        {{ contract.stageEndDate ? contract.stageEndDate|date('d/m/Y') : 'N/A' }}
+                    </div>
+                </div>
+            </div>
+            <div class="contract-actions">
+                {% if contract.status == 'collection_sent' or contract.status == 'refused' %}
+                    <a href="{{ path('app_contract_edit', {'id': contract.id}) }}" class="btn-view btn-view-outline">
+                        <i class="ph ph-pencil-simple"></i> Modifier
+                    </a>
+                {% elseif contract.status == 'filled_by_company' %}
+                    <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="btn-view btn-view-primary">
+                        <i class="ph-bold ph-clipboard-text"></i> Vérifier et valider
+                    </a>
+                {% else %}
+                    <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="btn-view btn-view-outline">
+                        <i class="ph ph-eye"></i> Voir
+                    </a>
+                {% endif %}
+                {% if contract.status == 'signed' and (contract.pdfSigned or contract.pdfUnsigned) %}
+                    <a href="{{ path('app_student_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn-view btn-view-primary">
+                        <i class="ph ph-file-pdf"></i> Télécharger le PDF
+                    </a>
+                {% endif %}
+            </div>
+            {% if note %}
+                <div class="contract-note"><i class="ph ph-{{ noteIcon }}"></i> {{ note }}</div>
+            {% endif %}
+            {% if contract.status == 'refused' %}
+                <div class="refusal-block">
+                    <strong><i class="ph ph-x-circle me-1"></i>Convention refusée.</strong>
+                    {% if contract.professorRejectionReason %}<div class="mt-1">{{ contract.professorRejectionReason|nl2br }}</div>
+                    {% elseif contract.ddfRejectionReason %}<div class="mt-1">{{ contract.ddfRejectionReason|nl2br }}</div>{% endif %}
+                </div>
+            {% endif %}
+        </div>
+    {% endmacro %}
+
+    {# ── MACRO section complète ── #}
+    {% macro section(dot_color, title, badge_bg, badge_color, contracts, empty_icon, empty_msg, always_show, note, noteIcon) %}
+        {% if always_show or contracts is not empty %}
+        <div class="contracts-section">
+            <div class="contracts-header">
+                <span class="section-dot" style="background:{{ dot_color }};"></span>
+                <h2>{{ title }}</h2>
+                <span class="badge-count badge" style="background:{{ badge_bg }};color:{{ badge_color }};">{{ contracts|length }}</span>
+            </div>
+            {% if contracts is empty %}
+                <div class="empty-state" style="padding:1.75rem 1rem;">
+                    <i class="ph ph-{{ empty_icon }}" style="font-size:1.8rem;color:#adb5bd;display:block;margin-bottom:0.4rem;"></i>
+                    <p style="font-size:0.82rem;">{{ empty_msg }}</p>
+                </div>
+            {% else %}
+                {% for contract in contracts %}{{ _self.row(contract, note, noteIcon) }}{% endfor %}
+            {% endif %}
+        </div>
+        {% endif %}
+    {% endmacro %}
+
+    {# ─────────────────────────────────────────────────── #}
+    {# BLOC 1 — En attente de la saisie du tuteur          #}
+    {{ _self.section(
+        '#0d6efd', 'En attente de la saisie du tuteur',
+        'rgba(13,110,253,0.1)', '#0d6efd',
+        c_waiting_tutor,
+        'envelope-simple-open', 'Aucune convention en attente du tuteur.',
+        false,
+        'Un email a été envoyé à votre tuteur. Il doit remplir les informations de l\'entreprise.',
+        'envelope-open'
+    ) }}
+
+    {# BLOC 2 — À valider par vous                         #}
+    {{ _self.section(
+        '#ffc107', 'À valider par vous',
+        'rgba(255,193,7,0.15)', '#856404',
+        c_to_validate,
+        'clipboard-text', 'Aucune convention à valider.',
+        false,
+        'Le tuteur a rempli les informations. Vérifiez et validez avant envoi au professeur.',
+        'info'
+    ) }}
+
+    {# BLOC 3 — En attente de la validation du professeur  #}
+    {{ _self.section(
+        '#6ea8fe', 'En attente de la validation du professeur',
+        'rgba(110,168,254,0.15)', '#084298',
+        c_waiting_prof,
+        'chalkboard-teacher', 'Aucune convention en attente du professeur.',
+        false,
+        'Vous avez validé. Votre professeur référent doit maintenant valider la convention.',
+        'hourglass-medium'
+    ) }}
+
+    {# BLOC 4 — En attente de la validation de la DDF      #}
+    {{ _self.section(
+        '#0dcaf0', 'En attente de la validation de la DDF',
+        'rgba(13,202,240,0.12)', '#055160',
+        c_waiting_ddf,
+        'buildings', 'Aucune convention en attente de la DDF.',
+        false,
+        'Le professeur a validé. La direction des formations finalise la vérification administrative.',
+        'hourglass-medium'
+    ) }}
+
+    {# BLOC 5 — En attente des signatures                  #}
+    {{ _self.section(
+        '#6f42c1', 'En attente des signatures',
+        'rgba(111,66,193,0.1)', '#6f42c1',
+        c_signing,
+        'pen-nib', 'Aucune convention en cours de signature.',
+        false,
+        'La convention a été envoyée aux signataires (étudiant, tuteur, professeur, proviseur).',
+        'pen-nib'
+    ) }}
+
+    {# BLOC 6 — Tout le monde a signé — toujours visible   #}
     <div class="contracts-section">
         <div class="contracts-header">
-            <h2><i class="ph ph-folder-open me-2" style="color:#0d6efd;"></i>Mes conventions</h2>
-            <span style="font-size:0.78rem;color:#6c757d;font-weight:600;">{{ contracts|length }} au total</span>
+            <span class="section-dot" style="background:#198754;"></span>
+            <h2>Convention finalisée — tout le monde a signé</h2>
+            <span class="badge-count badge" style="background:rgba(25,135,84,0.1);color:#198754;">{{ c_signed|length }}</span>
         </div>
-
-        {% if contracts is empty %}
-            <div class="empty-state">
-                <i class="ph ph-file-dashed"></i>
-                <p>Aucune convention trouvée.<br>Créez votre première convention de stage.</p>
+        {% if c_signed is empty %}
+            <div class="empty-state" style="padding:1.75rem 1rem;">
+                <i class="ph ph-seal-check" style="font-size:1.8rem;color:#adb5bd;display:block;margin-bottom:0.4rem;"></i>
+                <p style="font-size:0.82rem;">Pas encore de convention entièrement signée.</p>
             </div>
         {% else %}
-            {% for contract in contracts %}
+            {% for contract in c_signed %}
                 <div class="contract-item">
                     <div class="contract-top">
                         <div>
-                            <div>
-                                <span class="contract-company">
-                                    <i class="ph ph-buildings me-1 text-muted"></i>
-                                    {{ contract.organisation is defined and contract.organisation.name is defined ? contract.organisation.name : 'Entreprise inconnue' }}
-                                </span>
-                                <span class="contract-id">#{{ contract.id }}</span>
-                            </div>
+                            <span class="contract-company">
+                                <i class="ph ph-buildings me-1 text-muted"></i>
+                                {{ contract.organisation is defined and contract.organisation.name is defined ? contract.organisation.name : 'Entreprise inconnue' }}
+                            </span>
+                            <span class="contract-id">#{{ contract.id }}</span>
                             <div class="contract-dates">
                                 <i class="ph ph-calendar-blank"></i>
                                 {{ contract.stageStartDate ? contract.stageStartDate|date('d/m/Y') : 'N/A' }}
@@ -264,114 +466,36 @@
                                 {{ contract.stageEndDate ? contract.stageEndDate|date('d/m/Y') : 'N/A' }}
                             </div>
                         </div>
-
-                        {# Badge statut #}
-                        {% if contract.status == 'Brouillon' %}
-                            <span class="status-chip" style="background:#f1f3f5;color:#6c757d;">
-                                <span class="status-dot" style="background:#adb5bd;"></span>Brouillon
-                            </span>
-                        {% elseif contract.status == 'filled_by_company' %}
-                            <span class="status-chip" style="background:#fff3cd;color:#856404;">
-                                <span class="status-dot" style="background:#ffc107;"></span>{{ contract.statusLabel }}
-                            </span>
-                        {% elseif contract.status == 'validated_by_student' %}
-                            <span class="status-chip" style="background:#e7f1ff;color:#084298;">
-                                <span class="status-dot" style="background:#0d6efd;"></span>{{ contract.statusLabel }}
-                            </span>
-                        {% elseif contract.status == 'validated_by_prof' %}
-                            <span class="status-chip" style="background:#cff4fc;color:#055160;">
-                                <span class="status-dot" style="background:#0dcaf0;"></span>{{ contract.statusLabel }}
-                            </span>
-                        {% elseif contract.status == 'signature_requested' %}
-                            <span class="status-chip" style="background:#e2e3e5;color:#41464b;">
-                                <span class="status-dot" style="background:#6c757d;"></span>{{ contract.statusLabel }}
-                            </span>
-                        {% elseif contract.status == 'signed' %}
-                            <span class="status-chip" style="background:#d1e7dd;color:#0a3622;">
-                                <span class="status-dot" style="background:#198754;"></span>{{ contract.statusLabel }}
-                            </span>
-                        {% elseif contract.status == 'refused' %}
-                            <span class="status-chip" style="background:#f8d7da;color:#58151c;">
-                                <span class="status-dot" style="background:#dc3545;"></span>{{ contract.statusLabel }}
-                            </span>
-                        {% else %}
-                            <span class="status-chip" style="background:#f1f3f5;color:#6c757d;">
-                                <span class="status-dot" style="background:#adb5bd;"></span>{{ contract.statusLabel }}
-                            </span>
-                        {% endif %}
+                        <span class="status-chip" style="background:#d1e7dd;color:#0a3622;">
+                            <span class="status-dot" style="background:#198754;"></span>Signée
+                        </span>
                     </div>
-
                     <div class="contract-actions">
-                        {% if contract.status == 'collection_sent' or contract.status == 'refused' %}
-                            <a href="{{ path('app_contract_edit', {'id': contract.id}) }}" class="btn-view btn-view-outline">
-                                <i class="ph ph-pencil-simple"></i> Modifier la collecte
-                            </a>
-                        {% elseif contract.status == 'filled_by_company' %}
-                            <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="btn-view btn-view-primary">
-                                <i class="ph-bold ph-clipboard-text"></i> Vérifier et valider
-                            </a>
-                        {% else %}
-                            <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="btn-view btn-view-outline">
-                                <i class="ph ph-eye"></i> Voir la convention
-                            </a>
-                        {% endif %}
-
+                        <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="btn-view btn-view-outline">
+                            <i class="ph ph-eye"></i> Voir
+                        </a>
                         {% if contract.pdfSigned or contract.pdfUnsigned %}
                             <a href="{{ path('app_student_contract_pdf', {'id': contract.id}) }}" target="_blank" class="btn-view btn-view-primary">
-                                <i class="ph ph-file-pdf"></i> Ouvrir le PDF
+                                <i class="ph ph-file-pdf"></i> Télécharger le PDF
                             </a>
                         {% endif %}
                     </div>
-
-                    {% if contract.status == 'collection_sent' or contract.status == 'refused' %}
-                        <div class="contract-note contract-note-editable">
-                            <i class="ph ph-info"></i>
-                            Cette collecte peut encore être modifiée par l'étudiant.
-                        </div>
-                    {% elseif contract.status == 'validated_by_student' %}
-                        <div class="contract-note">
-                            <i class="ph ph-hourglass-medium"></i>
-                            Vous avez déjà validé cette convention. Elle est en attente de validation par le professeur.
-                        </div>
-                    {% elseif contract.status == 'validated_by_prof' %}
-                        <div class="contract-note">
-                            <i class="ph ph-hourglass-medium"></i>
-                            La convention est en attente de validation par la DDF.
-                        </div>
-                    {% elseif contract.status == 'validated_by_ddf' %}
-                        <div class="contract-note">
-                            <i class="ph ph-file-arrow-up"></i>
-                            La convention a été validée par la DDF. La génération et l'envoi en signature suivent ce statut.
-                        </div>
-                    {% elseif contract.status == 'signature_requested' %}
-                        <div class="contract-note">
-                            <i class="ph ph-pen-nib"></i>
-                            La convention est partie en signature. L'étudiant ne peut plus la modifier.
-                        </div>
-                    {% elseif contract.status == 'signed' %}
-                        <div class="contract-note">
-                            <i class="ph ph-check-circle"></i>
-                            La convention est signée et finalisée.
-                        </div>
-                    {% else %}
-                        <div class="contract-note contract-note-locked">
-                            <i class="ph ph-lock"></i>
-                            Une fois validée ou transmise, cette collecte n'est plus modifiable par l'étudiant.
-                        </div>
-                    {% endif %}
-
-                    {% if contract.status == 'refused' %}
-                        <div class="refusal-block">
-                            <strong><i class="ph ph-x-circle me-1"></i>Convention refusée par le professeur référent.</strong>
-                            {% if contract.professorRejectionReason %}
-                                <div class="mt-1">{{ contract.professorRejectionReason|nl2br }}</div>
-                            {% endif %}
-                        </div>
-                    {% endif %}
+                    <div class="contract-note" style="color:#198754;">
+                        <i class="ph ph-seal-check"></i> Convention entièrement signée et finalisée.
+                    </div>
                 </div>
             {% endfor %}
         {% endif %}
     </div>
+
+    {# BLOC REFUSÉES — seulement si nécessaire             #}
+    {{ _self.section(
+        '#dc3545', 'Conventions refusées',
+        'rgba(220,53,69,0.1)', '#dc3545',
+        c_refused,
+        'x-circle', '',
+        false, '', ''
+    ) }}
 
     {# ── FOOTER ── #}
     <div class="dashboard-footer">

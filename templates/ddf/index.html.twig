@@ -231,9 +231,6 @@
             <p>Validation administrative, génération du PDF et envoi à la signature électronique.</p>
         </div>
         <div class="d-flex gap-3 flex-wrap align-items-center">
-            <a href="{{ path('app_ddf_campaign_index') }}" class="btn btn-light btn-sm">
-                <i class="ph ph-calendar-plus me-1"></i> Gérer les dates par classe
-            </a>
             <div class="text-center">
                 <div style="font-size:2rem;font-weight:800;">{{ contracts_to_validate|length }}</div>
                 <div style="font-size:0.75rem;opacity:0.8;">À valider</div>
@@ -261,6 +258,20 @@
             </div>
         {% endfor %}
     {% endfor %}
+
+    {# ACTIONS ADMIN #}
+    <div class="d-flex align-items-center gap-3 p-3 mb-4 rounded-3" style="background:#eef4ff;border:1.5px solid #cfe2ff;">
+        <div style="width:40px;height:40px;background:#0d6efd;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="ph-bold ph-calendar-plus" style="color:#fff;font-size:1.1rem;"></i>
+        </div>
+        <div class="flex-grow-1">
+            <p class="mb-0 fw-bold" style="font-size:0.88rem;color:#1a1a2e;">Plannings de stage</p>
+            <p class="mb-0" style="font-size:0.78rem;color:#5c677d;">Définir les périodes de convention par classe</p>
+        </div>
+        <a href="{{ path('app_ddf_campaign_index') }}" class="btn btn-primary btn-sm rounded-pill px-4 fw-semibold flex-shrink-0">
+            <i class="ph ph-calendar-plus me-1"></i> Gérer les dates
+        </a>
+    </div>
 
     {# ── SECTION 1 : À VALIDER ────────────────────────────────────────────── #}
     <div class="section-card">
