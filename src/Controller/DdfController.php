@@ -165,6 +165,28 @@ class DdfController extends AbstractController
         return $this->redirectToRoute('app_ddf_contract_index');
     }
 
+    #[Route('/{id}/resend-signature-notification', name: 'app_ddf_contract_resend_signature_notification', methods: ['POST'])]
+    public function resendSignatureNotification(
+        Contract $contract,
+        Request $request,
+        ContractSignatureService $contractSignatureService,
+    ): Response {
+        if (!$this->isCsrfTokenValid('ddf_resend_signature_notification' . $contract->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton CSRF invalide.');
+
+            return $this->redirectToRoute('app_ddf_contract_index');
+        }
+
+        try {
+            $reminderCount = $contractSignatureService->resendSignatureNotifications($contract);
+            $this->addFlash('success', sprintf('Notification de signature renvoyee pour %d signataire(s).', $reminderCount));
+        } catch (\Throwable $exception) {
+            $this->addFlash('error', 'Impossible de renvoyer la notification de signature : ' . $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('app_ddf_contract_index');
+    }
+
     #[Route('/{id}/pdf', name: 'app_ddf_contract_pdf', methods: ['GET'])]
     public function viewPdf(Contract $contract): Response
     {

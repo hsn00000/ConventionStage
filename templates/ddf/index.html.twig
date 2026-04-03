@@ -98,7 +98,93 @@
     }
 
     .signer-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 4px; font-size: 0.8rem; }
-    .signer-role { color: #6c757d; min-width: 70px; }
+    .signer-list { display: flex; flex-direction: column; gap: 0.55rem; }
+    .signer-row {
+        display: grid;
+        grid-template-columns: 92px minmax(180px, 1fr) 120px;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0;
+        padding: 0.55rem 0.7rem;
+        border-radius: 12px;
+        background: #f8fbff;
+        border: 1px solid #e2ecff;
+        font-size: 0.82rem;
+    }
+    .signer-role {
+        color: #52607a;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-size: 0.69rem;
+    }
+    .signer-name {
+        min-width: 0;
+        font-weight: 600;
+        color: #1f2937;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 112px;
+        padding: 0.45rem 0.8rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        border: 1px solid transparent;
+        box-shadow: inset 0 -1px 0 rgba(255,255,255,0.18);
+    }
+    .status-pill-complete {
+        background: #dff7e8;
+        color: #0f7b3e;
+        border-color: #b8ebcb;
+    }
+    .status-pill-notified {
+        background: #fff1cc;
+        color: #9a6700;
+        border-color: #ffe08a;
+    }
+    .status-pill-pending {
+        background: #eef2f7;
+        color: #52607a;
+        border-color: #d6deea;
+    }
+    .request-status-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.45rem 0.85rem;
+        border-radius: 999px;
+        background: #e8f0fe;
+        color: #1a56db;
+        font-size: 0.78rem;
+        font-weight: 800;
+        border: 1px solid #cfe0ff;
+    }
+    .sync-meta {
+        margin-left: auto;
+        font-size: 0.72rem;
+        color: #6c757d;
+        font-weight: 600;
+    }
+
+    @media (max-width: 991.98px) {
+        .sync-meta {
+            width: 100%;
+            margin-left: 0;
+            margin-top: 0.35rem;
+        }
+        .signer-row {
+            grid-template-columns: 1fr;
+            gap: 0.35rem;
+        }
+        .status-pill {
+            width: 100%;
+        }
+    }
 
     .code-id {
         font-family: monospace; font-size: 0.72rem;
@@ -122,6 +208,18 @@
     .btn-action-muted:hover { background: #f8f9fa; color: #495057; }
     .btn-action-success { background: transparent; color: #198754; border-color: rgba(25,135,84,0.35); }
     .btn-action-success:hover { background: rgba(25,135,84,0.07); color: #198754; }
+    .btn-action-final {
+        background: linear-gradient(135deg, #198754, #33b074);
+        color: #fff;
+        border-color: #198754;
+        box-shadow: 0 8px 18px rgba(25,135,84,0.22);
+    }
+    .btn-action-final:hover { background: linear-gradient(135deg, #157347, #279764); color: #fff; transform: translateY(-1px); }
+    .action-help {
+        font-size: 0.72rem;
+        line-height: 1.4;
+        color: #5c677d;
+    }
 </style>
 
 <main class="container py-5">
@@ -312,6 +410,7 @@
         <div class="section-header">
             <span class="section-dot" style="background:#0d6efd"></span>
             <h2>Signatures en cours</h2>
+            <span class="sync-meta">Actualisation auto toutes les 30 s. Dernière lecture: {{ 'now'|date('H:i:s') }}</span>
             <span class="badge-count badge" style="background:rgba(13,110,253,0.1);color:#0d6efd;">
                 {{ signature_in_progress|length }}
             </span>
@@ -366,19 +465,21 @@
                                 <td>
                                     {% if signature_status and signature_status.error is not defined %}
                                         <div class="mb-2">
-                                            <span class="badge rounded-pill" style="background:#e8f0fe;color:#1a56db;font-size:0.72rem;font-weight:600;">
+                                            <span class="request-status-pill">
                                                 {{ signature_status.request_status_label }}
                                             </span>
                                         </div>
-                                        {% for signer in signature_status.signers %}
-                                            <div class="signer-row">
-                                                <span class="signer-role">{{ signer.role }}</span>
-                                                <span>{{ signer.name ?: (signer.email ?: 'Inconnu') }}</span>
-                                                <span class="badge {{ signer.is_complete ? 'text-bg-success' : 'text-bg-warning' }}" style="font-size:0.68rem;">
-                                                    {{ signer.status_label }}
-                                                </span>
-                                            </div>
-                                        {% endfor %}
+                                        <div class="signer-list">
+                                            {% for signer in signature_status.signers %}
+                                                <div class="signer-row">
+                                                    <span class="signer-role">{{ signer.role }}</span>
+                                                    <span class="signer-name">{{ signer.name ?: (signer.email ?: 'Inconnu') }}</span>
+                                                    <span class="status-pill {{ signer.is_complete ? 'status-pill-complete' : (signer.status == 'notified' ? 'status-pill-notified' : 'status-pill-pending') }}">
+                                                        {{ signer.status_label }}
+                                                    </span>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
                                     {% elseif signature_status and signature_status.error is defined %}
                                         <span class="text-danger small"><i class="ph ph-warning me-1"></i>{{ signature_status.error }}</span>
                                     {% else %}
@@ -415,12 +516,23 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <form method="post" action="{{ path('app_ddf_contract_sync_signed_document', {'id': contract.id}) }}">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('ddf_sync_contract' ~ contract.id) }}">
-                                        <button class="btn-action btn-action-outline" type="submit">
-                                            <i class="ph ph-arrows-clockwise"></i> Synchroniser
-                                        </button>
-                                    </form>
+                                    <div class="d-flex flex-column gap-2">
+                                        <form method="post" action="{{ path('app_ddf_contract_resend_signature_notification', {'id': contract.id}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('ddf_resend_signature_notification' ~ contract.id) }}">
+                                            <button class="btn-action btn-action-primary" type="submit">
+                                                <i class="ph ph-paper-plane-tilt"></i> Renvoyer notification
+                                            </button>
+                                        </form>
+                                        <form method="post" action="{{ path('app_ddf_contract_sync_signed_document', {'id': contract.id}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('ddf_sync_contract' ~ contract.id) }}">
+                                            <button class="btn-action btn-action-final" type="submit">
+                                                <i class="ph ph-download-simple"></i> Document final envoyé à toutes les parties par mail via webhook
+                                            </button>
+                                        </form>
+                                        <div class="action-help">
+                                            À utiliser quand la signature YouSign est terminée pour récupérer la version finale signée.
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -507,4 +619,7 @@
     </div>
 
 </main>
+<script>
+    window.setTimeout(() => window.location.reload(), 30000);
+</script>
 {% endblock %}

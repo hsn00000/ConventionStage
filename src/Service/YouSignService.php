@@ -217,6 +217,51 @@ class YouSignService
         }
     }
 
+    public function sendManualReminders(string $signatureRequestId): int
+    {
+        $signatureRequest = $this->fetchSignatureRequest($signatureRequestId);
+        $requestStatus = $signatureRequest['status'] ?? null;
+
+        if ($requestStatus !== 'ongoing') {
+            throw new \RuntimeException('Le renvoi de notification est possible uniquement pour une demande de signature en cours.');
+        }
+
+        $signers = $this->listSignatureRequestSigners($signatureRequestId);
+        $reminderCount = 0;
+
+        foreach ($signers as $signer) {
+            $signerId = $signer['id'] ?? null;
+            $signerStatus = $signer['status'] ?? null;
+
+            if (!is_string($signerId) || $signerStatus !== 'notified') {
+                continue;
+            }
+
+            try {
+                $response = $this->httpClient->request(
+                    'POST',
+                    self::YOUSIGN_API_URL . '/signature_requests/' . $signatureRequestId . '/signers/' . $signerId . '/send_reminder',
+                    ['headers' => $this->jsonHeaders()]
+                );
+
+                if (!in_array($response->getStatusCode(), [201, 204], true)) {
+                    throw new \RuntimeException('Erreur YouSign lors du renvoi de notification : ' . $response->getContent(false));
+                }
+
+                ++$reminderCount;
+            } catch (\Throwable $e) {
+                $this->logger->error('YouSign Send Reminder Error: ' . $e->getMessage());
+                throw $e;
+            }
+        }
+
+        if ($reminderCount === 0) {
+            throw new \RuntimeException('Aucun signataire actuellement notifie ne peut recevoir de relance.');
+        }
+
+        return $reminderCount;
+    }
+
     public function isSignatureRequestDone(array $signatureRequest): bool
     {
         return ($signatureRequest['status'] ?? null) === 'done';
