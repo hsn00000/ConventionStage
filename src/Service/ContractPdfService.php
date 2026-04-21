@@ -86,7 +86,7 @@ class ContractPdfService
     private function generatePdfFromDocxTemplate(Contract $contract, string $templatePath, string $pdfPath): string
     {
         $docxPath = sprintf('%s/var/contracts/unsigned/contract-%d.docx', $this->projectDir, $contract->getId());
-        $this->fillDocxTemplate($templatePath, $docxPath, $this->buildDocxReplacements($contract));
+        $this->fillDocxTemplate($templatePath, $docxPath, $contract);
 
         $formData = new FormDataPart([
             'files' => DataPart::fromPath($docxPath, basename($docxPath), 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
@@ -125,10 +125,7 @@ class ContractPdfService
         ), previous: $exception);
     }
 
-    /**
-     * @param array<string, string> $replacements
-     */
-    private function fillDocxTemplate(string $templatePath, string $outputPath, array $replacements): void
+    private function fillDocxTemplate(string $templatePath, string $outputPath, Contract $contract): void
     {
         $this->filesystem->copy($templatePath, $outputPath, true);
 
@@ -143,10 +140,134 @@ class ContractPdfService
             throw new \RuntimeException('Le contenu du modele DOCX est invalide.');
         }
 
-        $updatedDocumentXml = $this->replacePlaceholdersInXml($documentXml, $replacements);
+        $updatedDocumentXml = $this->fillScheduleTableInXml($documentXml, $contract);
+        $updatedDocumentXml = $this->replacePlaceholdersInXml($updatedDocumentXml, $this->buildDocxReplacements($contract));
         $updatedDocumentXml = $this->normalizeSignatureAnchors($updatedDocumentXml);
         $zip->addFromString('word/document.xml', $updatedDocumentXml);
         $zip->close();
+    }
+
+    private function fillScheduleTableInXml(string $xml, Contract $contract): string
+    {
+        $dom = new \DOMDocument();
+        $dom->preserveWhiteSpace = false;
+
+        if (@$dom->loadXML($xml) === false) {
+            return $xml;
+        }
+
+        $xpath = new \DOMXPath($dom);
+        $xpath->registerNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main');
+
+        foreach ($xpath->query('//w:tbl') ?: [] as $table) {
+            if (!$table instanceof \DOMElement || !$this->isScheduleTable($xpath, $table)) {
+                continue;
+            }
+
+            $this->fillScheduleRows($dom, $xpath, $table, $contract->getWorkHours());
+
+            return $dom->saveXML() ?: $xml;
+        }
+
+        return $xml;
+    }
+
+    private function isScheduleTable(\DOMXPath $xpath, \DOMElement $table): bool
+    {
+        $texts = [];
+
+        foreach ($xpath->query('.//w:t', $table) ?: [] as $textNode) {
+            $texts[] = $textNode->textContent;
+        }
+
+        $tableText = implode(' ', $texts);
+
+        return str_contains($tableText, 'Matin')
+            && str_contains($tableText, 'Après-midi')
+            && str_contains($tableText, 'Lundi')
+            && str_contains($tableText, 'Samedi');
+    }
+
+    /**
+     * @param array<string, array<string, string|null>> $workHours
+     */
+    private function fillScheduleRows(\DOMDocument $dom, \DOMXPath $xpath, \DOMElement $table, array $workHours): void
+    {
+        $dayLabels = [
+            'lundi' => 'Lundi',
+            'mardi' => 'Mardi',
+            'mercredi' => 'Mercredi',
+            'jeudi' => 'Jeudi',
+            'vendredi' => 'Vendredi',
+            'samedi' => 'Samedi',
+        ];
+
+        foreach ($xpath->query('./w:tr', $table) ?: [] as $row) {
+            if (!$row instanceof \DOMElement) {
+                continue;
+            }
+
+            $cells = iterator_to_array($xpath->query('./w:tc', $row) ?: []);
+            if (count($cells) < 3 || !$cells[0] instanceof \DOMElement || !$cells[1] instanceof \DOMElement || !$cells[2] instanceof \DOMElement) {
+                continue;
+            }
+
+            $dayKey = array_search($this->cellText($xpath, $cells[0]), $dayLabels, true);
+            if (!is_string($dayKey)) {
+                continue;
+            }
+
+            $schedule = $workHours[$dayKey] ?? [];
+            $this->setCellText($dom, $xpath, $cells[1], $this->formatTimeRange($schedule['m_start'] ?? null, $schedule['m_end'] ?? null));
+            $this->setCellText($dom, $xpath, $cells[2], $this->formatTimeRange($schedule['am_start'] ?? null, $schedule['am_end'] ?? null));
+        }
+    }
+
+    private function cellText(\DOMXPath $xpath, \DOMElement $cell): string
+    {
+        $texts = [];
+
+        foreach ($xpath->query('.//w:t', $cell) ?: [] as $textNode) {
+            $texts[] = $textNode->textContent;
+        }
+
+        return trim(implode('', $texts));
+    }
+
+    private function setCellText(\DOMDocument $dom, \DOMXPath $xpath, \DOMElement $cell, string $value): void
+    {
+        foreach ($xpath->query('.//w:p', $cell) ?: [] as $paragraph) {
+            if ($paragraph->parentNode === $cell) {
+                $cell->removeChild($paragraph);
+            }
+        }
+
+        $paragraph = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:p');
+        $paragraphProperties = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:pPr');
+        $justification = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:jc');
+        $justification->setAttributeNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:val', 'center');
+        $paragraphProperties->appendChild($justification);
+        $paragraph->appendChild($paragraphProperties);
+
+        $run = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:r');
+        $runProperties = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:rPr');
+        $fontSize = $dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:sz');
+        $fontSize->setAttributeNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:val', '20');
+        $runProperties->appendChild($fontSize);
+        $run->appendChild($runProperties);
+        $run->appendChild($dom->createElementNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'w:t', $value));
+        $paragraph->appendChild($run);
+
+        $cell->appendChild($paragraph);
+    }
+
+    private function formatTimeRange(?string $start, ?string $end): string
+    {
+        if (!$start || !$end) {
+            return '';
+        }
+
+        return sprintf('%s - %s', $start, $end);
     }
 
     /**
