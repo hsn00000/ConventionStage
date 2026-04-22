@@ -111,6 +111,14 @@
         border: 1px solid #e2ecff;
         font-size: 0.82rem;
     }
+    .signer-row-complete {
+        background: #edfdf3;
+        border-color: #b8ebcb;
+    }
+    .signer-row-complete .signer-role,
+    .signer-row-complete .signer-name {
+        color: #0f7b3e;
+    }
     .signer-role {
         color: #52607a;
         font-weight: 700;
@@ -482,11 +490,11 @@
                                         </div>
                                         <div class="signer-list">
                                             {% for signer in signature_status.signers %}
-                                                <div class="signer-row">
+                                                <div class="signer-row {{ signer.is_complete ? 'signer-row-complete' : '' }}">
                                                     <span class="signer-role">{{ signer.role }}</span>
                                                     <span class="signer-name">{{ signer.name ?: (signer.email ?: 'Inconnu') }}</span>
                                                     <span class="status-pill {{ signer.is_complete ? 'status-pill-complete' : (signer.status == 'notified' ? 'status-pill-notified' : 'status-pill-pending') }}">
-                                                        {{ signer.status_label }}
+                                                        {{ signer.is_complete ? 'Signé' : signer.status_label }}
                                                     </span>
                                                 </div>
                                             {% endfor %}

@@ -171,7 +171,7 @@ class YouSignService
 
         foreach ($expectedSigners as $expectedSigner) {
             $matchedSigner = $indexedSigners[$this->normalizeEmail($expectedSigner['email']) ?? ''] ?? null;
-            $status = is_array($matchedSigner) ? ($matchedSigner['status'] ?? null) : null;
+            $status = is_array($matchedSigner) ? $this->extractSignerStatus($matchedSigner) : null;
             $isComplete = $this->isSignerStatusComplete($status);
 
             $resolvedSigners[] = [
@@ -421,21 +421,43 @@ class YouSignService
         return mb_strtolower(trim($email));
     }
 
+    /**
+     * @param array<string, mixed> $signer
+     */
+    private function extractSignerStatus(array $signer): ?string
+    {
+        foreach (['status', 'signature_status', 'state'] as $key) {
+            if (isset($signer[$key]) && is_string($signer[$key])) {
+                return mb_strtolower($signer[$key]);
+            }
+        }
+
+        if (isset($signer['signature_link']) && is_array($signer['signature_link'])) {
+            $signatureLinkStatus = $signer['signature_link']['status'] ?? null;
+
+            if (is_string($signatureLinkStatus)) {
+                return mb_strtolower($signatureLinkStatus);
+            }
+        }
+
+        return null;
+    }
+
     private function isSignerStatusComplete(?string $status): bool
     {
-        return in_array($status, ['done', 'signed', 'approved'], true);
+        return in_array($status, ['done', 'signed', 'approved', 'completed', 'complete', 'finished'], true);
     }
 
     private function mapSignerStatusLabel(?string $status): string
     {
         return match ($status) {
-            'done', 'signed', 'approved' => 'Signe',
-            'declined' => 'Refuse',
-            'expired' => 'Expire',
-            'error', 'blocked' => 'Bloque',
-            'notified' => 'Notifie',
+            'done', 'signed', 'approved', 'completed', 'complete', 'finished' => 'Signé',
+            'declined' => 'Refusé',
+            'expired' => 'Expiré',
+            'error', 'blocked' => 'Bloqué',
+            'notified' => 'Notifié',
             'initiated' => 'En attente',
-            null => 'Non envoye',
+            null => 'Non envoyé',
             default => ucfirst(str_replace('_', ' ', $status)),
         };
     }
