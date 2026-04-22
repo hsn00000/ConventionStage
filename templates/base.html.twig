@@ -303,9 +303,10 @@
     {% block back_button %}{% endblock %}
 
     {# ── Flash messages globaux (toasts bas-droite, toujours au-dessus de la navbar) ── #}
-    {% if app.flashes|length > 0 %}
+    {% set global_flashes = app.flashes %}
+    {% if global_flashes|length > 0 %}
         <div class="flash-container" id="flashContainer">
-            {% for label, messages in app.flashes %}
+            {% for label, messages in global_flashes %}
                 {% for message in messages %}
                     <div class="flash-toast {{ label == 'error' ? 'danger' : label }}">
                         <span class="flash-toast-icon">

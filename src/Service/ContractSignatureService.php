@@ -64,6 +64,7 @@ class ContractSignatureService
 
         $pdfPath = $this->contractPdfService->generateUnsignedPdf($contract);
         $contract->setPdfUnsigned($pdfPath);
+        $this->entityManager->flush();
 
         $signatureData = $this->youSignService->initiateSignatureRequest($contract, $pdfPath);
         $contract->setYousignDocumentId($signatureData['document_id']);

@@ -155,7 +155,7 @@ class DdfController extends AbstractController
             $contractSignatureService->generatePdfAndRequestSignature($contract);
             $this->addFlash('success', 'Convention generee puis envoyee a la signature. Le mail part d abord a l etudiant, puis a l organisme, puis a la proviseure.');
         } catch (\Throwable $exception) {
-            $this->addFlash('error', 'Echec du traitement DDF: ' . $exception->getMessage());
+            $this->addFlash('error', $this->buildGenerateAndSendErrorMessage($exception));
         }
 
         return $this->redirectToRoute('app_ddf_contract_index');
@@ -224,5 +224,20 @@ class DdfController extends AbstractController
     {
         return (new BinaryFileResponse($pdfPath))
             ->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE, basename($pdfPath));
+    }
+
+    private function buildGenerateAndSendErrorMessage(\Throwable $exception): string
+    {
+        $message = $exception->getMessage();
+
+        if (str_contains($message, 'You are not authorized') || str_contains($message, '401')) {
+            return 'Le PDF a ete genere, mais l envoi YouSign a ete refuse. Verifiez la cle API YouSign, les droits du compte ou la validite de la periode d essai.';
+        }
+
+        if (str_contains($message, 'Gotenberg')) {
+            return 'Impossible de generer le PDF. Verifiez que le service Gotenberg est lance et que GOTENBERG_URL est correct.';
+        }
+
+        return 'Echec du traitement DDF : ' . $message;
     }
 }

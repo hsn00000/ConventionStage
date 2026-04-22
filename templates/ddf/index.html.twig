@@ -249,7 +249,7 @@
     </div>
 
     {# FLASH MESSAGES #}
-    {% for label, messages in app.flashes %}
+    {% for label, messages in global_flashes|default({}) %}
         {% for message in messages %}
             <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show mb-3" role="alert">
                 <i class="ph-bold {{ label == 'error' or label == 'danger' ? 'ph-warning' : (label == 'success' ? 'ph-check-circle' : 'ph-info') }} me-2"></i>
