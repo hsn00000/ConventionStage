@@ -12,6 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ContractRepository::class)]
 class Contract
 {
+    private const WEEK_DAYS = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+
     public const STATUS_COLLECTION_SENT = 'collection_sent';
     public const STATUS_FILLED_BY_COMPANY = 'filled_by_company';
     public const STATUS_VALIDATED_BY_STUDENT = 'validated_by_student';
@@ -102,14 +104,7 @@ class Contract
     {
         // --- INITIALISATION DU TABLEAU D'HORAIRES ---
         // Cela permet d'avoir la structure prête pour le formulaire
-        $this->workHours = [
-            'lundi'    => ['m_start' => null, 'm_end' => null, 'am_start' => null, 'am_end' => null],
-            'mardi'    => ['m_start' => null, 'm_end' => null, 'am_start' => null, 'am_end' => null],
-            'mercredi' => ['m_start' => null, 'm_end' => null, 'am_start' => null, 'am_end' => null],
-            'jeudi'    => ['m_start' => null, 'm_end' => null, 'am_start' => null, 'am_end' => null],
-            'vendredi' => ['m_start' => null, 'm_end' => null, 'am_start' => null, 'am_end' => null],
-            'samedi'   => ['m_start' => null, 'm_end' => null, 'am_start' => null, 'am_end' => null],
-        ];
+        $this->workHours = $this->buildEmptyWorkHours();
 
         // Statut par défaut
         $this->status = self::STATUS_COLLECTION_SENT;
@@ -213,24 +208,9 @@ class Contract
     {
         $normalizedWorkHours = [];
 
-        foreach ($this->workHours as $day => $schedule) {
-            if (!is_array($schedule)) {
-                $normalizedWorkHours[$day] = [
-                    'm_start' => null,
-                    'm_end' => null,
-                    'am_start' => null,
-                    'am_end' => null,
-                ];
-
-                continue;
-            }
-
-            $normalizedWorkHours[$day] = [
-                'm_start' => $this->normalizeWorkHourValue($schedule['m_start'] ?? null),
-                'm_end' => $this->normalizeWorkHourValue($schedule['m_end'] ?? null),
-                'am_start' => $this->normalizeWorkHourValue($schedule['am_start'] ?? null),
-                'am_end' => $this->normalizeWorkHourValue($schedule['am_end'] ?? null),
-            ];
+        foreach (self::WEEK_DAYS as $day) {
+            $schedule = $this->workHours[$day] ?? [];
+            $normalizedWorkHours[$day] = $this->normalizeDailySchedule(is_array($schedule) ? $schedule : []);
         }
 
         return $normalizedWorkHours;
@@ -240,22 +220,47 @@ class Contract
     {
         $normalizedWorkHours = [];
 
-        foreach ($workHours as $day => $schedule) {
-            if (!is_array($schedule)) {
-                continue;
-            }
-
-            $normalizedWorkHours[$day] = [
-                'm_start' => $this->normalizeWorkHourValue($schedule['m_start'] ?? null),
-                'm_end' => $this->normalizeWorkHourValue($schedule['m_end'] ?? null),
-                'am_start' => $this->normalizeWorkHourValue($schedule['am_start'] ?? null),
-                'am_end' => $this->normalizeWorkHourValue($schedule['am_end'] ?? null),
-            ];
+        foreach (self::WEEK_DAYS as $day) {
+            $schedule = $workHours[$day] ?? [];
+            $normalizedWorkHours[$day] = $this->normalizeDailySchedule(is_array($schedule) ? $schedule : []);
         }
 
         $this->workHours = $normalizedWorkHours;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, array{m_start: null, m_end: null, am_start: null, am_end: null}>
+     */
+    private function buildEmptyWorkHours(): array
+    {
+        $workHours = [];
+
+        foreach (self::WEEK_DAYS as $day) {
+            $workHours[$day] = [
+                'm_start' => null,
+                'm_end' => null,
+                'am_start' => null,
+                'am_end' => null,
+            ];
+        }
+
+        return $workHours;
+    }
+
+    /**
+     * @param array<string, mixed> $schedule
+     * @return array{m_start: ?string, m_end: ?string, am_start: ?string, am_end: ?string}
+     */
+    private function normalizeDailySchedule(array $schedule): array
+    {
+        return [
+            'm_start' => $this->normalizeWorkHourValue($schedule['m_start'] ?? null),
+            'm_end' => $this->normalizeWorkHourValue($schedule['m_end'] ?? null),
+            'am_start' => $this->normalizeWorkHourValue($schedule['am_start'] ?? null),
+            'am_end' => $this->normalizeWorkHourValue($schedule['am_end'] ?? null),
+        ];
     }
 
     private function normalizeWorkHourValue(mixed $value): ?string
