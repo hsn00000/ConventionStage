@@ -1,4 +1,6 @@
 {% extends 'base.html.twig' %}
+{% set is_logged_in = app.user is not null %}
+{% set user_roles = is_logged_in ? app.user.roles : [] %}
 
 {% block title %}Conventio - Simplifiez vos Conventions de Stage{% endblock %}
 
@@ -282,21 +284,21 @@
 
                     {# Boutons CTA selon le rôle #}
                     <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start mb-5">
-                        {% if not is_granted('IS_AUTHENTICATED_FULLY') %}
+                        {% if not is_logged_in %}
                             <a href="{{ path('app_register_student') }}" class="btn btn-primary btn-lg px-4 fw-bold shadow">
                                 <i class="fas fa-user-graduate me-2"></i>Je suis Étudiant
                             </a>
                             <a href="{{ path('app_register_professor') }}" class="btn btn-outline-primary btn-lg px-4">
                                 <i class="fas fa-chalkboard-teacher me-2"></i>Je suis Professeur
                             </a>
-                        {% elseif is_granted('ROLE_STUDENT') %}
+                        {% elseif 'ROLE_STUDENT' in user_roles %}
                             <a href="{{ path('app_student_contract_init') }}" class="btn btn-primary btn-lg px-4 fw-bold shadow">
                                 <i class="fas fa-plus me-2"></i>Nouvelle Convention
                             </a>
                             <a href="{{ path('app_student_show', {'id': app.user.id}) }}" class="btn btn-outline-secondary btn-lg px-4">
                                 <i class="fas fa-tachometer-alt me-2"></i>Mon Dashboard
                             </a>
-                        {% elseif is_granted('ROLE_PROFESSOR') %}
+                        {% elseif 'ROLE_PROFESSOR' in user_roles %}
                             <a href="{{ path('app_professor_show', {'id': app.user.id}) }}" class="btn btn-primary btn-lg px-4 fw-bold shadow">
                                 <i class="fas fa-tachometer-alt me-2"></i>Dashboard Professeur
                             </a>
@@ -304,7 +306,7 @@
                     </div>
 
                     {# Stats de crédibilité (non connecté uniquement) #}
-                    {% if not is_granted('IS_AUTHENTICATED_FULLY') %}
+                    {% if not is_logged_in %}
                         <div class="d-flex flex-wrap gap-4 justify-content-center justify-content-lg-start">
                             <div class="stat-item">
                                 <div class="fw-bold text-dark fs-5">100%</div>
@@ -541,7 +543,7 @@
     {# ================================================================ #}
     {# 4. CTA FINALE (non connecté uniquement)                          #}
     {# ================================================================ #}
-    {% if not is_granted('IS_AUTHENTICATED_FULLY') %}
+    {% if not is_logged_in %}
         <section class="container pb-5 mb-3" style="max-width: 1180px;">
             <div class="cta-section py-5 px-4 px-md-5">
 

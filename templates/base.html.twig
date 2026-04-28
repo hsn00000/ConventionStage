@@ -1,376 +1,184 @@
-{% set is_logged_in = is_granted('IS_AUTHENTICATED_FULLY') %}
+{% set is_logged_in = app.user is not null %}
+{% set user_roles = is_logged_in ? app.user.roles : [] %}
 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Conventio - Conventions de Stage{% endblock %}</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+    <title>{% block title %}Conventio{% endblock %}</title>
 
-    {# Assurez-vous que le CSS et le JS de Bootstrap sont chargés via votre importmap #}
     {% block javascripts %}
         {% block importmap %}{{ importmap('app') }}{% endblock %}
     {% endblock %}
 
     {% block stylesheets %}
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1y6w3t9V8J5uH3p3O5E6T4+r7L7IqU5F2Yx+m4J1eR/1g+K1I/3w5E3+qF8D6O5L3t3v6W5U7r9X7L7/8g7T7r4w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
         <style>
-            /* === NAVBAR === */
-            .navbar-glass {
+            :root {
+                color-scheme: light;
+                --bg: #f4f7fb;
+                --surface: #ffffff;
+                --text: #162033;
+                --muted: #61708a;
+                --primary: #165dff;
+                --primary-soft: #e8efff;
+                --border: #d9e2f1;
+                --danger: #c62828;
+                --success: #117a44;
+                --shadow: 0 14px 40px rgba(22, 32, 51, 0.08);
+            }
+
+            * { box-sizing: border-box; }
+            body {
+                margin: 0;
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+                background: var(--bg);
+                color: var(--text);
+            }
+            a { color: inherit; }
+            .site-header {
                 position: sticky;
                 top: 0;
-                z-index: 1050;
-                background: rgba(255, 255, 255, 0.82) !important;
-                backdrop-filter: blur(16px);
-                -webkit-backdrop-filter: blur(16px);
-                border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+                z-index: 10;
+                background: rgba(255, 255, 255, 0.92);
+                backdrop-filter: blur(10px);
+                border-bottom: 1px solid var(--border);
             }
-
-            /* Flash messages — toujours en bas, jamais sous la navbar */
-            .flash-container {
-                position: fixed;
-                bottom: 1.5rem;
-                right: 1.5rem;
-                z-index: 1060;
+            .shell {
+                width: min(1180px, calc(100% - 32px));
+                margin: 0 auto;
+            }
+            .nav {
                 display: flex;
-                flex-direction: column;
-                gap: 0.6rem;
-                max-width: 380px;
-                width: calc(100% - 3rem);
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                min-height: 72px;
             }
-            .flash-toast {
-                background: #fff;
-                border-radius: 12px;
-                box-shadow: 0 8px 32px rgba(0,0,0,0.14);
-                padding: 0.85rem 1.1rem;
-                display: flex;
-                align-items: flex-start;
-                gap: 0.65rem;
-                font-size: 0.875rem;
-                font-weight: 500;
-                color: #1a1a2e;
-                border-left: 4px solid transparent;
-                animation: slideInToast 0.25s ease;
-            }
-            @keyframes slideInToast {
-                from { opacity: 0; transform: translateY(16px); }
-                to   { opacity: 1; transform: translateY(0); }
-            }
-            .flash-toast.success { border-color: #198754; }
-            .flash-toast.danger  { border-color: #dc3545; }
-            .flash-toast.warning { border-color: #ffc107; }
-            .flash-toast.info    { border-color: #0dcaf0; }
-            .flash-toast-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
-            .flash-toast-close {
-                margin-left: auto; background: none; border: none;
-                cursor: pointer; color: #adb5bd; font-size: 1rem;
-                padding: 0; line-height: 1; flex-shrink: 0;
-            }
-            .flash-toast-close:hover { color: #6c757d; }
-
-            /* Logo */
-            .navbar-brand-text {
-                font-size: 1.2rem;
+            .brand {
+                text-decoration: none;
                 font-weight: 800;
-                letter-spacing: -0.04em;
-                background: linear-gradient(135deg, #0d6efd 0%, #6ea8fe 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
+                font-size: 1.2rem;
+                color: var(--primary);
             }
-            .navbar-brand-icon {
-                font-size: 1.35rem;
-                background: linear-gradient(135deg, #0d6efd, #6ea8fe);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                filter: drop-shadow(0 2px 6px rgba(13, 110, 253, 0.35));
+            .nav-links {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
             }
-
-            /* Liens de nav */
-            .nav-link-custom {
-                position: relative;
-                font-weight: 500;
-                font-size: 0.9rem;
-                color: #555 !important;
-                padding-bottom: 3px !important;
-                transition: color 0.2s ease;
-            }
-            .nav-link-custom::after {
-                content: '';
-                position: absolute;
-                bottom: -2px;
-                left: 0;
-                width: 0;
-                height: 2px;
-                background: linear-gradient(90deg, #0d6efd, #6ea8fe);
-                border-radius: 2px;
-                transition: width 0.25s ease;
-            }
-            .nav-link-custom:hover {
-                color: #0d6efd !important;
-            }
-            .nav-link-custom:hover::after {
-                width: 100%;
-            }
-
-            /* Bouton primaire navbar */
-            .navbar-btn-primary {
-                background: linear-gradient(135deg, #0d6efd, #3d8bfd);
-                border: none;
-                border-radius: 50px;
-                padding: 0.45rem 1.3rem;
+            .nav-link {
+                text-decoration: none;
+                color: var(--muted);
                 font-weight: 600;
-                font-size: 0.875rem;
-                color: #fff !important;
-                box-shadow: 0 4px 14px rgba(13, 110, 253, 0.35);
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-                text-decoration: none;
-                display: inline-block;
             }
-            .navbar-btn-primary:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 6px 18px rgba(13, 110, 253, 0.45);
-                color: #fff !important;
-            }
-
-            /* Bouton outline navbar */
-            .navbar-btn-outline {
-                background: transparent;
-                border: 1.5px solid rgba(13, 110, 253, 0.35);
-                border-radius: 50px;
-                padding: 0.42rem 1.2rem;
-                font-weight: 500;
-                font-size: 0.875rem;
-                color: #0d6efd !important;
-                transition: background 0.2s ease, border-color 0.2s ease;
-                text-decoration: none;
-                display: inline-block;
-            }
-            .navbar-btn-outline:hover {
-                background: rgba(13, 110, 253, 0.07);
-                border-color: #0d6efd;
-            }
-
-            /* Bouton danger navbar */
-            .navbar-btn-danger {
-                background: transparent;
-                border: 1.5px solid rgba(220, 53, 69, 0.35);
-                border-radius: 50px;
-                padding: 0.42rem 1.2rem;
-                font-weight: 500;
-                font-size: 0.875rem;
-                color: #dc3545 !important;
-                transition: background 0.2s ease, border-color 0.2s ease;
-                text-decoration: none;
-                display: inline-block;
-            }
-            .navbar-btn-danger:hover {
-                background: rgba(220, 53, 69, 0.07);
-                border-color: #dc3545;
-            }
-
-            /* Bouton dark (admin) */
-            .navbar-btn-dark {
-                background: #1a1a2e;
-                border: none;
-                border-radius: 50px;
-                padding: 0.42rem 1.2rem;
-                font-weight: 500;
-                font-size: 0.875rem;
-                color: #fff !important;
-                transition: opacity 0.2s ease;
-                text-decoration: none;
-                display: inline-block;
-            }
-            .navbar-btn-dark:hover {
-                opacity: 0.85;
-                color: #fff !important;
-            }
-
-            /* Bouton retour global */
-            .btn-retour {
+            .btn {
                 display: inline-flex;
                 align-items: center;
-                gap: 7px;
-                padding: 0.45rem 1.1rem 0.45rem 0.85rem;
-                border-radius: 50px;
-                background: transparent;
-                border: none;
-                color: #6c757d;
-                font-size: 0.85rem;
-                font-weight: 600;
+                justify-content: center;
+                gap: 8px;
+                min-height: 42px;
+                padding: 0 16px;
+                border-radius: 999px;
+                border: 1px solid transparent;
                 text-decoration: none;
-                transition: all 0.2s ease;
-                cursor: pointer;
-                font-family: inherit;
+                font-weight: 700;
             }
-            .btn-retour:hover {
-                color: #1a1a2e;
-                transform: translateX(-3px);
+            .btn-primary {
+                background: var(--primary);
+                color: #fff;
             }
-            .btn-retour i { font-size: 1rem; }
-
-            /* Séparateur vertical entre items connectés */
-            .navbar-sep {
-                width: 1px;
-                height: 20px;
-                background: rgba(0,0,0,0.12);
-                margin: 0 0.5rem;
+            .btn-secondary {
+                background: var(--surface);
+                border-color: var(--border);
+                color: var(--text);
+            }
+            .btn-danger {
+                background: #fff5f5;
+                border-color: #f3c7c7;
+                color: var(--danger);
+            }
+            .flash-stack {
+                position: fixed;
+                right: 16px;
+                bottom: 16px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                z-index: 20;
+                width: min(360px, calc(100% - 32px));
+            }
+            .flash {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-left: 4px solid var(--primary);
+                border-radius: 14px;
+                box-shadow: var(--shadow);
+                padding: 14px 16px;
+                font-size: 0.95rem;
+            }
+            .flash.success { border-left-color: var(--success); }
+            .flash.error, .flash.danger { border-left-color: var(--danger); }
+            main {
+                width: min(1180px, calc(100% - 32px));
+                margin: 0 auto;
+            }
+            @media (max-width: 700px) {
+                .nav {
+                    padding: 12px 0;
+                    align-items: flex-start;
+                    flex-direction: column;
+                }
+                .nav-links {
+                    width: 100%;
+                }
             }
         </style>
     {% endblock %}
 </head>
 <body>
+    <header class="site-header">
+        <div class="shell nav">
+            <a class="brand" href="{{ path('app_home') }}">Conventio</a>
 
-    {# NAVIGATION BAR #}
-    <nav class="navbar navbar-expand-lg navbar-glass py-3">
-        <div class="container">
-
-            {# LOGO #}
-            <a href="{{ path('app_home') }}" class="navbar-brand d-flex align-items-center gap-1">
-                <i class="ph-bold ph-file-text navbar-brand-icon"></i>
-                <span class="navbar-brand-text">Conventio</span>
-            </a>
-
-            {# HAMBURGER MOBILE #}
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavActions" aria-controls="navbarNavActions" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            {# ITEMS DE NAVIGATION #}
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNavActions">
-                <ul class="navbar-nav align-items-center gap-2">
-
-                    {% if not is_logged_in %}
-                        <li class="nav-item">
-                            <a href="{{ path('app_register_student') }}" class="nav-link nav-link-custom">Étudiant</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ path('app_register_professor') }}" class="nav-link nav-link-custom">Professeur</a>
-                        </li>
-                        <li class="nav-item ms-2">
-                            <a href="{{ path('app_login') }}" class="navbar-btn-primary">Se connecter</a>
-                        </li>
-
-                    {% else %}
-
-                        {% if is_granted('ROLE_ADMIN') %}
-                            <li class="nav-item">
-                                <a href="{{ path('app_ddf_contract_index') }}" class="navbar-btn-dark">
-                                    <i class="fas fa-file-signature me-1"></i> DDF
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ path('app_admin_level_index') }}" class="navbar-btn-dark">
-                                    <i class="fas fa-cog me-1"></i> Admin
-                                </a>
-                            </li>
-                            <li><div class="navbar-sep d-none d-lg-block"></div></li>
-                        {% endif %}
-
-                        {% if is_granted('ROLE_PROFESSOR') and app.user.id is defined %}
-                            <li class="nav-item">
-                                <a href="{{ path('app_professor_show', {'id': app.user.id}) }}" class="navbar-btn-outline">
-                                    <i class="fas fa-user-circle me-1"></i> Mon profil
-                                </a>
-                            </li>
-                        {% endif %}
-
-                        {% if is_granted('ROLE_STUDENT') and app.user.id is defined %}
-                            <li class="nav-item">
-                                <a href="{{ path('app_student_show', {'id': app.user.id}) }}" class="navbar-btn-outline">
-                                    <i class="fas fa-user-circle me-1"></i> Mon profil
-                                </a>
-                            </li>
-                        {% endif %}
-
-                        <li class="nav-item">
-                            <a href="{{ path('app_logout') }}" class="navbar-btn-danger">
-                                <i class="fas fa-sign-out-alt me-1"></i> Déconnexion
-                            </a>
-                        </li>
-
+            <nav class="nav-links">
+                {% if not is_logged_in %}
+                    <a class="nav-link" href="{{ path('app_register_student') }}">Etudiant</a>
+                    <a class="nav-link" href="{{ path('app_register_professor') }}">Professeur</a>
+                    <a class="btn btn-primary" href="{{ path('app_login') }}">Se connecter</a>
+                {% else %}
+                    {% if 'ROLE_ADMIN' in user_roles %}
+                        <a class="btn btn-secondary" href="{{ path('app_ddf_contract_index') }}">DDF</a>
+                        <a class="btn btn-secondary" href="{{ path('app_admin_level_index') }}">Admin</a>
                     {% endif %}
-                </ul>
-            </div>
+
+                    {% if 'ROLE_PROFESSOR' in user_roles and app.user.id is defined %}
+                        <a class="btn btn-secondary" href="{{ path('app_professor_show', {'id': app.user.id}) }}">Mon profil</a>
+                    {% endif %}
+
+                    {% if 'ROLE_STUDENT' in user_roles and app.user.id is defined %}
+                        <a class="btn btn-secondary" href="{{ path('app_student_show', {'id': app.user.id}) }}">Mon profil</a>
+                    {% endif %}
+
+                    <a class="btn btn-danger" href="{{ path('app_logout') }}">Deconnexion</a>
+                {% endif %}
+            </nav>
         </div>
-    </nav>
+    </header>
 
-    {# Bouton retour - affiché si une page le demande #}
-    {% block back_button %}{% endblock %}
-
-    {# ── Flash messages globaux (toasts bas-droite, toujours au-dessus de la navbar) ── #}
     {% set global_flashes = app.flashes %}
     {% if global_flashes|length > 0 %}
-        <div class="flash-container" id="flashContainer">
+        <div class="flash-stack">
             {% for label, messages in global_flashes %}
                 {% for message in messages %}
-                    <div class="flash-toast {{ label == 'error' ? 'danger' : label }}">
-                        <span class="flash-toast-icon">
-                            {% if label == 'success' %}✅
-                            {% elseif label == 'error' or label == 'danger' %}❌
-                            {% elseif label == 'warning' %}⚠️
-                            {% else %}ℹ️
-                            {% endif %}
-                        </span>
-                        <span>{{ message }}</span>
-                        <button class="flash-toast-close" onclick="this.closest('.flash-toast').remove()">✕</button>
-                    </div>
+                    <div class="flash {{ label == 'error' ? 'danger' : label }}">{{ message }}</div>
                 {% endfor %}
             {% endfor %}
         </div>
-        <script>
-            setTimeout(function() {
-                var c = document.getElementById('flashContainer');
-                if (c) c.style.opacity = '0', c.style.transition = 'opacity 0.5s', setTimeout(function(){ c.remove(); }, 500);
-            }, 5000);
-        </script>
     {% endif %}
 
-{% block body %}
-
-    {# --------------------------------------------------------------------- #}
-    {# BLOC CONTENT : Ce contenu sera affiché par défaut ou remplacé par les pages enfants #}
-    {# --------------------------------------------------------------------- #}
-    {% block content %}
-        <main class="container-fluid d-flex align-items-center justify-content-center vh-100 py-5">
-            <div class="row w-100 two-column-layout align-items-center justify-content-center">
-
-                {# Colonne de Contenu (La Carte) #}
-                <div class="col-12 col-lg-6 content-side order-2 order-lg-1">
-                    <div class="card border-secondary mb-3 mx-auto shadow-lg" style="max-width: 30rem;">
-
-                        <div class="card-header bg-secondary text-white">
-                            <h1 class="h4 mb-0">Bienvenue sur Conventio 👋</h1>
-                        </div>
-
-                        <div class="card-body text-secondary p-4 p-md-5">
-                            <h5 class="card-title text-dark">Simplifiez la gestion de vos Conventions de Stage en quelques clics.</h5>
-                            <p class="card-text description mt-3">
-                                Que vous soyez étudiant, professeur ou responsable d'entreprise,
-                                notre plateforme centralise tous les documents et le suivi nécessaire
-                                pour des stages réussis.
-                            </p>
-                            <a href="{{ path('app_register_student') }}" class="btn btn-primary btn-lg cta-button mt-4">Commencer maintenant</a>
-                        </div>
-                    </div>
-                </div>
-
-                {# Colonne du Logo/Image #}
-                <div class="col-12 col-lg-6 logo-side order-1 order-lg-2 text-center mb-4 mb-lg-0">
-                    <div class="logo-wrapper p-3">
-                        <img src="{{ asset('img/Conventio.png') }}" alt="Logo de Conventio" class="main-illustration img-fluid" style="max-height: 40vh;">
-                    </div>
-                </div>
-
-            </div>
-        </main>
+    {% block body %}
+        {% block content %}{% endblock %}
     {% endblock %}
-    {# --------------------------------------------------------------------- #}
-
-{% endblock %}
 </body>
 </html>
