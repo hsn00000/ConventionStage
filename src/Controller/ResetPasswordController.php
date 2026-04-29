@@ -16,6 +16,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
@@ -29,7 +30,8 @@ class ResetPasswordController extends AbstractController
 
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        private RequestStack $requestStack
     ) {
     }
 
@@ -61,7 +63,7 @@ class ResetPasswordController extends AbstractController
     #[Route('/check-email', name: 'app_check_email')]
     public function checkEmail(): Response
     {
-        $hasRealResetRequest = (bool) $this->get('request_stack')->getSession()->get('app_reset_password_has_real_request', false);
+        $hasRealResetRequest = (bool) $this->requestStack->getSession()->get('app_reset_password_has_real_request', false);
 
         // Generate a fake token if the user does not exist or someone hit this page directly.
         // This prevents exposing whether or not a user was found with the given email address or not
@@ -180,7 +182,7 @@ class ResetPasswordController extends AbstractController
         ;
 
         // Store the token object in session for retrieval in check-email route.
-        $this->get('request_stack')->getSession()->set('app_reset_password_has_real_request', true);
+        $this->requestStack->getSession()->set('app_reset_password_has_real_request', true);
         $this->setTokenObjectInSession($resetToken);
 
         try {
