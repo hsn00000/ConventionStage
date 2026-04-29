@@ -13,15 +13,20 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class RegistrationController extends AbstractController
 {
-    public function __construct(private EmailVerifier $emailVerifier)
+    public function __construct(
+        private EmailVerifier $emailVerifier,
+        private LoggerInterface $logger,
+    )
     {
     }
 
@@ -48,16 +53,25 @@ class RegistrationController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // Envoi de l'email
-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
-                (new TemplatedEmail())
-                    ->from(new Address('no-reply@lycee-faure.fr', 'Lycée Fauré'))
-                    ->to((string) $user->getEmail())
-                    ->subject('Veuillez confirmer votre email')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
-            );
+            try {
+                $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+                    (new TemplatedEmail())
+                        ->from(new Address('no-reply@lycee-faure.fr', 'Lycée Fauré'))
+                        ->to((string) $user->getEmail())
+                        ->subject('Veuillez confirmer votre email')
+                        ->htmlTemplate('registration/confirmation_email.html.twig')
+                );
 
-            $this->addFlash('success', 'Un email de confirmation vous a été envoyé. Vérifiez votre boîte mail.');
+                $this->addFlash('success', 'Un email de confirmation vous a été envoyé. Vérifiez votre boîte mail.');
+            } catch (TransportExceptionInterface $exception) {
+                $this->logger->error('Echec d\'envoi de l\'email de confirmation étudiant.', [
+                    'email' => $user->getEmail(),
+                    'exception' => $exception,
+                ]);
+
+                $this->addFlash('warning', 'Le compte a été créé, mais l\'email de confirmation n\'a pas pu être envoyé. Vérifiez la configuration Brevo.');
+            }
+
             return $this->redirectToRoute('app_login');
         }
 
@@ -83,15 +97,25 @@ class RegistrationController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
-                (new TemplatedEmail())
-                    ->from(new Address('no-reply@lycee-faure.fr', 'Lycée Fauré'))
-                    ->to((string) $user->getEmail())
-                    ->subject('Veuillez confirmer votre email')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
-            );
+            try {
+                $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+                    (new TemplatedEmail())
+                        ->from(new Address('no-reply@lycee-faure.fr', 'Lycée Fauré'))
+                        ->to((string) $user->getEmail())
+                        ->subject('Veuillez confirmer votre email')
+                        ->htmlTemplate('registration/confirmation_email.html.twig')
+                );
 
-            $this->addFlash('success', 'Un email de confirmation vous a été envoyé. Vérifiez votre boîte mail.');
+                $this->addFlash('success', 'Un email de confirmation vous a été envoyé. Vérifiez votre boîte mail.');
+            } catch (TransportExceptionInterface $exception) {
+                $this->logger->error('Echec d\'envoi de l\'email de confirmation professeur.', [
+                    'email' => $user->getEmail(),
+                    'exception' => $exception,
+                ]);
+
+                $this->addFlash('warning', 'Le compte a été créé, mais l\'email de confirmation n\'a pas pu être envoyé. Vérifiez la configuration Brevo.');
+            }
+
             return $this->redirectToRoute('app_login');
         }
 

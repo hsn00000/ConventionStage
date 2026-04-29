@@ -148,7 +148,7 @@ class StudentContractController extends AbstractController
 
             // --- 4. Email ---
             $email = (new TemplatedEmail())
-                ->from('convention@lycee-faure.fr')
+                ->from('no-reply@lycee-faure.fr')
                 ->to($tutorEmail)
                 ->subject('Lycée Gabriel Fauré - Demande de Convention de Stage')
                 ->htmlTemplate('emails/company_request.html.twig')
