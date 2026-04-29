@@ -269,17 +269,17 @@
                 <div class="col-12 col-lg-6 text-center text-lg-start">
 
                     <div class="hero-badge">
-                        <i class="fas fa-graduation-cap me-1"></i> Gestion de Conventions de Stage
+                        <i class="fas fa-graduation-cap me-1"></i> Gestion des Conventions de Stage
                     </div>
 
                     <h1 class="display-4 fw-bold text-dark mb-4 lh-sm">
-                        Vos <span class="text-primary">conventions</span><br>
-                        <span class="text-primary">de stage,</span><br>
-                        sans la paperasse.
+                        De la <span class="text-primary">collecte</span><br>
+                        à la <span class="text-primary">convention</span><br>
+                        de stage.
                     </h1>
 
                     <p class="lead text-muted mb-5" style="max-width: 500px; margin-inline: auto;">
-                        Conventio centralise la création, le suivi et la validation de toutes vos conventions. Rapide, sécurisé et accessible pour chaque acteur.
+                        Conventio centralise la collecte d'informations, le suivi et la validation jusqu'à la génération de la convention finale. Rapide, sécurisé et accessible pour chaque acteur.
                     </p>
 
                     {# Boutons CTA selon le rôle #}
@@ -293,7 +293,7 @@
                             </a>
                         {% elseif 'ROLE_STUDENT' in user_roles %}
                             <a href="{{ path('app_student_contract_init') }}" class="btn btn-primary btn-lg px-4 fw-bold shadow">
-                                <i class="fas fa-plus me-2"></i>Nouvelle Convention
+                                <i class="fas fa-plus me-2"></i>Nouvelle collecte
                             </a>
                             <a href="{{ path('app_student_show', {'id': app.user.id}) }}" class="btn btn-outline-secondary btn-lg px-4">
                                 <i class="fas fa-tachometer-alt me-2"></i>Mon Dashboard
@@ -384,11 +384,6 @@
                             </div>
                         </div>
 
-                        {# Floating stat #}
-                        <div class="hm-float-stat">
-                            <div style="font-size:1.1rem;font-weight:800;color:#0d6efd;">&lt;&nbsp;5 min</div>
-                            <div style="font-size:0.7rem;color:#6c757d;">Pour créer</div>
-                        </div>
                     </div>
                 </div>
 
@@ -416,7 +411,7 @@
                         <div class="step-bubble">1</div>
                         <div class="step-connector"></div>
                     </div>
-                    <h5 class="fw-bold mb-2">L'étudiant initie</h5>
+                    <h5 class="fw-bold mb-2">L'étudiant initie la collecte</h5>
                     <p class="text-muted small mb-0 px-3">Il renseigne le nom de l'entreprise et l'email de son tuteur depuis son espace.</p>
                 </div>
 
@@ -427,7 +422,7 @@
                         <div class="step-connector"></div>
                     </div>
                     <h5 class="fw-bold mb-2">Le tuteur complète</h5>
-                    <p class="text-muted small mb-0 px-3">Il reçoit un lien sécurisé par email et remplit les données administratives.</p>
+                    <p class="text-muted small mb-0 px-3">Il reçoit un lien sécurisé par email et remplit les données administratives de la collecte.</p>
                 </div>
 
                 <div class="step-item text-center">
@@ -437,7 +432,7 @@
                         <div class="step-connector"></div>
                     </div>
                     <h5 class="fw-bold mb-2">Le professeur valide</h5>
-                    <p class="text-muted small mb-0 px-3">Le référent est notifié et valide la convention depuis son tableau de bord.</p>
+                    <p class="text-muted small mb-0 px-3">Le référent est notifié et valide la collecte depuis son tableau de bord.</p>
                 </div>
 
                 <div class="step-item text-center">
@@ -446,8 +441,8 @@
                         <div class="step-bubble">4</div>
                         <div class="step-connector invisible"></div>
                     </div>
-                    <h5 class="fw-bold mb-2">Convention finalisée</h5>
-                    <p class="text-muted small mb-0 px-3">La convention est prête. Tous les acteurs peuvent la consulter et la télécharger.</p>
+                    <h5 class="fw-bold mb-2">La DDF génère la convention</h5>
+                    <p class="text-muted small mb-0 px-3">La DDF valide la collecte et génère la convention au format PDF. Tous les acteurs peuvent la télécharger.</p>
                 </div>
 
             </div>
@@ -457,7 +452,7 @@
 
                 <div class="text-center" style="max-width: 300px;">
                     <div class="step-bubble-mobile">1</div>
-                    <h5 class="fw-bold mb-2">L'étudiant initie</h5>
+                    <h5 class="fw-bold mb-2">L'étudiant initie la collecte</h5>
                     <p class="text-muted small mb-0">Il renseigne le nom de l'entreprise et l'email de son tuteur depuis son espace.</p>
                 </div>
                 <div class="step-connector-v"></div>
@@ -465,78 +460,25 @@
                 <div class="text-center" style="max-width: 300px;">
                     <div class="step-bubble-mobile">2</div>
                     <h5 class="fw-bold mb-2">Le tuteur complète</h5>
-                    <p class="text-muted small mb-0">Il reçoit un lien sécurisé par email et remplit les données administratives.</p>
+                    <p class="text-muted small mb-0">Il reçoit un lien sécurisé par email et remplit les données administratives de la collecte.</p>
                 </div>
                 <div class="step-connector-v"></div>
 
                 <div class="text-center" style="max-width: 300px;">
                     <div class="step-bubble-mobile">3</div>
                     <h5 class="fw-bold mb-2">Le professeur valide</h5>
-                    <p class="text-muted small mb-0">Le référent est notifié et valide la convention depuis son tableau de bord.</p>
+                    <p class="text-muted small mb-0">Le référent est notifié et valide la collecte depuis son tableau de bord.</p>
                 </div>
                 <div class="step-connector-v"></div>
 
                 <div class="text-center" style="max-width: 300px;">
                     <div class="step-bubble-mobile">4</div>
-                    <h5 class="fw-bold mb-2">Convention finalisée</h5>
-                    <p class="text-muted small mb-0">La convention est prête. Tous les acteurs peuvent la consulter et la télécharger.</p>
+                    <h5 class="fw-bold mb-2">La DDF génère la convention</h5>
+                    <p class="text-muted small mb-0">La DDF valide la collecte et génère la convention au format PDF. Tous les acteurs peuvent la télécharger.</p>
                 </div>
 
             </div>
 
-        </div>
-    </section>
-
-    {# ================================================================ #}
-    {# 3. FEATURES                                                       #}
-    {# ================================================================ #}
-    <section class="py-5 bg-white">
-        <div class="container" style="max-width: 1180px;">
-
-            <div class="text-center mb-5">
-                <h2 class="fw-bold text-dark mb-2">Une solution pensée pour tous</h2>
-                <p class="text-muted lead mb-0">Chaque acteur dispose des bons outils au bon moment.</p>
-            </div>
-
-            <div class="row g-4">
-
-                <div class="col-12 col-md-4">
-                    <div class="card feature-card border-0 shadow-sm h-100">
-                        <div class="card-body text-center p-4 p-xl-5">
-                            <div class="icon-wrapper" style="background: linear-gradient(135deg, #0d6efd, #6ea8fe); color: #fff;">
-                                <i class="ph-bold ph-timer" style="font-size: 1.7rem;"></i>
-                            </div>
-                            <h3 class="h5 fw-bold mb-3">Gain de Temps</h3>
-                            <p class="text-muted mb-0">Créez et envoyez une convention en moins de 5 minutes grâce au pré-remplissage intelligent des informations.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <div class="card feature-card border-0 shadow-sm h-100">
-                        <div class="card-body text-center p-4 p-xl-5">
-                            <div class="icon-wrapper" style="background: linear-gradient(135deg, #198754, #51cf66); color: #fff;">
-                                <i class="ph-bold ph-shield-check" style="font-size: 1.7rem;"></i>
-                            </div>
-                            <h3 class="h5 fw-bold mb-3">Sécurité & Conformité</h3>
-                            <p class="text-muted mb-0">Stockage sécurisé, accès contrôlé par rôle, et conformité totale avec le RGPD pour protéger toutes les données.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <div class="card feature-card border-0 shadow-sm h-100">
-                        <div class="card-body text-center p-4 p-xl-5">
-                            <div class="icon-wrapper" style="background: linear-gradient(135deg, #f59f00, #ffd43b); color: #fff;">
-                                <i class="ph-bold ph-users-three" style="font-size: 1.7rem;"></i>
-                            </div>
-                            <h3 class="h5 fw-bold mb-3">Collaboration Simplifiée</h3>
-                            <p class="text-muted mb-0">Étudiant, tuteur et professeur avancent ensemble, chacun informé à chaque étape via notifications automatiques.</p>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
         </div>
     </section>
 
@@ -558,7 +500,7 @@
                         Prêt à simplifier vos stages ?
                     </h2>
                     <p class="text-white mb-4" style="opacity: 0.7; max-width: 380px; margin-inline: auto; font-size: 0.95rem;">
-                        Créez votre première convention en moins de 5 minutes, gratuitement.
+                        Lancez votre première collecte dès maintenant et obtenez votre convention générée automatiquement.
                     </p>
                     <div class="d-flex flex-wrap gap-3 justify-content-center">
                         <a href="{{ path('app_register_student') }}" class="btn btn-light fw-bold text-primary px-4">

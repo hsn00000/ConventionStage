@@ -1,9 +1,9 @@
 {% extends 'emails/layout.html.twig' %}
 
-{% block title %}Votre convention a été complétée – Conventio{% endblock %}
+{% block title %}Votre collecte a été complétée – Conventio{% endblock %}
 {% block icon %}<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 12v5c3.33 1.67 8.67 1.67 12 0v-5"/></svg>{% endblock %}
-{% block badge %}Convention complétée{% endblock %}
-{% block heading %}Votre convention est prête<br>à être vérifiée{% endblock %}
+{% block badge %}Collecte complétée{% endblock %}
+{% block heading %}Votre collecte est prête<br>à être vérifiée{% endblock %}
 
 {% block body %}
     <p style="margin:0 0 16px;font-size:15px;color:#495057;line-height:1.7;">
@@ -11,7 +11,7 @@
     </p>
 
     <p style="margin:0 0 24px;font-size:15px;color:#495057;line-height:1.7;">
-        Bonne nouvelle ! L'entreprise a complété les informations administratives de votre convention de stage.
+        Bonne nouvelle ! L'entreprise a complété les informations de votre collecte de stage.
         Elle est maintenant <strong style="color:#0d6efd;">en attente de votre vérification</strong> avant transmission à votre professeur référent.
     </p>
 
@@ -28,7 +28,7 @@
                             <table cellpadding="0" cellspacing="0" border="0">
                                 <tr>
                                     <td style="width:26px;height:26px;background:linear-gradient(135deg,#0d6efd,#6ea8fe);border-radius:50%;text-align:center;line-height:26px;font-size:12px;font-weight:700;color:#fff;vertical-align:middle;">1</td>
-                                    <td style="padding-left:12px;font-size:14px;color:#1a1a2e;font-weight:600;vertical-align:middle;">Relire attentivement votre convention</td>
+                                    <td style="padding-left:12px;font-size:14px;color:#1a1a2e;font-weight:600;vertical-align:middle;">Relire attentivement votre collecte</td>
                                 </tr>
                             </table>
                         </td>
@@ -59,7 +59,7 @@
     </table>
 
     <p style="margin:0 0 8px;font-size:15px;color:#495057;line-height:1.7;">
-        Connectez-vous à votre tableau de bord pour consulter et valider votre convention :
+        Connectez-vous à votre tableau de bord pour consulter et valider votre collecte :
     </p>
 {% endblock %}
 
@@ -69,7 +69,7 @@
             <td align="center" style="padding:28px 40px 16px;">
                 <a href="{{ url('app_student_show', {'id': student.id}) }}"
                    style="display:inline-block;background:linear-gradient(135deg,#0d6efd,#6ea8fe);color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:15px 36px;border-radius:50px;letter-spacing:0.02em;box-shadow:0 6px 20px rgba(13,110,253,0.4);">
-                    Voir ma convention &rarr;
+                    Voir ma collecte &rarr;
                 </a>
             </td>
         </tr>

@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Validation DDF de la convention{% endblock %}
+{% block title %}Validation DDF de la collecte{% endblock %}
 
 {% block content %}
     <main class="container py-5">
@@ -9,7 +9,7 @@
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
                     <div>
                         <p class="mb-2 text-uppercase small fw-semibold opacity-75">Validation administrative DDF</p>
-                        <h1 class="h3 mb-0">Convention #{{ contract.id }}</h1>
+                        <h1 class="h3 mb-0">Collecte #{{ contract.id }}</h1>
                     </div>
                     <span class="badge bg-light text-primary fs-6 px-3 py-2">{{ contract.statusLabel }}</span>
                 </div>
@@ -17,14 +17,14 @@
 
             <div class="card-body p-4 p-lg-5">
                 <div class="alert alert-info border-0 mb-4">
-                    La DDF relit ici la convention avant de valider les informations. Une fois validée, la convention pourra être générée puis envoyée à la signature.
+                    La DDF relit ici la collecte avant de valider les informations. Une fois validée, la convention sera générée puis envoyée à la signature.
                 </div>
 
                 <div class="bg-primary-subtle border border-primary-subtle rounded-4 p-4 mb-4">
                     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
                         <div>
                             <p class="text-primary text-uppercase small fw-bold mb-1">Vérification finale</p>
-                            <p class="mb-0 text-muted">Ouvrez la convention telle qu'elle sera générée à partir du modèle officiel avant validation.</p>
+                            <p class="mb-0 text-muted">Prévisualisez la convention qui sera générée à partir des données de la collecte.</p>
                         </div>
                         <a href="{{ path('app_ddf_contract_preview_pdf', {'id': contract.id}) }}" target="_blank" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm fw-semibold">
                             <i class="ph ph-file-pdf me-2"></i>Prévisualiser le PDF
@@ -172,7 +172,7 @@
             <div class="modal-content rounded-4 border-0 shadow">
                 <div class="modal-header bg-danger text-white rounded-top-4 border-0">
                     <h5 class="modal-title fw-bold" id="modalRefusDdfLabel">
-                        <i class="ph ph-warning me-2"></i>Refuser la convention
+                        <i class="ph ph-warning me-2"></i>Refuser la collecte
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
