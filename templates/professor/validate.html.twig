@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Validation — Convention #{{ contract.id }}{% endblock %}
+{% block title %}Validation — Collecte #{{ contract.id }}{% endblock %}
 
 {% block back_button %}
     <div class="container pt-3">
@@ -163,7 +163,7 @@
     {# ── HERO ── #}
     <div class="val-hero">
         <div>
-            <h1><i class="ph-bold ph-clipboard-text me-2"></i>Convention #{{ contract.id }}</h1>
+            <h1><i class="ph-bold ph-clipboard-text me-2"></i>Collecte #{{ contract.id }}</h1>
             <p>Validation pédagogique — relisez la synthèse avant de statuer.</p>
         </div>
         <span class="status-pill">
@@ -381,7 +381,7 @@
     {# ── ZONE DE DÉCISION ── #}
     <div class="decision-zone">
         <h2><i class="ph ph-scales me-2"></i>Décision pédagogique</h2>
-        <p>Renseignez un motif de refus si nécessaire, puis validez ou refusez la convention.</p>
+        <p>Renseignez un motif de refus si nécessaire, puis validez ou refusez la collecte.</p>
 
         {% if can_validate or can_refuse %}
             <form method="post">
@@ -394,12 +394,12 @@
                 <div class="decision-actions">
                     {% if can_validate %}
                         <button type="submit" name="action" value="validate" class="btn-validate">
-                            <i class="ph-bold ph-check-circle"></i> Valider la convention
+                            <i class="ph-bold ph-check-circle"></i> Valider la collecte
                         </button>
                     {% endif %}
                     {% if can_refuse %}
                         <button type="submit" name="action" value="refuse" class="btn-refuse"
-                            onclick="return confirm('Êtes-vous sûr de vouloir refuser cette convention ?');">
+                            onclick="return confirm('Êtes-vous sûr de vouloir refuser cette collecte ?');">
                             <i class="ph ph-x-circle"></i> Refuser
                         </button>
                     {% endif %}
@@ -408,7 +408,7 @@
         {% else %}
             <div class="already-processed">
                 <i class="ph ph-info" style="font-size:1.25rem;flex-shrink:0;"></i>
-                Cette convention a déjà été traitée. Elle ne peut plus être revalidée ni rejetée à cette étape.
+                Cette collecte a déjà été traitée. Elle ne peut plus être revalidée ni rejetée à cette étape.
             </div>
         {% endif %}
     </div>

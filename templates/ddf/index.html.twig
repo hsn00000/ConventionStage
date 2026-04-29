@@ -285,7 +285,7 @@
     <div class="section-card">
         <div class="section-header">
             <span class="section-dot" style="background:#fd7e14"></span>
-            <h2>Conventions à valider</h2>
+            <h2>Collectes à valider</h2>
             <span class="badge-count badge" style="background:rgba(253,126,20,0.12);color:#fd7e14;">
                 {{ contracts_to_validate|length }}
             </span>
@@ -294,7 +294,7 @@
             {% if contracts_to_validate is empty %}
                 <div class="empty-state">
                     <i class="ph ph-check-circle" style="color:#20c997"></i>
-                    <p>Aucune convention en attente de validation DDF.</p>
+                    <p>Aucune collecte en attente de validation DDF.</p>
                 </div>
             {% else %}
                 <div class="table-responsive">
@@ -352,7 +352,7 @@
     <div class="section-card">
         <div class="section-header">
             <span class="section-dot" style="background:#20c997"></span>
-            <h2>Conventions validées par la DDF</h2>
+            <h2>Collectes validées par la DDF</h2>
             <span class="badge-count badge" style="background:rgba(32,201,151,0.12);color:#198754;">
                 {{ validated_contracts|length }}
             </span>
@@ -361,7 +361,7 @@
             {% if validated_contracts is empty %}
                 <div class="empty-state">
                     <i class="ph ph-file-arrow-up" style="color:#20c997"></i>
-                    <p>Aucune convention validée en attente de génération.</p>
+                    <p>Aucune collecte validée en attente de génération.</p>
                 </div>
             {% else %}
                 <div class="table-responsive">

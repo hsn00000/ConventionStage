@@ -203,7 +203,7 @@
             </div>
             <div>
                 <div class="stat-value">{{ validated_collections_count }}</div>
-                <div class="stat-label">Convention{{ validated_collections_count > 1 ? 's' : '' }} validée{{ validated_collections_count > 1 ? 's' : '' }}</div>
+                <div class="stat-label">Collecte{{ validated_collections_count > 1 ? 's' : '' }} validée{{ validated_collections_count > 1 ? 's' : '' }}</div>
             </div>
         </div>
         <div class="stat-card">
@@ -223,7 +223,7 @@
     <div class="dash-section">
         <div class="dash-section-header">
             <span class="section-dot" style="background:#dc3545;"></span>
-            <h2>Conventions à valider</h2>
+            <h2>Collectes à valider</h2>
             <span class="section-count" style="background:rgba(220,53,69,0.1);color:#dc3545;">
                 {{ pending_validation_count }}
             </span>
@@ -232,7 +232,7 @@
         {% if pending_validation_count == 0 %}
             <div class="empty-state">
                 <i class="ph ph-check-circle" style="color:#20c997;"></i>
-                <p>Toutes les conventions urgentes ont été traitées.</p>
+                <p>Toutes les collectes urgentes ont été traitées.</p>
             </div>
         {% else %}
             <div class="table-responsive">
@@ -286,7 +286,7 @@
     <div class="dash-section">
         <div class="dash-section-header">
             <span class="section-dot" style="background:#198754;"></span>
-            <h2>Conventions déjà validées</h2>
+            <h2>Collectes validées</h2>
             <span class="section-count" style="background:rgba(25,135,84,0.1);color:#198754;">
                 {{ validated_collections_count }}
             </span>
@@ -295,7 +295,7 @@
         {% if validated_collections is empty %}
             <div class="empty-state">
                 <i class="ph ph-folder-open"></i>
-                <p>Aucune convention validée pour le moment.</p>
+                <p>Aucune collecte validée pour le moment.</p>
             </div>
         {% else %}
             <div class="table-responsive">
@@ -356,7 +356,7 @@
     <div class="dash-section">
         <div class="dash-section-header">
             <span class="section-dot" style="background:#fd7e14;"></span>
-            <h2>Conventions en suivi</h2>
+            <h2>Collectes en suivi</h2>
             <span class="section-count" style="background:rgba(253,126,20,0.1);color:#fd7e14;">
                 {{ pending_follow_up|length }}
             </span>
@@ -365,7 +365,7 @@
         {% if pending_follow_up is empty %}
             <div class="empty-state">
                 <i class="ph ph-clock"></i>
-                <p>Aucune convention en attente d'autres acteurs.</p>
+                <p>Aucune collecte en attente d'autres acteurs.</p>
             </div>
         {% else %}
             <div class="table-responsive">
@@ -425,7 +425,7 @@
     <div class="dash-section">
         <div class="dash-section-header">
             <span class="section-dot" style="background:#6c757d;"></span>
-            <h2>Conventions refusées</h2>
+            <h2>Collectes refusées</h2>
             <span class="section-count" style="background:rgba(108,117,125,0.1);color:#6c757d;">
                 {{ refused_contracts|length }}
             </span>

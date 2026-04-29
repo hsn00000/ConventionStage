@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nouvelle convention de stage{% endblock %}
+{% block title %}Nouvelle collecte de stage{% endblock %}
 
 {% block back_button %}
     <div class="container pt-3">
@@ -21,7 +21,7 @@
                     <div style="width:44px;height:44px;background:#fff3cd;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                         <i class="ph ph-warning" style="font-size:1.4rem;color:#e6a817;"></i>
                     </div>
-                    <h5 class="modal-title fw-bold mb-0">Convention impossible</h5>
+                    <h5 class="modal-title fw-bold mb-0">Collecte impossible</h5>
                 </div>
             </div>
             <div class="modal-body px-4 pt-3 pb-2">
@@ -175,7 +175,7 @@
                         <div style="width:52px;height:52px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.3);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.25rem;">
                             <i class="ph-bold ph-file-plus"></i>
                         </div>
-                        <h2>Démarrer une<br>convention de stage</h2>
+                        <h2>Démarrer une<br>collecte de stage</h2>
                         <p>Renseignez les infos de base et on s'occupe du reste — un email sera envoyé à votre tuteur automatiquement.</p>
                     </div>
 
@@ -198,7 +198,7 @@
                             <div class="step-num">3</div>
                             <div class="step-text">
                                 <strong>Le professeur valide</strong>
-                                <span>Votre référent reçoit la convention</span>
+                                <span>Votre référent reçoit la collecte</span>
                             </div>
                         </div>
                     </div>
@@ -208,12 +208,12 @@
             {# ── CÔTÉ DROIT : FORMULAIRE ── #}
             <div class="col-md-7">
                 <div class="init-form-panel">
-                    <h1><i class="ph ph-buildings me-2" style="color:#0d6efd;"></i>Nouvelle convention</h1>
+                    <h1><i class="ph ph-buildings me-2" style="color:#0d6efd;"></i>Nouvelle collecte</h1>
                     <p class="subtitle">Indiquez l'entreprise et l'email de votre tuteur — le planning est assigné automatiquement par la DDF.</p>
 
                     <div class="info-box">
                         <i class="ph ph-info"></i>
-                        <span>Le planning de stage actif pour votre classe a été défini par la DDF et sera automatiquement associé à votre convention.</span>
+                        <span>Le planning de stage actif pour votre classe a été défini par la DDF et sera automatiquement associé à votre collecte.</span>
                     </div>
 
                     {% if form is not null and form.vars.errors|length > 0 %}

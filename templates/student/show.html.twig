@@ -193,7 +193,7 @@
             </div>
         </div>
         <a href="{{ path('app_student_contract_init') }}" class="hero-cta">
-            <i class="ph-bold ph-plus"></i> Nouvelle convention
+            <i class="ph-bold ph-plus"></i> Nouvelle collecte
         </a>
     </div>
 
@@ -235,7 +235,7 @@
             </div>
             <div>
                 <div class="stat-value">{{ past_contracts_count }}</div>
-                <div class="stat-label">Convention{{ past_contracts_count > 1 ? 's' : '' }} passée{{ past_contracts_count > 1 ? 's' : '' }}</div>
+                <div class="stat-label">Collecte{{ past_contracts_count > 1 ? 's' : '' }} passée{{ past_contracts_count > 1 ? 's' : '' }}</div>
             </div>
         </div>
 
@@ -277,7 +277,7 @@
                     </a>
                 {% else %}
                     <a href="{{ path('app_contract_show', {'id': contract.id}) }}" class="btn-view btn-view-outline">
-                        <i class="ph ph-eye"></i> Voir la convention
+                        <i class="ph ph-eye"></i> Voir la collecte
                     </a>
                 {% endif %}
                 {% if contract.pdfSigned or contract.pdfUnsigned %}
@@ -289,7 +289,7 @@
 
             {% if contract.status == 'refused' %}
                 <div class="refusal-block">
-                    <strong><i class="ph ph-x-circle me-1"></i>Convention refusée.</strong>
+                    <strong><i class="ph ph-x-circle me-1"></i>Collecte refusée.</strong>
                     {% if contract.professorRejectionReason %}
                         <div class="mt-1">{{ contract.professorRejectionReason|nl2br }}</div>
                     {% elseif contract.ddfRejectionReason %}
@@ -352,7 +352,7 @@
             {% endif %}
             {% if contract.status == 'refused' %}
                 <div class="refusal-block">
-                    <strong><i class="ph ph-x-circle me-1"></i>Convention refusée.</strong>
+                    <strong><i class="ph ph-x-circle me-1"></i>Collecte refusée.</strong>
                     {% if contract.professorRejectionReason %}<div class="mt-1">{{ contract.professorRejectionReason|nl2br }}</div>
                     {% elseif contract.ddfRejectionReason %}<div class="mt-1">{{ contract.ddfRejectionReason|nl2br }}</div>{% endif %}
                 </div>
@@ -387,7 +387,7 @@
         '#0d6efd', 'En attente de la saisie du tuteur de stage',
         'rgba(13,110,253,0.1)', '#0d6efd',
         c_waiting_tutor,
-        'envelope-simple-open', 'Aucune convention en attente du tuteur.',
+        'envelope-simple-open', 'Aucune collecte en attente du tuteur.',
         true,
         'Un email a été envoyé à votre tuteur. Il doit remplir les informations de l\'entreprise.',
         'envelope-open'
@@ -398,7 +398,7 @@
         '#ffc107', 'En attente de votre revalidation',
         'rgba(255,193,7,0.15)', '#856404',
         c_to_validate,
-        'clipboard-text', 'Aucune convention en attente de votre revalidation.',
+        'clipboard-text', 'Aucune collecte en attente de votre revalidation.',
         true,
         'Le tuteur a rempli les informations. Vérifiez et validez avant envoi au professeur.',
         'info'
@@ -409,9 +409,9 @@
         '#6ea8fe', 'En attente de la validation du professeur',
         'rgba(110,168,254,0.15)', '#084298',
         c_waiting_prof,
-        'chalkboard-teacher', 'Aucune convention en attente du professeur.',
+        'chalkboard-teacher', 'Aucune collecte en attente du professeur.',
         true,
-        'Vous avez validé. Votre professeur référent doit maintenant valider la convention.',
+        'Vous avez validé. Votre professeur référent doit maintenant valider la collecte.',
         'hourglass-medium'
     ) }}
 
@@ -420,7 +420,7 @@
         '#0dcaf0', 'En attente de la validation de la DDF',
         'rgba(13,202,240,0.12)', '#055160',
         c_waiting_ddf,
-        'buildings', 'Aucune convention en attente de la DDF.',
+        'buildings', 'Aucune collecte en attente de la DDF.',
         true,
         'Le professeur a validé. La direction des formations finalise la vérification administrative.',
         'hourglass-medium'
@@ -490,7 +490,7 @@
 
     {# BLOC REFUSÉES — seulement si nécessaire             #}
     {{ _self.section(
-        '#dc3545', 'Conventions refusées',
+        '#dc3545', 'Collectes refusées',
         'rgba(220,53,69,0.1)', '#dc3545',
         c_refused,
         'x-circle', '',
