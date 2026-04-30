@@ -2,7 +2,7 @@
 
 ## 1. Contexte du projet
 
-Conventio est une application web Symfony de gestion des conventions de stage. Le projet a ete realise dans un contexte de BTS SIO option SLAM, avec un objectif concret : remplacer un parcours manuel, souvent gere par echanges d'emails et documents Word, par un outil centralise capable de collecter les informations, valider les conventions, generer le document final et lancer une signature electronique.
+Conventio est une application web Symfony (= framework PHP qui aide a creer des sites et applications web) de gestion des conventions de stage. Le projet a ete realise dans un contexte de BTS SIO option SLAM, avec un objectif concret : remplacer un parcours manuel, souvent gere par echanges d'emails et documents Word, par un outil centralise capable de collecter les informations, valider les conventions, generer le document final et lancer une signature electronique.
 
 Le portfolio public presente Conventio comme une application Symfony de gestion, validation, generation PDF et signature electronique des conventions de stage. Le projet s'inscrit donc dans une logique d'application metier : plusieurs acteurs interviennent sur un meme dossier, chacun avec ses droits, ses formulaires et ses validations.
 
@@ -10,7 +10,40 @@ Sources utilisees pour cette documentation :
 
 - analyse du code du depot local ;
 - lecture du portfolio public : `https://portfolio.kanely.fr/` ;
-- structure Symfony, entites Doctrine, controleurs, services, templates, workflow et tests presents dans le projet.
+- structure Symfony, entites Doctrine (= outil qui relie les objets PHP a la base de donnees), controleurs, services, templates (= fichiers de vues HTML), workflow (= suite d'etapes controlees) et tests presents dans le projet.
+
+## Lexique simple des termes techniques
+
+Cette partie sert a expliquer les mots techniques utilises dans la documentation.
+
+- Symfony (= framework PHP qui fournit une structure pour creer une application web).
+- PHP (= langage de programmation utilise cote serveur).
+- Framework (= base de travail deja prete qui evite de tout coder de zero).
+- Doctrine (= outil qui permet de manipuler la base de donnees avec des objets PHP).
+- ORM (= systeme qui transforme les tables de base de donnees en objets dans le code).
+- Entite (= classe PHP qui represente une table ou un objet important du projet, par exemple `Contract`).
+- Controleur (= fichier qui recoit une requete web et decide quelle page ou action executer).
+- Route (= adresse URL qui pointe vers une action du site).
+- Service (= classe qui contient une logique reutilisable, par exemple generer un PDF ou envoyer une signature).
+- Repository (= classe qui sert a chercher des donnees precises dans la base).
+- Template (= fichier qui contient l'affichage HTML d'une page ou d'un email).
+- Workflow (= suite d'etapes controlees, par exemple : envoye, valide, signe).
+- State machine (= workflow ou un objet ne peut etre que dans un seul etat a la fois).
+- API (= moyen pour deux applications de communiquer entre elles).
+- Webhook (= notification automatique envoyee par un service externe vers l'application).
+- Token (= code unique utilise pour securiser un lien ou identifier une action).
+- CSRF (= protection contre l'envoi frauduleux d'un formulaire).
+- Hash (= version protegee d'un mot de passe, non lisible directement).
+- PDF (= document final consultable et imprimable).
+- DOCX (= document Word utilise ici comme modele de convention).
+- JSON (= format de donnees pratique pour stocker une structure, comme les horaires).
+- Migration (= fichier qui modifie la structure de la base de donnees).
+- Fixtures (= donnees de demonstration ajoutees en base pour tester l'application).
+- Sandbox (= environnement de test qui imite un vrai service sans etre en production).
+- CRUD (= actions de base : creer, lire, modifier, supprimer).
+- CLI (= commande lancee dans le terminal).
+- HMAC (= signature de securite permettant de verifier qu'un message vient bien du bon service).
+- Dashboard (= tableau de bord qui regroupe les informations importantes).
 
 ## 2. Probleme initial
 
@@ -23,7 +56,7 @@ La gestion classique d'une convention de stage pose plusieurs difficultes :
 - la signature manuelle ralentit fortement le processus ;
 - l'administration doit savoir quelles conventions sont en attente, validees, signees ou refusees.
 
-Conventio apporte une reponse applicative a ces contraintes en transformant le processus en workflow controle.
+Conventio apporte une reponse applicative a ces contraintes en transformant le processus en workflow (= suite d'etapes controlees) clair et suivi.
 
 ## 3. Objectifs
 
@@ -41,30 +74,30 @@ Conventio apporte une reponse applicative a ces contraintes en transformant le p
 
 | Element | Technologie |
 | --- | --- |
-| Backend | PHP 8.2+, Symfony 7.4 |
-| ORM | Doctrine ORM 3 |
-| Base de donnees | PostgreSQL par defaut, SQLite possible en local/test |
-| Templates | Twig |
-| Formulaires | Symfony Form |
-| Securite | Symfony Security, roles, CSRF, hash de mot de passe |
+| Backend (= partie serveur de l'application) | PHP 8.2+, Symfony 7.4 |
+| ORM (= lien entre objets PHP et base de donnees) | Doctrine ORM 3 |
+| Base de donnees (= endroit ou les informations sont stockees) | PostgreSQL par defaut, SQLite possible en local/test |
+| Templates (= fichiers d'affichage) | Twig |
+| Formulaires (= zones de saisie controlees) | Symfony Form |
+| Securite | Symfony Security, roles (= droits utilisateurs), CSRF (= protection formulaire), hash (= mot de passe protege) |
 | Emails | Symfony Mailer, templates Twig, configuration Brevo possible |
-| PDF | Gotenberg avec conversion LibreOffice/DOCX et fallback HTML |
-| Signature electronique | YouSign API sandbox v3 |
-| Workflow | Symfony Workflow en state machine |
+| PDF | Gotenberg (= outil qui transforme un document en PDF) avec conversion LibreOffice/DOCX et fallback HTML |
+| Signature electronique | YouSign API (= service externe de signature) sandbox (= espace de test) v3 |
+| Workflow | Symfony Workflow en state machine (= un seul statut actif a la fois) |
 | Tests | PHPUnit, Symfony BrowserKit |
 
 ## 5. Architecture generale
 
-Le projet suit l'organisation classique d'une application Symfony :
+Le projet suit l'organisation classique d'une application Symfony (= framework PHP) :
 
-- `src/Entity` : modele metier Doctrine.
-- `src/Controller` : routes HTTP et orchestration des cas d'utilisation.
+- `src/Entity` : modele metier Doctrine. Une entite (= classe PHP liee a une table) represente un objet comme une convention.
+- `src/Controller` : routes HTTP et orchestration des cas d'utilisation. Un controleur (= fichier qui gere une page ou une action) recoit la demande de l'utilisateur.
 - `src/Form` : formulaires Symfony pour les saisies utilisateur.
-- `src/Repository` : requetes specifiques Doctrine.
-- `src/Service` : logique transverse, generation PDF, signature, notifications.
+- `src/Repository` : requetes specifiques Doctrine. Un repository (= classe de recherche) sert a recuperer des donnees precises.
+- `src/Service` : logique transverse, generation PDF, signature, notifications. Un service (= classe reutilisable) evite de mettre trop de logique dans les controleurs.
 - `templates` : vues Twig HTML, emails et PDF.
-- `config/packages/workflow.yaml` : definition du cycle de vie d'une convention.
-- `migrations` : evolution du schema de base de donnees.
+- `config/packages/workflow.yaml` : definition du cycle de vie d'une convention, donc son workflow (= suite d'etapes).
+- `migrations` : evolution du schema de base de donnees. Une migration (= fichier de modification de base) ajoute ou modifie des tables.
 - `tests` : tests fonctionnels.
 
 ## 6. Acteurs
@@ -97,10 +130,10 @@ Le proviseur intervient dans la phase finale de signature. Ses informations sont
 - Deconnexion via `/logout`.
 - Inscription etudiant via `/register/student`.
 - Inscription professeur via `/register/professor`.
-- Verification email via SymfonyCasts VerifyEmail.
-- Reinitialisation de mot de passe via SymfonyCasts ResetPassword.
-- Hash automatique des mots de passe.
-- Roles applicatifs : `ROLE_STUDENT`, `ROLE_PROFESSOR`, `ROLE_TUTOR`, `ROLE_ADMIN`.
+- Verification email via SymfonyCasts VerifyEmail (= composant qui confirme qu'une adresse email appartient bien a l'utilisateur).
+- Reinitialisation de mot de passe via SymfonyCasts ResetPassword (= composant qui permet de changer un mot de passe oublie).
+- Hash (= transformation securisee) automatique des mots de passe.
+- Roles (= droits d'acces) applicatifs : `ROLE_STUDENT`, `ROLE_PROFESSOR`, `ROLE_TUTOR`, `ROLE_ADMIN`.
 
 ### Gestion des niveaux
 
@@ -127,13 +160,13 @@ Le systeme :
 - recherche une campagne active pour cette classe ;
 - cree ou reutilise un compte tuteur selon l'email saisi ;
 - cree une organisation partiellement renseignee ;
-- genere un token de partage ;
+- genere un token (= code unique de securite) de partage ;
 - assigne un professeur referent ;
 - envoie un email a l'entreprise.
 
 ### Collecte entreprise
 
-L'entreprise accede au formulaire via `/company/fill/{token}`.
+L'entreprise accede au formulaire via `/company/fill/{token}`. Le token (= code unique dans le lien) permet d'ouvrir uniquement la convention concernee.
 
 Le formulaire permet de completer :
 
@@ -147,11 +180,11 @@ Le formulaire permet de completer :
 - avantages ;
 - activites prevues.
 
-Quand l'entreprise valide, le workflow passe de `collection_sent` a `filled_by_company` et un email est envoye a l'etudiant.
+Quand l'entreprise valide, le workflow (= suite d'etapes controlees) passe de `collection_sent` a `filled_by_company` et un email est envoye a l'etudiant.
 
 ### Validation etudiant
 
-L'etudiant consulte la convention puis valide les informations. Le workflow passe de `filled_by_company` a `validated_by_student`. Le professeur referent recoit ensuite une demande de validation.
+L'etudiant consulte la convention puis valide les informations. Le workflow (= suite d'etapes controlees) passe de `filled_by_company` a `validated_by_student`. Le professeur referent recoit ensuite une demande de validation.
 
 ### Validation professeur
 
@@ -173,34 +206,34 @@ La DDF visualise les conventions classees par statut :
 - en signature ;
 - signees.
 
-Elle peut previsualiser le PDF, valider, refuser, generer le PDF, lancer la signature, relancer les notifications et synchroniser le document signe.
+Elle peut previsualiser le PDF (= document final lisible et imprimable), valider, refuser, generer le PDF, lancer la signature, relancer les notifications et synchroniser (= mettre a jour avec le service externe) le document signe.
 
 ### Generation PDF
 
-Le service `ContractPdfService` genere le PDF final :
+Le service `ContractPdfService` (= classe responsable de la creation du document) genere le PDF final :
 
 - en priorite depuis `Conventions de stage-template-fr.docx` ;
-- avec remplacement des placeholders dans le XML interne du DOCX ;
+- avec remplacement des placeholders (= mots temporaires remplaces par les vraies donnees) dans le XML (= structure interne du fichier) du DOCX ;
 - avec remplissage automatique du tableau des horaires ;
 - avec normalisation des ancres de signature ;
-- via Gotenberg LibreOffice ;
-- avec fallback HTML/Twig si le modele DOCX n'existe pas.
+- via Gotenberg (= outil qui convertit des documents en PDF) et LibreOffice ;
+- avec fallback (= solution de secours) HTML/Twig si le modele DOCX n'existe pas.
 
 Les PDF non signes sont stockes dans `var/contracts/unsigned`.
 Les PDF signes sont stockes dans `var/contracts/signed`.
 
 ### Signature electronique
 
-Le service `YouSignService` :
+Le service `YouSignService` (= classe qui communique avec YouSign) :
 
 - cree une demande de signature ;
-- upload le PDF ;
+- upload (= envoie le fichier vers le service externe) le PDF ;
 - ajoute les signataires dans l'ordre ;
 - active la demande ;
 - consulte les statuts ;
 - telecharge le document signe ;
 - gere les relances manuelles ;
-- verifie la signature HMAC des webhooks.
+- verifie la signature HMAC (= preuve cryptographique que le message est fiable) des webhooks (= notifications automatiques).
 
 Les signataires attendus sont :
 
@@ -210,11 +243,11 @@ Les signataires attendus sont :
 
 ### Webhook YouSign
 
-La route `/webhooks/yousign` recoit les evenements YouSign. Seul l'evenement `signature_request.done` est traite. Le controleur verifie la signature du webhook, retrouve la convention avec l'identifiant YouSign, telecharge le document signe et marque la convention comme signee.
+La route `/webhooks/yousign` recoit les evenements YouSign. Un webhook (= notification automatique envoyee par YouSign a l'application) indique par exemple qu'une signature est terminee. Seul l'evenement `signature_request.done` est traite. Le controleur verifie la signature du webhook, retrouve la convention avec l'identifiant YouSign, telecharge le document signe et marque la convention comme signee.
 
 ### Commande de synchronisation
 
-La commande `app:contracts:sync-signed` permet de synchroniser manuellement les conventions en attente de signature. Elle est utile si le webhook n'est pas disponible en local ou si l'on veut forcer une verification.
+La commande `app:contracts:sync-signed` permet de synchroniser (= recuperer les dernieres informations depuis YouSign) manuellement les conventions en attente de signature. Elle est utile si le webhook (= notification automatique) n'est pas disponible en local ou si l'on veut forcer une verification.
 
 ## 8. Workflow metier
 
@@ -341,7 +374,7 @@ classDiagram
 
 ### `User`
 
-Classe parente des utilisateurs. Doctrine utilise un heritage `SINGLE_TABLE` avec une colonne discriminante `discr`. Les etudiants, professeurs et tuteurs partagent donc la meme table utilisateur.
+Classe parente des utilisateurs. Doctrine (= outil base de donnees) utilise un heritage `SINGLE_TABLE` (= tous les types d'utilisateurs sont stockes dans une seule table) avec une colonne discriminante `discr` (= colonne qui indique si l'utilisateur est etudiant, professeur ou tuteur). Les etudiants, professeurs et tuteurs partagent donc la meme table utilisateur.
 
 ### `Student`
 
@@ -363,9 +396,9 @@ Contient les informations de l'entreprise ou structure d'accueil : siege, lieu d
 
 Entite centrale du projet. Elle porte :
 
-- le statut du workflow ;
+- le statut du workflow (= etape actuelle de la convention) ;
 - les relations vers l'etudiant, le tuteur, l'entreprise et le professeur ;
-- les horaires au format JSON ;
+- les horaires au format JSON (= format de donnees structurees) ;
 - les informations de generation PDF ;
 - les identifiants YouSign ;
 - les motifs de refus professeur/DDF.
@@ -398,24 +431,24 @@ Stocke les informations institutionnelles utiles a la signature finale : provise
 
 Mesures deja presentes :
 
-- hash des mots de passe avec Symfony ;
+- hash (= version protegee et non lisible) des mots de passe avec Symfony ;
 - authentification par formulaire ;
-- roles Symfony ;
+- roles (= droits d'acces) Symfony ;
 - controle d'acces sur les espaces etudiant, professeur et DDF ;
-- verification CSRF sur les actions sensibles ;
+- verification CSRF (= protection contre l'envoi frauduleux d'un formulaire) sur les actions sensibles ;
 - verification email a l'inscription ;
-- token aleatoire pour le lien entreprise ;
+- token (= code unique) aleatoire pour le lien entreprise ;
 - verification que l'etudiant consulte uniquement ses conventions ;
 - verification que le professeur consulte uniquement ses conventions ;
-- signature HMAC des webhooks YouSign ;
-- requetes Doctrine parametrees.
+- signature HMAC (= verification de l'origine du message) des webhooks YouSign ;
+- requetes Doctrine parametrees (= requetes protegees contre les injections SQL).
 
 Points d'attention :
 
-- `tokenExpDate` existe dans l'entite `Contract`, mais la route entreprise ne bloque pas encore explicitement les tokens expires.
-- Quelques routes CRUD historiques comme certains index et creation manuelle restent a proteger plus strictement si l'application passe en production.
+- `tokenExpDate` existe dans l'entite `Contract`, mais la route entreprise ne bloque pas encore explicitement les tokens (= codes de lien) expires.
+- Quelques routes CRUD (= creer, lire, modifier, supprimer) historiques comme certains index et creation manuelle restent a proteger plus strictement si l'application passe en production.
 - Les secrets ne doivent jamais etre stockes dans un fichier versionne ; il faut utiliser `.env.local`, les variables serveur ou Symfony Secrets.
-- La configuration YouSign actuelle utilise l'API sandbox.
+- La configuration YouSign actuelle utilise l'API sandbox (= version de test de l'API).
 
 ## 13. Routes importantes
 
@@ -440,15 +473,15 @@ Points d'attention :
 
 ### `ContractPdfService`
 
-Responsable de la production du PDF. Il centralise les contraintes documentaires : modele DOCX, placeholders, tableau des horaires, ancres de signature et conversion Gotenberg.
+Responsable de la production du PDF. Il centralise les contraintes documentaires : modele DOCX (= fichier Word), placeholders (= zones a remplacer), tableau des horaires, ancres de signature (= reperes ou signer) et conversion Gotenberg (= transformation en PDF).
 
 ### `ContractSignatureService`
 
-Service d'orchestration. Il valide cote DDF, genere le PDF, lance YouSign, applique les transitions du workflow, relance les notifications et synchronise le document signe.
+Service d'orchestration (= service qui coordonne plusieurs actions). Il valide cote DDF, genere le PDF, lance YouSign, applique les transitions du workflow (= passages d'une etape a une autre), relance les notifications et synchronise le document signe.
 
 ### `YouSignService`
 
-Service d'integration externe. Il encapsule les appels HTTP a YouSign, la creation de demande, l'ajout des signataires, le suivi des statuts, le telechargement et la verification des webhooks.
+Service d'integration externe (= lien entre l'application et un service exterieur). Il encapsule les appels HTTP (= requetes envoyees sur internet) a YouSign, la creation de demande, l'ajout des signataires, le suivi des statuts, le telechargement et la verification des webhooks.
 
 ### `ProvisorNotificationService`
 
@@ -505,36 +538,36 @@ php bin/phpunit
 
 | Probleme | Cause | Solution |
 | --- | --- | --- |
-| Suivre un processus avec plusieurs validateurs | Une convention change d'etat selon l'acteur | Mise en place d'un state machine Symfony Workflow |
-| Eviter les conventions modifiees au mauvais moment | Une convention ne doit pas etre modifiable apres certaines validations | Controle des statuts avant edition et transitions controlees |
+| Suivre un processus avec plusieurs validateurs | Une convention change d'etat selon l'acteur | Mise en place d'une state machine (= workflow avec un seul etat actif) Symfony Workflow |
+| Eviter les conventions modifiees au mauvais moment | Une convention ne doit pas etre modifiable apres certaines validations | Controle des statuts avant edition et transitions (= passages d'une etape a une autre) controlees |
 | Assigner automatiquement le bon professeur | L'etudiant peut ne pas avoir de referent direct | Recherche du professeur referent, puis du professeur principal du niveau |
-| Collecter les donnees entreprise sans compte complet | L'entreprise doit acceder rapidement au formulaire | Token aleatoire de partage envoye par email |
-| Produire un document conforme | Le modele officiel est un DOCX | Remplacement des placeholders dans `word/document.xml` puis conversion avec Gotenberg |
-| Les placeholders DOCX peuvent etre coupes par Word | Word separe parfois un placeholder en plusieurs balises XML | Regex dediee pour detecter les placeholders fragmentes |
-| Remplir proprement les horaires | Les horaires sont structurés par jour et demi-journee | Stockage JSON normalise dans `Contract::workHours` |
-| Integrer la signature electronique | YouSign impose une API avec document, signataires et activation | Encapsulation dans `YouSignService` et orchestration dans `ContractSignatureService` |
-| Recuperer le PDF signe | Le webhook peut ne pas etre disponible en local | Webhook securise + commande CLI de synchronisation manuelle |
+| Collecter les donnees entreprise sans compte complet | L'entreprise doit acceder rapidement au formulaire | Token (= code unique) aleatoire de partage envoye par email |
+| Produire un document conforme | Le modele officiel est un DOCX (= fichier Word) | Remplacement des placeholders (= zones temporaires) dans `word/document.xml` puis conversion avec Gotenberg (= outil de generation PDF) |
+| Les placeholders DOCX peuvent etre coupes par Word | Word separe parfois un placeholder en plusieurs balises XML (= structure interne du document) | Regex (= regle de recherche dans du texte) dediee pour detecter les placeholders fragmentes |
+| Remplir proprement les horaires | Les horaires sont structures par jour et demi-journee | Stockage JSON (= format de donnees structurees) normalise dans `Contract::workHours` |
+| Integrer la signature electronique | YouSign impose une API (= moyen de communication entre applications) avec document, signataires et activation | Encapsulation (= regrouper la logique dans une classe) dans `YouSignService` et orchestration dans `ContractSignatureService` |
+| Recuperer le PDF signe | Le webhook (= notification automatique) peut ne pas etre disponible en local | Webhook securise + commande CLI (= commande terminal) de synchronisation manuelle |
 | Gérer les erreurs externes | Gotenberg ou YouSign peuvent etre indisponibles | Exceptions explicites et messages utilisateur dans le dashboard DDF |
-| Empêcher les validations non autorisees | Chaque acteur ne doit agir que sur ses conventions | Verifications d'identite dans les controleurs et CSRF sur les POST |
+| Empêcher les validations non autorisees | Chaque acteur ne doit agir que sur ses conventions | Verifications d'identite dans les controleurs et CSRF (= protection formulaire) sur les POST |
 
 ## 18. Limites actuelles
 
-- Le controle d'expiration du token entreprise peut etre renforce.
-- Les routes CRUD historiques doivent etre auditees avant production.
-- La signature electronique est configuree pour le sandbox YouSign.
+- Le controle d'expiration du token (= code unique du lien) entreprise peut etre renforce.
+- Les routes CRUD (= creer, lire, modifier, supprimer) historiques doivent etre auditees avant production.
+- La signature electronique est configuree pour le sandbox (= environnement de test) YouSign.
 - Le projet depend de Gotenberg pour la generation fiable des PDF.
 - Il manque des tests fonctionnels sur le parcours complet convention -> signature.
-- Les fixtures contiennent des comptes de demonstration qui doivent etre adaptes hors environnement local.
+- Les fixtures (= donnees de demonstration) contiennent des comptes de demonstration qui doivent etre adaptes hors environnement local.
 
 ## 19. Ameliorations possibles
 
 - Ajouter une page d'administration des parametres `Parameters`.
-- Ajouter un historique des transitions de workflow visible dans l'interface.
+- Ajouter un historique des transitions (= changements d'etape) de workflow visible dans l'interface.
 - Ajouter des notifications plus detaillees en cas de refus.
 - Ajouter des tests de bout en bout pour le parcours etudiant/entreprise/professeur/DDF.
 - Ajouter une expiration reelle du lien entreprise.
 - Ajouter un systeme d'archivage par annee scolaire.
-- Ajouter un export CSV des conventions pour l'administration.
+- Ajouter un export CSV (= fichier tableur simple) des conventions pour l'administration.
 - Ajouter une recherche et des filtres sur les dashboards.
 - Ajouter un mode brouillon pour l'entreprise avant soumission.
 
@@ -543,10 +576,10 @@ php bin/phpunit
 - Analyse d'un besoin metier.
 - Conception d'une solution applicative.
 - Modelisation de donnees relationnelles.
-- Developpement backend avec Symfony.
+- Developpement backend (= partie serveur) avec Symfony.
 - Gestion des formulaires et validations.
 - Gestion des droits et de la securite.
-- Integration d'API externe.
+- Integration d'API (= communication avec un service externe) externe.
 - Generation documentaire.
 - Tests fonctionnels.
 - Documentation technique et utilisateur.
@@ -554,6 +587,6 @@ php bin/phpunit
 
 ## 21. Synthese
 
-Conventio est une application metier complete centree sur le cycle de vie d'une convention de stage. Le coeur du projet repose sur une entite `Contract`, un workflow de validation strict, des tableaux de bord par role, une generation PDF automatisee et une integration YouSign pour la signature electronique.
+Conventio est une application metier complete centree sur le cycle de vie d'une convention de stage. Le coeur du projet repose sur une entite `Contract` (= objet principal qui represente une convention), un workflow (= suite d'etapes controlees) de validation strict, des tableaux de bord par role, une generation PDF automatisee et une integration YouSign pour la signature electronique.
 
-Le projet montre une progression importante : il ne se limite pas a du CRUD, mais traite un processus reel avec des dependances externes, des contraintes documentaires, des droits d'acces, des notifications et un suivi d'etat complet.
+Le projet montre une progression importante : il ne se limite pas a du CRUD (= creer, lire, modifier, supprimer), mais traite un processus reel avec des dependances externes (= services ou outils utilises par l'application), des contraintes documentaires, des droits d'acces, des notifications et un suivi d'etat complet.
