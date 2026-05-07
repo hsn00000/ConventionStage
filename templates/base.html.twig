@@ -151,6 +151,7 @@
                         <a class="btn btn-secondary" href="{{ path('app_ddf_contract_index') }}">DDF</a>
                         <a class="btn btn-secondary" href="{{ path('app_admin_level_index') }}">Admin</a>
                         <a class="btn btn-secondary" href="{{ path('app_admin_parameters_edit') }}">Paramètres</a>
+                        <a class="btn btn-secondary" href="{{ path('app_admin_professor_index') }}">Professeurs</a>
                     {% endif %}
 
                     {% if 'ROLE_PROFESSOR' in user_roles and app.user.id is defined %}

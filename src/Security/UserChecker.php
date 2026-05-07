@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use App\Entity\Professor;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
@@ -15,11 +16,15 @@ class UserChecker implements UserCheckerInterface
             return;
         }
 
-        // Si l'utilisateur n'a pas cliqué sur le lien email (isVerified == false)
         if (!$user->isVerified()) {
-            // On bloque la connexion avec un message d'erreur
             throw new CustomUserMessageAuthenticationException(
                 'Votre compte n\'est pas encore activé. Veuillez vérifier vos emails.'
+            );
+        }
+
+        if ($user instanceof Professor && !$user->isApprovedByAdmin()) {
+            throw new CustomUserMessageAuthenticationException(
+                'Votre compte est en attente de validation par un administrateur.'
             );
         }
     }

@@ -29,12 +29,27 @@ class Professor extends User
     #[ORM\ManyToMany(targetEntity: Level::class, inversedBy: 'professors')]
     private Collection $sections;
 
+    #[ORM\Column]
+    private bool $isApprovedByAdmin = false;
+
     public function __construct()
     {
         $this->studentsReferred = new ArrayCollection();
         $this->contracts = new ArrayCollection();
         $this->setRoles(['ROLE_PROFESSOR']);
         $this->sections = new ArrayCollection();
+    }
+
+    public function isApprovedByAdmin(): bool
+    {
+        return $this->isApprovedByAdmin;
+    }
+
+    public function setIsApprovedByAdmin(bool $isApprovedByAdmin): static
+    {
+        $this->isApprovedByAdmin = $isApprovedByAdmin;
+
+        return $this;
     }
 
     /**

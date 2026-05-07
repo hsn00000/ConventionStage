@@ -66,6 +66,8 @@ class AppFixtures extends Fixture
         $prof->setFirstname('Jean-Pierre');
         $prof->setRoles(['ROLE_PROFESSOR']);
         $prof->setPassword($this->hasher->hashPassword($prof, 'password'));
+        $prof->setIsVerified(true);
+        $prof->setIsApprovedByAdmin(true);
         $manager->persist($prof);
 
         // --- 4. TUTEUR ---

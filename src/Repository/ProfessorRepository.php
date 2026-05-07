@@ -16,28 +16,30 @@ class ProfessorRepository extends ServiceEntityRepository
         parent::__construct($registry, Professor::class);
     }
 
-//    /**
-//     * @return Professor[] Returns an array of Professor objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('p.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * @return Professor[]
+     */
+    public function findApproved(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.isApprovedByAdmin = true')
+            ->orderBy('p.lastname', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 
-//    public function findOneBySomeField($value): ?Professor
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    /**
+     * @return Professor[]
+     */
+    public function findPendingApproval(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.isApprovedByAdmin = false')
+            ->andWhere('p.isVerified = true')
+            ->orderBy('p.lastname', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }
