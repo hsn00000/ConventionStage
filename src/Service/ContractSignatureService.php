@@ -70,6 +70,9 @@ class ContractSignatureService
         $contract->setYousignDocumentId($signatureData['document_id']);
         $contract->setYousignSignatureRequestId($signatureData['signature_request_id']);
 
+        $this->youSignService->addApproverIfEnabled($signatureData['signature_request_id']);
+        $this->youSignService->activateSignatureRequest($signatureData['signature_request_id']);
+
         if (!$workflow->can($contract, 'request_signature')) {
             throw new \RuntimeException('La demande de signature ne peut pas etre declenchee apres validation DDF.');
         }

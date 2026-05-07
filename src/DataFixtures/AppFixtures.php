@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\Contract;
 use App\Entity\Level;
 use App\Entity\Organisation;
+use App\Entity\Parameters;
 use App\Entity\Professor;
 use App\Entity\Student;
 use App\Entity\Tutor;
@@ -34,6 +35,17 @@ class AppFixtures extends Fixture
         $admin->setIsVerified(true);
 
         $manager->persist($admin);
+
+        // --- PARAMÈTRES ---
+        $parameters = new Parameters();
+        $parameters->setProvisorName('Mme Dupond');
+        $parameters->setProvisorEmail('proviseur@lycee-faure.fr');
+        $parameters->setDdfptName('Sabine Trupin');
+        $parameters->setDdfptPhone('0601020304');
+        $parameters->setDdfptEmail('pacohybord@gmail.com');
+        $parameters->setYousignApprover(false);
+        $manager->persist($parameters);
+
         $manager->flush();
 
         // --- 2. NIVEAUX (Formations) ---

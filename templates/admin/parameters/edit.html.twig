@@ -1,0 +1,166 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paramètres de l'application{% endblock %}
+
+{% block content %}
+<style>
+    .admin-hero {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border-radius: 16px;
+        padding: 2rem 2.5rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .admin-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(rgba(255,255,255,0.12) 1px, transparent 1px);
+        background-size: 20px 20px;
+        pointer-events: none;
+        border-radius: 16px;
+    }
+    .admin-hero > * { position: relative; z-index: 1; }
+    .admin-hero h1 { font-weight: 800; letter-spacing: -0.03em; font-size: 1.8rem; margin-bottom: 0.25rem; }
+    .admin-hero p  { opacity: 0.6; margin: 0; font-size: 0.9rem; }
+
+    .param-card {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,0.07);
+        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    .param-card h2 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid rgba(0,0,0,0.07);
+    }
+    .form-label { font-weight: 600; font-size: 0.875rem; color: #1a1a2e; }
+    .form-control {
+        border-radius: 10px;
+        border: 1.5px solid rgba(0,0,0,0.12);
+        padding: 0.6rem 0.9rem;
+        font-size: 0.9rem;
+    }
+    .form-control:focus { border-color: #165dff; box-shadow: 0 0 0 3px rgba(22,93,255,0.1); }
+
+    .approver-block {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background: #f0f4ff;
+        border: 1.5px solid #c7d8ff;
+        border-radius: 12px;
+    }
+    .approver-block input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        margin-top: 2px;
+        flex-shrink: 0;
+        accent-color: #165dff;
+    }
+    .approver-block label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #1a1a2e;
+        cursor: pointer;
+    }
+    .approver-block small {
+        display: block;
+        color: #61708a;
+        font-size: 0.78rem;
+        margin-top: 2px;
+    }
+
+    .btn-save {
+        background: #165dff;
+        color: #fff;
+        border: none;
+        border-radius: 50px;
+        padding: 0.65rem 2rem;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .btn-save:hover { background: #0e47cc; }
+</style>
+
+<main class="container py-5">
+
+    <div class="admin-hero">
+        <div>
+            <h1>Paramètres de l'application</h1>
+            <p>Gérez les informations du proviseur, de la DDFPT et les options de signature.</p>
+        </div>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success mb-4">{{ message }}</div>
+    {% endfor %}
+
+    {{ form_start(form) }}
+
+        <div class="param-card">
+            <h2>Proviseur</h2>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">{{ form_label(form.provisorName) }}</label>
+                    {{ form_widget(form.provisorName, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ form_label(form.provisorEmail) }}</label>
+                    {{ form_widget(form.provisorEmail, {'attr': {'class': 'form-control'}}) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="param-card">
+            <h2>DDFPT</h2>
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">{{ form_label(form.ddfptName) }}</label>
+                    {{ form_widget(form.ddfptName, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">{{ form_label(form.ddfptPhone) }}</label>
+                    {{ form_widget(form.ddfptPhone, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">{{ form_label(form.ddfptEmail) }}</label>
+                    {{ form_widget(form.ddfptEmail, {'attr': {'class': 'form-control'}}) }}
+                </div>
+            </div>
+
+            <div class="approver-block">
+                {{ form_widget(form.yousignApprover, {'id': 'yousign_approver'}) }}
+                <div>
+                    <label for="yousign_approver">M'ajouter comme approbatrice YouSign</label>
+                    <small>Si activé, vous recevrez un email YouSign pour approuver chaque convention avant que les demandes de signature soient envoyées aux signataires.</small>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-save">Enregistrer les paramètres</button>
+
+    {{ form_end(form) }}
+
+    <div class="mt-4">
+        <a href="{{ path('app_home') }}" class="text-decoration-none text-muted small">← Retour au tableau de bord</a>
+    </div>
+
+</main>
+{% endblock %}

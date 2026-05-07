@@ -64,7 +64,7 @@ class ContractPdfService
                 'headers' => array_merge($formData->getPreparedHeaders()->toArray(), [
                     'Gotenberg-Output-Filename' => sprintf('contract-%d', $contract->getId()),
                 ]),
-                'body' => $formData->bodyToIterable(),
+                'body' => $formData->bodyToString(),
             ]);
         } catch (TransportException $exception) {
             throw $this->createUnavailableGotenbergException($exception);
@@ -97,7 +97,7 @@ class ContractPdfService
                 'headers' => array_merge($formData->getPreparedHeaders()->toArray(), [
                     'Gotenberg-Output-Filename' => sprintf('contract-%d', $contract->getId()),
                 ]),
-                'body' => $formData->bodyToIterable(),
+                'body' => $formData->bodyToString(),
             ]);
         } catch (TransportException $exception) {
             throw $this->createUnavailableGotenbergException($exception);

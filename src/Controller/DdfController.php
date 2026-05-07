@@ -144,6 +144,7 @@ class DdfController extends AbstractController
         Contract $contract,
         Request $request,
         ContractSignatureService $contractSignatureService,
+        YouSignService $youSignService,
     ): Response {
         if (!$this->isCsrfTokenValid('ddf_generate_and_send_contract' . $contract->getId(), $request->request->get('_token'))) {
             $this->addFlash('error', 'Jeton CSRF invalide.');
@@ -153,7 +154,12 @@ class DdfController extends AbstractController
 
         try {
             $contractSignatureService->generatePdfAndRequestSignature($contract);
-            $this->addFlash('success', 'Convention generee puis envoyee a la signature. Le mail part d abord a l etudiant, puis a l organisme, puis a la proviseure.');
+
+            if ($youSignService->isApproverEnabled()) {
+                $this->addFlash('success', 'Convention generee et envoyee. Un email d\'approbation vous a ete envoye. Les signataires recevront leur email apres votre approbation.');
+            } else {
+                $this->addFlash('success', 'Convention generee puis envoyee a la signature. Le mail part d abord a l etudiant, puis a l organisme, puis a la proviseure.');
+            }
         } catch (\Throwable $exception) {
             $this->addFlash('error', $this->buildGenerateAndSendErrorMessage($exception));
         }

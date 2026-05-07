@@ -28,6 +28,9 @@ class Parameters
     #[ORM\Column(length: 255)]
     private ?string $ddfptEmail = null;
 
+    #[ORM\Column]
+    private bool $yousignApprover = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -89,6 +92,18 @@ class Parameters
     public function setDdfptEmail(string $ddfptEmail): static
     {
         $this->ddfptEmail = $ddfptEmail;
+
+        return $this;
+    }
+
+    public function isYousignApprover(): bool
+    {
+        return $this->yousignApprover;
+    }
+
+    public function setYousignApprover(bool $yousignApprover): static
+    {
+        $this->yousignApprover = $yousignApprover;
 
         return $this;
     }

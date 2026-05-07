@@ -50,22 +50,82 @@ class YouSignService
         $signatureRequestId = $this->createSignatureRequestDraft($contract);
         $documentId = $this->uploadDocument($signatureRequestId, $pdfPath);
 
-        $this->addSigner($signatureRequestId, $studentSigner);
+        $studentSignerId = $this->addSigner($signatureRequestId, $studentSigner);
+        $this->addSignatureField($signatureRequestId, $documentId, $studentSignerId, 1, 50, 650);
 
-        $this->addSigner($signatureRequestId, $organisationSigner);
+        $organisationSignerId = $this->addSigner($signatureRequestId, $organisationSigner);
+        $this->addSignatureField($signatureRequestId, $documentId, $organisationSignerId, 1, 300, 650);
 
         [$provisorLastName, $provisorFirstName] = $this->splitFullName($parameters->getProvisorName());
-        $this->addSigner(
+        $provisorSignerId = $this->addSigner(
             $signatureRequestId,
             $this->buildSignerPayload('proviseur', $provisorFirstName, $provisorLastName, $parameters->getProvisorEmail())
         );
-
-        $this->activateSignatureRequest($signatureRequestId);
+        $this->addSignatureField($signatureRequestId, $documentId, $provisorSignerId, 1, 175, 750);
 
         return [
             'signature_request_id' => $signatureRequestId,
             'document_id' => $documentId,
         ];
+    }
+
+    public function isApproverEnabled(): bool
+    {
+        $parameters = $this->parametersRepository->findCurrent();
+
+        return $parameters?->isYousignApprover() ?? false;
+    }
+
+    public function addApproverIfEnabled(string $signatureRequestId): void
+    {
+        $parameters = $this->parametersRepository->findCurrent();
+
+        if (!$parameters?->isYousignApprover()) {
+            return;
+        }
+
+        if (!$parameters->getDdfptEmail() || !$parameters->getDdfptName()) {
+            throw new \RuntimeException('Le nom et l\'email de la DDFPT doivent être renseignés pour activer l\'approbation YouSign.');
+        }
+
+        [$ddfptLastName, $ddfptFirstName] = $this->splitFullName($parameters->getDdfptName());
+
+        try {
+            $response = $this->httpClient->request('POST', self::YOUSIGN_API_URL . '/signature_requests/' . $signatureRequestId . '/approvers', [
+                'headers' => $this->jsonHeaders(),
+                'json' => [
+                    'info' => [
+                        'first_name' => $ddfptFirstName,
+                        'last_name'  => $ddfptLastName,
+                        'email'      => $parameters->getDdfptEmail(),
+                        'locale'     => 'fr',
+                    ],
+                ],
+            ]);
+
+            if ($response->getStatusCode() !== 201) {
+                throw new \RuntimeException('Erreur YouSign lors de l\'ajout de l\'approbateur : ' . $response->getContent(false));
+            }
+        } catch (\Throwable $e) {
+            $this->logger->error('YouSign Add Approver Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function activateSignatureRequest(string $signatureRequestId): void
+    {
+        try {
+            $response = $this->httpClient->request('POST', self::YOUSIGN_API_URL . '/signature_requests/' . $signatureRequestId . '/activate', [
+                'headers' => $this->jsonHeaders(),
+            ]);
+
+            if ($response->getStatusCode() !== 201) {
+                throw new \RuntimeException('Erreur YouSign lors de l\'activation de la signature request : ' . $response->getContent(false));
+            }
+        } catch (\Throwable $e) {
+            $this->logger->error('YouSign Activate Signature Request Error: ' . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function fetchSignatureRequest(string $signatureRequestId): array
@@ -330,7 +390,7 @@ class YouSignService
     /**
      * @param array{first_name: ?string, last_name: ?string, email: ?string} $signer
      */
-    private function addSigner(string $signatureRequestId, array $signer): void
+    private function addSigner(string $signatureRequestId, array $signer): string
     {
         try {
             $response = $this->httpClient->request('POST', self::YOUSIGN_API_URL . '/signature_requests/' . $signatureRequestId . '/signers', [
@@ -350,24 +410,35 @@ class YouSignService
             if ($response->getStatusCode() !== 201) {
                 throw new \RuntimeException('Erreur YouSign lors de l\'ajout du signataire : ' . $response->getContent(false));
             }
+
+            return $response->toArray()['id'];
         } catch (\Throwable $e) {
             $this->logger->error('YouSign Add Signer Error: ' . $e->getMessage());
             throw $e;
         }
     }
 
-    private function activateSignatureRequest(string $signatureRequestId): void
+    private function addSignatureField(string $signatureRequestId, string $documentId, string $signerId, int $page, int $x, int $y): void
     {
         try {
-            $response = $this->httpClient->request('POST', self::YOUSIGN_API_URL . '/signature_requests/' . $signatureRequestId . '/activate', [
+            $response = $this->httpClient->request('POST', self::YOUSIGN_API_URL . '/signature_requests/' . $signatureRequestId . '/documents/' . $documentId . '/fields', [
                 'headers' => $this->jsonHeaders(),
+                'json' => [
+                    'signer_id' => $signerId,
+                    'type'      => 'signature',
+                    'page'      => $page,
+                    'x'         => $x,
+                    'y'         => $y,
+                    'width'     => 150,
+                    'height'    => 65,
+                ],
             ]);
 
             if ($response->getStatusCode() !== 201) {
-                throw new \RuntimeException('Erreur YouSign lors de l\'activation de la signature request : ' . $response->getContent(false));
+                throw new \RuntimeException('Erreur YouSign lors de l\'ajout du champ de signature : ' . $response->getContent(false));
             }
         } catch (\Throwable $e) {
-            $this->logger->error('YouSign Activate Signature Request Error: ' . $e->getMessage());
+            $this->logger->error('YouSign Add Signature Field Error: ' . $e->getMessage());
             throw $e;
         }
     }
